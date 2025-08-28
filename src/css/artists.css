@@ -1,83 +1,119 @@
-    body {
-      margin: 0;
-      font-family: system-ui, sans-serif;
-      background: #0d0c0f;
-      color: #fff;
-    }
-    #gallery {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+.header-1 {
+  font-family: "IBM Plex Sans",
+    sans-serif;
+  color-scheme: #fff;
+
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 150%;
 }
 
-    .container {
-      width: min(1100px, 92%);
-      margin: 0 auto;
-      padding: 40px 0;
-    }
-    h1 {
-      font-size: 2.5rem;
-      margin-bottom: 30px;
-    }
-    .grid {
-      display: grid;
-      gap: 24px;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    }
-    .card {
-      background: #151418;
-      border-radius: 12px;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .card__media {
-      aspect-ratio: 16/9;
-      background: #222;
-    }
-    .card__media img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      display: block;
-    }
-    .card__body {
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-    .tags {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-    .tag {
-      font-size: 12px;
-      padding: 4px 8px;
-      background: #222127;
-      border-radius: 6px;
-    }
-    .card__title {
-      font-size: 1.1rem;
-      font-weight: 600;
-    }
-    .card__text {
-      font-size: 0.9rem;
-      color: #aaa;
-      flex-grow: 1;
-    }
-    .card__footer {
-      margin-top: auto;
-    }
-    .card__link {
-      font-size: 0.9rem;
-      color: #fff;
-      text-decoration: none;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-    }
-    .card__link:hover {
-      text-decoration: underline;
-    }
+.header-2 {
+  font-family: "Epilogue",
+    sans-serif;
+  font-weight: 700;
+  font-size: 60px;
+  line-height: 120%;
+  letter-spacing: -0.01em;
+  color-scheme: #fff;
+}
+
+.header-section-artists {
+  width: 863px;
+  height: 144px;
+
+  margin: 112px 513px 80px 64px;
+}
+
+/* Контейнер для всіх карток */
+#gallery {
+  display: flex;
+  flex-wrap: wrap;
+  /* переносимо картки на новий ряд */
+  gap: 32px;
+  /* відстань між картками */
+  justify-content: center;
+  /* центруємо ряд */
+}
+
+/* Картка */
+.card {
+  width: 640px;
+  height: 593px;
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  /* щоб закруглення працювало для зображення */
+  display: flex;
+  flex-direction: column;
+}
+
+/* Блок зображення */
+.card__media img {
+  width: 640px;
+  height: 393px;
+  border-radius: 16px 16px 0 0;
+  /* тільки верхні кути */
+  object-fit: cover;
+  /* щоб картинка не спотворювалась */
+  display: block;
+}
+
+/* Тіло картки */
+.card__body {
+  padding: 16px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Теги */
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tag {
+  background-color: #f1f1f1;
+  padding: 4px 10px;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+/* Назва артиста */
+.card__title {
+  font-size: 20px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+/* Текст */
+.card__text {
+  font-size: 14px;
+  color: #444;
+  flex: 1;
+  /* займає простір до футера */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Футер */
+.card__footer {
+  margin-top: auto;
+}
+
+.card__link {
+  text-decoration: none;
+  font-weight: 500;
+  color: #007BFF;
+}
+
+.load-more {
+  display: block;
+  height: 50px;
+  width: 100px;
+  margin: 0 auto;
+}
