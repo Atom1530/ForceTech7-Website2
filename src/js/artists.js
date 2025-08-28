@@ -1,5 +1,4 @@
 import { fetchArtists } from "./api";
-import { page } from "./api";
 
 const button = document.querySelector('.load-more')
 
@@ -23,7 +22,6 @@ function createListArtists(images) {
 `).join('');
   const gallery = document.querySelector('.gallery')
   gallery.insertAdjacentHTML('beforeend', markup)
-  page += 1
 }
 
 fetchArtists().then(artists => {
