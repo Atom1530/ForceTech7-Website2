@@ -20,7 +20,7 @@ export async function fetchArtists() {
 // FUNCTION FOR MODAL WINDOW
 export async function fetchIndAboutArtist(id) {
   try {
-    const res = await axios.get("https://sound-wave.b.goit.study/api/artists/{id}/albums")
+    const res = await axios.get(`https://sound-wave.b.goit.study/api/artists/${id}/albums`)
     return res.data
   } catch (err) {
     console.error("Помилка", err)
