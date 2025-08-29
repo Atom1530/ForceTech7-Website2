@@ -64,7 +64,6 @@ section[id] {
 .header-nav-link:active,
 .header-nav-link.active {
   color: var(--color-affair);
-  font-weight: 600;
 }
 
 /* ---------- BURGER MENU ---------- */

@@ -8,13 +8,13 @@ export async function fetchArtists() {
   try {
     const res = await axios.get("https://sound-wave.b.goit.study/api/artists", { params: { limit: 8, page } });
     page += 1;
-    return {
+      return {
+        
       artists: res.data.artists,
       totalArtists: res.data.totalArtists
     }
   } catch (err) {
-    console.error("Помилка:", err);
-    return [];
+    return { artists: [], totalArtists: 0 };
   }
 }
 
@@ -22,10 +22,12 @@ export async function fetchArtists() {
 export async function fetchIndAboutArtist(id) {
   try {
     const res = await axios.get(`https://sound-wave.b.goit.study/api/artists/${id}/albums`)
-    return res.data
+     return { albums: res.data };
+      
+
   } catch (err) {
-    console.error("Помилка", err)
-    return []
+
+    return { albums: []}
   }
   // IT IS NECESSARY TO DESTRUCT THE DATA WHEN USING
 }
