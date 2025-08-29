@@ -24,11 +24,13 @@ function createListArtists(images) {
   gallery.insertAdjacentHTML('beforeend', markup)
 }
 
-fetchArtists().then(artists => {
+
+fetchArtists().then(({ artists, totalArtists }) => {
   createListArtists(artists);
 });
 
 function loadMore(images) {
+
 
   const markup = images.map(({ strArtistThumb, genres, strArtist, strBiographyEN }) => `
   <div class="card">
@@ -52,8 +54,15 @@ function loadMore(images) {
   gallery.insertAdjacentHTML('beforeend', markup)
 }
 
+let loadedArtists = 8; // скільки вже завантажено
+
 button.addEventListener('click', () => {
-  fetchArtists().then(artists => {
+  fetchArtists().then(({ artists, totalArtists }) => {
+    loadedArtists += artists.length
     loadMore(artists)
+    if (loadedArtists >= totalArtists) {
+      button.style.display = 'none';
+    }
   })
+
 })

@@ -1,68 +1,64 @@
-.header-1 {
-  font-family: "IBM Plex Sans",
-    sans-serif;
-  color-scheme: #fff;
+main {
+  background-color: #000;
+}
 
+.header-1 {
+  color: #fff;
   font-weight: 600;
   font-size: 16px;
   line-height: 150%;
 }
 
 .header-2 {
-  font-family: "Epilogue",
-    sans-serif;
+  color: #fff;
   font-weight: 700;
   font-size: 60px;
   line-height: 120%;
   letter-spacing: -0.01em;
-  color-scheme: #fff;
 }
 
 .header-section-artists {
-  width: 863px;
-  height: 144px;
-
-  margin: 112px 513px 80px 64px;
+  margin-top: 112px;
+  width: 500px;
 }
 
 /* Контейнер для всіх карток */
-#gallery {
+.gallery {
   display: flex;
   flex-wrap: wrap;
-  /* переносимо картки на новий ряд */
   gap: 32px;
-  /* відстань між картками */
   justify-content: center;
-  /* центруємо ряд */
+  background-color: #000;
+  /* чорний фон секції */
+  padding: 40px 0;
 }
 
 /* Картка */
 .card {
   width: 640px;
   height: 593px;
-  border-radius: 16px;
-  background-color: #fff;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+  background-color: #000;
+  /* темний фон */
   overflow: hidden;
-  /* щоб закруглення працювало для зображення */
   display: flex;
   flex-direction: column;
+  color: #fff;
+  /* текст світлий */
 }
 
 /* Блок зображення */
 .card__media img {
   width: 640px;
   height: 393px;
-  border-radius: 16px 16px 0 0;
-  /* тільки верхні кути */
+  border-radius: 12px;
   object-fit: cover;
-  /* щоб картинка не спотворювалась */
   display: block;
 }
 
 /* Тіло картки */
 .card__body {
-  padding: 16px;
+  padding-top: 24px;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -77,27 +73,30 @@
 }
 
 .tag {
-  background-color: #f1f1f1;
+  border: 1px solid grey;
+  border-radius: 6px;
   padding: 4px 10px;
-  border-radius: 8px;
-  font-size: 14px;
+
 }
 
 /* Назва артиста */
 .card__title {
-  font-size: 20px;
-  font-weight: bold;
+  font-size: 22px;
+  font-weight: 600;
   margin-bottom: 8px;
 }
 
 /* Текст */
 .card__text {
-  font-size: 14px;
-  color: #444;
-  flex: 1;
-  /* займає простір до футера */
+  font-size: 15px;
+  color: #aaa;
+  /* світло-сірий текст */
+  line-height: 1.5;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
 /* Футер */
@@ -108,12 +107,36 @@
 .card__link {
   text-decoration: none;
   font-weight: 500;
-  color: #007BFF;
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.card__link:hover {
+  text-decoration: underline;
 }
 
 .load-more {
   display: block;
-  height: 50px;
-  width: 100px;
+  width: 170px;
+  height: 47px;
   margin: 0 auto;
+  background-color: #764191;
+  border-radius: 12px;
+  color: #fff;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+
+  padding: 10px 24px;
+
+}
+
+.icon {
+  width: 14px;
+  height: 14px;
+  fill: #fff;
+  padding-left: 12px;
+  vertical-align: middle;
 }
