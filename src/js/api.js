@@ -1,3 +1,4 @@
+
 import axios from 'axios';
 
 
@@ -28,3 +29,4 @@ export async function fetchIndAboutArtist(id) {
   }
   // IT IS NECESSARY TO DESTRUCT THE DATA WHEN USING
 }
+
