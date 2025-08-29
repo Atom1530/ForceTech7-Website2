@@ -3,14 +3,14 @@ main {
 }
 
 .header-1 {
-  color: #fff;
+  color: var(--color-scheme-1-text);
   font-weight: 600;
   font-size: 16px;
   line-height: 150%;
 }
 
 .header-2 {
-  color: #fff;
+  color: var(--color-scheme-1-text);
   font-weight: 700;
   font-size: 60px;
   line-height: 120%;
@@ -28,8 +28,8 @@ main {
   flex-wrap: wrap;
   gap: 32px;
   justify-content: center;
-  background-color: #000;
-  /* чорний фон секції */
+
+
   padding: 40px 0;
 }
 
@@ -38,12 +38,12 @@ main {
   width: 640px;
   height: 593px;
   border-radius: 12px;
-  background-color: #000;
-  /* темний фон */
+
+
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  color: #fff;
+  color: var(--color-scheme-1-text);
   /* текст світлий */
 }
 
@@ -84,12 +84,13 @@ main {
   font-size: 22px;
   font-weight: 600;
   margin-bottom: 8px;
+  color: var(--color-white)
 }
 
 /* Текст */
 .card__text {
   font-size: 15px;
-  color: #aaa;
+  color: var(--color-scheme-1-text);
   /* світло-сірий текст */
   line-height: 1.5;
   overflow: hidden;
@@ -105,12 +106,22 @@ main {
 }
 
 .card__link {
-  text-decoration: none;
   font-weight: 500;
-  color: #fff;
+  color: var(--color-white);
   display: inline-flex;
   align-items: center;
   gap: 6px;
+
+  background: none;
+  /* прибираємо стандартний фон кнопки */
+  border: none;
+  /* прибираємо рамку кнопки */
+  padding: 0;
+  /* прибираємо внутрішні відступи */
+  cursor: pointer;
+  /* курсор як у посилання */
+  font: inherit;
+  /* наслідуємо шрифт від батьків */
 }
 
 .card__link:hover {
@@ -130,12 +141,12 @@ main {
   cursor: pointer;
 
   padding: 10px 24px;
-
+  text-align: center
 }
 
 .icon {
-  width: 14px;
-  height: 14px;
+  width: 24px;
+  height: 24px;
   fill: #fff;
   padding-left: 12px;
   vertical-align: middle;
