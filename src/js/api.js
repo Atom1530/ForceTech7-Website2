@@ -10,6 +10,7 @@ export async function fetchArtists() {
     page += 1;
       return {
         
+          
       artists: res.data.artists,
       totalArtists: res.data.totalArtists
     }

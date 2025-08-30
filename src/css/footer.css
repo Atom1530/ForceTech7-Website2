@@ -19,7 +19,7 @@
 }
  
 .footer-logo-svg {
-    fill: #764191;
+    fill: var(--color-affair);
     width: 84px;
     height: 36px;
 }
@@ -44,11 +44,11 @@
 
 .footer-nav-link:hover,
 .footer-nav-link:focus {
-    color: #764191;
+    color: var(--color-affair);
 }
 
 .footer-nav-link:active {
-    color: #fff;
+    color: var(--color-white);
 
 }
 
@@ -81,7 +81,7 @@
 }
 
 .social-icon {
-    fill: #ffffff;
+    fill: var(--color-white);
 }
 
 .social-icon:hover,
@@ -91,7 +91,7 @@
 }
 
 .footer-text {
-    color: #fff;
+    color: var(--color-white);
     font-family: 'IBM Plex Sans';
     font-size: 16px;
     font-style: normal;
