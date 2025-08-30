@@ -1,14 +1,55 @@
 import { fetchArtists } from "./api";
+function deactivateBtn() {
+  button.classList.add('lm-non-ative')
+}
+function activeBtn() {
+  button.classList.remove('lm-non-ative')
+}
+function hideBtn() {
+  button.classList.add('hiden')
+}
+function showBtn() {
+  button.classList.remove('hiden')
+}
+function hideLoader() {
+  loader.classList.add('hiden')
+}
+function showLoader() {
+  loader.classList.remove('hiden')
+}
 
 const button = document.querySelector('.load-more')
+const loader = document.querySelector('.loader')
+const gallery = document.querySelector('.gallery')
+let artistId = 0
+
+// =====================================================================================================
+// повертає id при кліку
+export function getArtistIdFromClick(e) {
+  const btn = e.target.closest('.card__link');
+  if (!btn) return null;
+
+  const artistCard = btn.closest('.card__body');
+  return artistCard.dataset.id;
+}
+// =====================================================================================================
+
+gallery.addEventListener('click', (e) => {
+  const artistId = getArtistIdFromClick(e)
+
+  // MUST WILL BE IMPORT FUNCTION name="openModal"
+  openModal(artistId)
+
+});
+
 
 function createListArtists(images) {
-  const markup = images.map(({ strArtistThumb, genres, strArtist, strBiographyEN }) => `
+  const markup = images.map(({ id, strArtistThumb, genres, strArtist, strBiographyEN }) => `
   <div class="card">
       <div class="card__media">
     <img src="${strArtistThumb}" alt="${strArtist}" />
   </div>
-  <div class="card__body">
+  <div class="card__body" data-id="${id}">
     <div class="tags">
       ${genres.map(genre => `<span class="tag">${genre}</span>`).join('')}
     </div>
@@ -27,19 +68,21 @@ function createListArtists(images) {
 }
 
 
-fetchArtists().then(({ artists, totalArtists }) => {
+fetchArtists().then(({ artists, totalArtists, }) => {
+  hideLoader()
   createListArtists(artists);
+  showBtn()
 });
 
 function loadMore(images) {
 
 
-  const markup = images.map(({ strArtistThumb, genres, strArtist, strBiographyEN }) => `
+  const markup = images.map(({ id, strArtistThumb, genres, strArtist, strBiographyEN }) => `
   <div class="card">
       <div class="card__media">
     <img src="${strArtistThumb}" alt="${strArtist}" />
   </div>
-  <div class="card__body">
+  <div class="card__body" data-id="${id}">
     <div class="tags">
       ${genres.map(genre => `<span class="tag">${genre}</span>`).join('')}
     </div>
@@ -61,12 +104,18 @@ function loadMore(images) {
 let loadedArtists = 8; // скільки вже завантажено
 
 button.addEventListener('click', () => {
+  hideBtn()
+  showLoader()
   fetchArtists().then(({ artists, totalArtists }) => {
-    loadedArtists += artists.length
     loadMore(artists)
+    hideLoader()
+    loadedArtists += artists.length
     if (loadedArtists >= totalArtists) {
-      button.style.display = 'none';
+      deactivateBtn()
+      return
     }
+    showBtn()
   })
 
 })
+

@@ -12,7 +12,7 @@ export async function fetchArtists() {
 
 
             artists: res.data.artists,
-            totalArtists: res.data.totalArtists
+            totalArtists: res.data.totalArtists,
         }
     } catch (err) {
         return { artists: [], totalArtists: 0 };
