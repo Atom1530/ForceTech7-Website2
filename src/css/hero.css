@@ -40,7 +40,7 @@
 }
 
 .hero-title {
-    font-family: 'Epilogue', san-serif;
+    font-family: 'Epilogue', sans-serif;
     font-weight: 700;
     font-size: 48px;
     line-height: 1.1;
@@ -87,7 +87,7 @@
         inset 0 2px 1px 0 rgba(255, 255, 255, 0.25),
         inset 0 32px 24px 0 rgba(255, 255, 255, 0.05);
     background: #764191;
-    transition: all 0.2s ease;
+    transition: background-color .2s ease, box-shadow .2s ease, transform .05s ease;
 }
 
 .hero-btn:hover,
