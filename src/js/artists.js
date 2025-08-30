@@ -15,7 +15,9 @@ function createListArtists(images) {
     <h3 class="card__title">${strArtist}</h3>
     <p class="card__text">${strBiographyEN}</p>
     <div class="card__footer">
-      <button class="card__link">Learn More →</button>
+      <button class="card__link">Learn More <svg class="icon-learn-more">
+            <use href="../img/sprite.svg#icon-icon_play_artists_sections"></use>
+        </svg></button>
     </div>
   </div>
   </div>
@@ -44,7 +46,9 @@ function loadMore(images) {
     <h3 class="card__title">${strArtist}</h3>
     <p class="card__text">${strBiographyEN}</p>
     <div class="card__footer">
-<button class="card__link">Learn More →</button>
+<button class="card__link">Learn More <svg class="icon-learn-more">
+            <use href="../img/sprite.svg#icon-icon_play_artists_sections"></use>
+        </svg></button>
     </div>
   </div>
   </div>
