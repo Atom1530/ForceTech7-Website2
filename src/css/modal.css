@@ -10,7 +10,7 @@
     top: 0;
     width: 100vw;
     height: 100vh;
-    z-index: 999;
+    z-index: 2001;
     background-color: rgba(0, 0, 0, 0.25);
 
     opacity: 0;
@@ -138,29 +138,12 @@
 }
 
 .modal-info-bio {
-    display: -webkit-box;
-    line-height: 150%;
-    -webkit-line-clamp: 10;
-    line-clamp: 10;
-    -webkit-box-orient: vertical;
-    overflow-y: scroll;
+    display: block;
+    line-height: 1,5em;
+    max-height: 15em;
+    overflow: hidden;
     text-overflow: ellipsis;
-
-    &::-webkit-scrollbar {
-        width: 4px;
-        background: transparent;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: #2a2a2a;
-        border-radius: 8px;
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background-color: #414141;
-        border-radius: 2px;
-        border: 1px solid #2a2a2a;
-    }
+    word-break: break-word;
 }
 
 .genres {
@@ -309,7 +292,7 @@
     background-color: transparent;
 }
 
-.modal-loader.loader {
+.modal-loader.is-visible {
     display: block;
 }
 
