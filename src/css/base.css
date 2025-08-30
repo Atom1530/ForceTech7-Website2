@@ -8,7 +8,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color: #242424;
+  color: var(--color-white);
 
 
   font-synthesis: none;
@@ -49,8 +49,10 @@ body {
   min-width: 100vw;
   min-height: 100vh;
   margin: 0;
-  background-color: var(--color-neutral-darkest)
+  background-color: var(--color-neutral-darkest);
+  padding-top: 20px;
 }
+
 
 main {
   flex-grow: 1;
@@ -58,4 +60,10 @@ main {
 
 img {
   height: 100%;
+}
+
+@media only screen and (min-width: 768px) {
+  body {
+    padding-top: 0;
+  }
 }
