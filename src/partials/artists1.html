@@ -15,7 +15,6 @@
           Reset
         </button>
 
-        <!-- Кнопка панели (планшет/моб) -->
         <button
           id="filters-toggle"
           type="button"
@@ -24,11 +23,9 @@
           aria-expanded="false"
         >
           <span>Search and Filters</span>
+
           <svg class="ico" aria-hidden="true">
-            <use
-              id="filters-toggle-ico"
-              href="/img/sprite.svg#icon-arrow-up"
-            ></use>
+            <use id="filters-toggle-ico" href="#icon-arrow-up"></use>
           </svg>
         </button>
       </div>
@@ -36,7 +33,7 @@
       <div id="filters-panel" class="filters__panel" aria-hidden="true">
         <label class="fld fld-search">
           <svg class="ico" aria-hidden="true">
-            <use href="/img/sprite.svg#icon-search"></use>
+            <use href="#icon-search"></use>
           </svg>
           <input id="flt-q" type="search" placeholder="Search" />
           <button
@@ -46,12 +43,11 @@
             aria-label="Search"
           >
             <svg class="ico" aria-hidden="true">
-              <use href="/img/sprite.svg#icon-search"></use>
+              <use href="#icon-search"></use>
             </svg>
           </button>
         </label>
 
-        <!-- Сортировка -->
         <div class="dd" data-dd="sort">
           <button
             class="dd__btn"
@@ -62,7 +58,7 @@
           >
             <span>Sorting</span>
             <svg class="ico" aria-hidden="true">
-              <use id="dd-sort-ico" href="/img/sprite.svg#icon-arrow-up"></use>
+              <use id="dd-sort-ico" href="#icon-arrow-up"></use>
             </svg>
           </button>
           <ul class="dd__list" id="dd-sort-list" role="listbox">
@@ -72,7 +68,6 @@
           </ul>
         </div>
 
-        <!-- Жанр -->
         <div class="dd" data-dd="genre">
           <button
             class="dd__btn"
@@ -83,13 +78,12 @@
           >
             <span>Genre</span>
             <svg class="ico" aria-hidden="true">
-              <use id="dd-genre-ico" href="/img/sprite.svg#icon-arrow-up"></use>
+              <use id="dd-genre-ico" href="#icon-arrow-up"></use>
             </svg>
           </button>
           <ul class="dd__list" id="dd-genre-list" role="listbox"></ul>
         </div>
 
-        <!-- Reset (моб/таб) -->
         <button
           id="filters-reset-sm"
           class="filters__reset filters__reset--sm"
@@ -100,7 +94,6 @@
       </div>
     </aside>
 
-    <!-- Правый столбец: контент -->
     <div class="artists1__content">
       <div id="artists-empty" class="empty" hidden>
         <div class="empty__card">
@@ -116,18 +109,14 @@
         </div>
       </div>
 
-      <!-- Лоадер -->
       <div id="artists-loader" class="loader" hidden></div>
 
-      <!-- Сетка карточек -->
       <ul id="artists-grid" class="grid"></ul>
 
-      <!-- Пагинация -->
       <nav id="artists-pager" class="pager" aria-label="Pagination"></nav>
     </div>
   </div>
 
-  <!-- Модалка -->
   <div id="artist-modal" class="amodal" hidden>
     <div class="amodal__backdrop"></div>
     <div class="amodal__dialog" role="dialog" aria-modal="true">

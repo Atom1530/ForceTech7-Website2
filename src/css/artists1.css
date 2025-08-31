@@ -410,3 +410,118 @@
 .filters .ico use {
   fill: currentColor;
 }
+
+/* --- ICONS: белый цвет + размеры --- */
+.artists1 .ico {
+  width: 16px;
+  height: 16px;
+  display: inline-block;
+  vertical-align: middle;
+  /* символы в спрайте используют var(--color1) */
+  --color1: #fff;
+  fill: var(--color1);
+}
+
+/* --- Поворот стрелок у дропдаунов --- */
+.artists1 .dd__btn .ico {
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+}
+.artists1 .dd.open .dd__btn .ico {
+  transform: rotate(180deg);
+}
+
+/* --- Поворот стрелки у кнопки "Search and Filters" --- */
+.artists1 .filters__toggle .ico {
+  transition: transform 0.2s ease;
+}
+.artists1 .filters__toggle[aria-expanded='true'] .ico {
+  transform: rotate(180deg);
+}
+/* Иконки: делаем белыми всегда, даже если спрайт использует var(--color1) */
+.artists1 .ico,
+.artists1 .ico use,
+.artists1 .ico path {
+  --color1: #fff;
+  fill: #fff !important;
+  color: #fff !important;
+}
+
+/* Поворот стрелок у дропдаунов и у кнопки панели */
+.artists1 .dd__btn .ico {
+  transition: transform 0.2s ease;
+  transform: rotate(0deg);
+}
+.artists1 .dd.open .dd__btn .ico {
+  transform: rotate(180deg);
+}
+
+.artists1 .filters__toggle .ico {
+  transition: transform 0.2s ease;
+}
+#filters-toggle[aria-expanded='true'] .ico {
+  transform: rotate(180deg);
+}
+/* гарантируем белый цвет стрелок из спрайта */
+.artists1 .ico {
+  --color1: #fff !important;
+  fill: var(--color1) !important;
+}
+
+/* поворот стрелок на открытых дропдаунах / кнопке панели */
+.artists1 .dd.open .dd__btn .ico {
+  transform: rotate(180deg);
+}
+.artists1 #filters-toggle[aria-expanded='true'] .ico {
+  transform: rotate(180deg);
+}
+/* === SAMPLE-1 ARROWS (без спрайта) === */
+/* Скрываем любые SVG-стрелки в кнопках — рисуем псевдоэлементами */
+.filters__toggle .ico,
+.dd__btn .ico {
+  display: none !important;
+}
+
+/* Кнопка "Search and Filters": стрелка */
+.filters__toggle {
+  position: relative;
+  padding-right: 30px;
+}
+.filters__toggle::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-50%) rotate(45deg); /* смотрит вниз-право */
+  transition: transform 0.2s ease;
+}
+/* при открытии панели переворачиваем */
+.filters__toggle[aria-expanded='true']::after {
+  transform: translateY(-50%) rotate(-135deg); /* вверх-лево */
+}
+
+/* Дропдауны: стрелка на кнопке */
+.dd__btn {
+  position: relative;
+  padding-right: 30px; /* место под стрелку */
+}
+.dd__btn::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.dd.open .dd__btn::after {
+  transform: translateY(-50%) rotate(-135deg);
+}
+/* === конец вставки === */
