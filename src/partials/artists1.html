@@ -1,19 +1,128 @@
-<div class="container">
-  <section class="artists" id="artists">
-    <div class="header-section-artists">
-      <!-- id="about" -->
-      <h1 class="header-1">Artists</h1>
-      <h2 class="header-2">Explore Your New Favorite Artists</h2>
+<div id="artists"></div>
+
+<section id="artists-section" class="artists1 container">
+  <div class="artists1__head">
+    <p class="eyebrow">Artists</p>
+    <h2 class="title">Explore Your New Favorite Artists</h2>
+  </div>
+
+  <div class="artists1__layout">
+    <!-- Filters -->
+    <aside class="filters" id="filters">
+      <div class="filters__bar">
+        <span class="filters__label">Filters</span>
+
+        <!-- Desktop reset (слева) -->
+        <button id="filters-reset" type="button" class="filters__reset">
+          Reset
+        </button>
+
+        <!-- Кнопка для планшет/моб -->
+        <button id="filters-toggle" type="button" class="filters__toggle">
+          <span>Search and Filters</span>
+          <svg class="ico">
+            <use
+              id="filters-toggle-ico"
+              href="/img/sprite.svg#icon-chevron-down"
+            ></use>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Панель фильтров: слева стационарно на ≥1440, как попап на <1440 -->
+      <div id="filters-panel" class="filters__panel" aria-hidden="true">
+        <!-- Search -->
+        <label class="fld fld-search">
+          <svg class="ico"><use href="/img/sprite.svg#icon-search"></use></svg>
+          <input id="flt-q" type="search" placeholder="Search" />
+          <button id="flt-q-btn" type="button" class="ghost-btn">
+            <svg class="ico">
+              <use href="/img/sprite.svg#icon-search"></use>
+            </svg>
+          </button>
+        </label>
+
+        <!-- Sorting -->
+        <div class="dd" data-dd="sort">
+          <button class="dd__btn" id="dd-sort-btn" type="button">
+            <span>Sorting</span>
+            <svg class="ico">
+              <use
+                id="dd-sort-ico"
+                href="/img/sprite.svg#icon-chevron-down"
+              ></use>
+            </svg>
+          </button>
+          <ul class="dd__list" id="dd-sort-list">
+            <li data-val="">Default</li>
+            <li data-val="asc">A–Z</li>
+            <li data-val="desc">Z–A</li>
+          </ul>
+        </div>
+
+        <!-- Genre -->
+        <div class="dd" data-dd="genre">
+          <button class="dd__btn" id="dd-genre-btn" type="button">
+            <span>Genre</span>
+            <svg class="ico">
+              <use
+                id="dd-genre-ico"
+                href="/img/sprite.svg#icon-chevron-down"
+              ></use>
+            </svg>
+          </button>
+          <ul class="dd__list" id="dd-genre-list">
+            <!-- filled in JS -->
+          </ul>
+        </div>
+
+        <!-- Reset (видим только на планшет/моб) -->
+        <button
+          id="filters-reset-sm"
+          class="filters__reset filters__reset--sm"
+          type="button"
+        >
+          Reset
+        </button>
+      </div>
+    </aside>
+
+    <!-- Контент справа -->
+    <div class="artists1__content">
+      <!-- пустое состояние -->
+      <div id="artists-empty" class="empty" hidden>
+        <div class="empty__card">
+          <div class="empty__icon">!</div>
+          <h3 class="empty__title">Silence on the stage…</h3>
+          <p class="empty__text">
+            Looks like no artists match your filters. Try changing them or hit
+            “Reset Filters” to bring back the beat.
+          </p>
+          <button class="empty__btn" id="empty-reset" type="button">
+            Reset filters
+          </button>
+        </div>
+      </div>
+
+      <!-- лоадер -->
+      <div id="artists-loader" class="loader" hidden></div>
+
+      <!-- грид карточек -->
+      <ul id="artists-grid" class="grid"></ul>
+
+      <!-- пагинация -->
+      <nav id="artists-pager" class="pager" aria-label="Pagination"></nav>
     </div>
+  </div>
 
-    <div class="gallery"></div>
-
-    <button class="load-more hiden">
-      Load More
-      <svg class="icon-btn">
-        <use href="/img/sprite.svg#icon-icon_download_load_more_art_sec"></use>
-      </svg>
-    </button>
-    <div class="loader"></div>
-  </section>
-</div>
+  <!-- модалка -->
+  <div id="artist-modal" class="amodal" hidden>
+    <div class="amodal__backdrop"></div>
+    <div class="amodal__dialog" role="dialog" aria-modal="true">
+      <button class="amodal__close" id="am-close" type="button">×</button>
+      <div class="amodal__body" id="am-body">
+        <div class="amodal__loader loader"></div>
+      </div>
+    </div>
+  </div>
+</section>
