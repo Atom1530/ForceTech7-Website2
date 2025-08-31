@@ -201,7 +201,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 999;
+  z-index: 9999;
   background-color: black;
   opacity: 0;
   visibility: hidden;
@@ -215,18 +215,12 @@
 .modal {
   position: absolute;
   border-radius: 16px;
-  padding: 64px 16px;
+  padding: 0 16px;
   width: 320px;
   height: 568px;
   display: flex;
-  transform: scale(0.9);
-  opacity: 0;
-  transition: transform 0.3s ease, opacity 0.3s ease;
 }
-.overlay:not(.hidden) .modal {
-  transform: scale(1);
-  opacity: 1;
-}
+
 @media screen and (min-width: 768px) {
   .modal {
     padding: 64px 64px;
@@ -236,18 +230,28 @@
 }
 @media screen and (min-width: 1440px) {
   .modal {
-    padding-left: 64px;
+    padding: 0 64px;
     width: 864px;
     height: 688px;
   }
 }
 .close-icon {
   position: absolute;
-  top: 97px;
+  top: 25px;
   right: 25px;
   cursor: pointer;
   fill: var(--color-white);
   transition: transform 0.25s ease, fill 0.25s ease;
+}
+@media screen and (min-width: 768px) {
+  .close-icon {
+    top: 98px;
+  }
+}
+@media screen and (min-width: 1440px) {
+  .close-icon {
+    top: 25px;
+  }
 }
 
 .close-icon:hover {
@@ -255,7 +259,6 @@
   fill: var(--color-affair);
 }
 .title-modal {
-  padding-top: 16px;
   margin-top: 64px;
   font-weight: 700;
   font-size: 24px;
@@ -272,7 +275,8 @@
     font-size: 44px;
     /* line-height: 53px; */
     line-height: 1.2;
-    margin-bottom: 48px;
+    margin-top: 64px;
+    margin-bottom: 64px;
   }
 }
 @media screen and (min-width: 1440px) {
