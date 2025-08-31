@@ -19,7 +19,7 @@
 }
  
 .footer-logo-svg {
-    fill: var(--color-affair);
+    fill: #764191;;
     width: 84px;
     height: 36px;
 }
@@ -44,7 +44,7 @@
 
 .footer-nav-link:hover,
 .footer-nav-link:focus {
-    color: var(--color-affair);
+    color: #764191;;
 }
 
 .footer-nav-link:active {
@@ -54,7 +54,7 @@
 
 .footer-nav-item:hover,
 .footer-nav-item:focus {
-    color: #55236e;
+    color: #764191;;
     transition: color 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
@@ -82,12 +82,13 @@
 
 .social-icon {
     fill: var(--color-white);
+    transition: none;
 }
 
 .social-icon:hover,
 .social-icon:focus {
-    fill: #55236e;
-    transition: fill 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    fill: #764191;;
+    transition: none;
 }
 
 .footer-text {
