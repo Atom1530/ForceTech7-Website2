@@ -1,131 +1,119 @@
 <section class="artists" id="artists">
-  <div class="artists__container">
-    <div class="artists__head">
-      <p class="artists__eyebrow">Artists</p>
-      <h2 class="artists__title">Explore Your New Favorite Artists</h2>
+  <div class="container">
+    <p class="artists__eyebrow">Artists</p>
+    <h2 class="artists__title">Explore Your New Favorite Artists</h2>
+
+    <!-- Кнопка для моб/планшета -->
+    <div class="artists__toolbar">
+      <span class="filters-label">Filters</span>
+      <button
+        class="filters-toggle"
+        id="filtersToggle"
+        type="button"
+        aria-expanded="false"
+      >
+        Search and Filters
+        <svg class="icon">
+          <use href="/img/sprite.svg#icon-icon_menu_mobile_navbar"></use>
+        </svg>
+      </button>
     </div>
 
-    <div class="artists__layout">
-      <!-- Фильтры -->
-      <aside class="filters" aria-label="Filters">
-        <!-- Триггер для tablet/mobile -->
-        <button
-          class="filters__trigger"
-          type="button"
-          id="filtersTrigger"
-          aria-expanded="false"
-        >
-          <span>Search and Filters</span>
-          <svg class="filters__trigger-ic" width="20" height="20">
-            <!-- вниз (временно крестик) -->
-            <use href="/img/sprite.svg#icon-icon_close"></use>
-          </svg>
-        </button>
+    <div class="artists__wrap">
+      <!-- Левая панель фильтров (на десктопе фикс, на моб/таб — поповер) -->
+      <aside class="filters" id="filters" aria-hidden="true">
+        <div class="filters__head">
+          <span class="filters__title">Filters</span>
+          <button class="filters__reset" id="filtersReset" type="button">
+            Reset
+          </button>
+        </div>
 
-        <!-- Панель фильтров -->
-        <div class="filters__panel" id="filtersPanel" data-open="false">
-          <div class="filters__top">
-            <span class="filters__label">Filters</span>
-            <button class="filters__reset" type="button" id="filtersReset">
-              Reset
+        <div class="filters__group filters__search">
+          <div class="search__wrap">
+            <input
+              id="filtersSearchInput"
+              class="search__input"
+              type="text"
+              placeholder="Search"
+            />
+            <button id="filtersSearchBtn" class="icon-btn" aria-label="Search">
+              <svg class="icon">
+                <use href="/img/sprite.svg#icon-search"></use>
+              </svg>
             </button>
           </div>
+        </div>
 
-          <!-- Поиск -->
-          <form class="filters__search" id="filtersSearchForm">
-            <svg class="filters__search-ic" width="20" height="20">
-              <use href="/img/sprite.svg#icon-search"></use>
+        <div class="filters__group">
+          <button
+            type="button"
+            class="dd__btn"
+            id="sortToggle"
+            aria-expanded="false"
+          >
+            <span>Sorting</span>
+            <svg class="icon">
+              <use href="/img/sprite.svg#icon-icon_menu_mobile_navbar"></use>
             </svg>
-            <input
-              class="filters__search-input"
-              id="searchInput"
-              type="search"
-              placeholder="Search"
-              autocomplete="off"
-            />
-          </form>
+          </button>
+          <ul class="dd__menu" id="sortMenu">
+            <li>
+              <button type="button" class="dd__item" data-sort="">
+                Default
+              </button>
+            </li>
+            <li>
+              <button type="button" class="dd__item" data-sort="asc">
+                A-Z
+              </button>
+            </li>
+            <li>
+              <button type="button" class="dd__item" data-sort="desc">
+                Z-A
+              </button>
+            </li>
+          </ul>
+        </div>
 
-          <!-- Сортировка -->
-          <details class="dd" id="ddSort">
-            <summary class="dd__summary" role="button" aria-expanded="false">
-              <span>Sorting</span>
-              <svg class="dd__chev" width="16" height="16">
-                <use href="/img/sprite.svg#icon-icon_close"></use>
-              </svg>
-            </summary>
-            <ul class="dd__menu" role="menu">
-              <li class="dd__item" role="menuitem" data-value="">Default</li>
-              <li class="dd__item" role="menuitem" data-value="asc">A-Z</li>
-              <li class="dd__item" role="menuitem" data-value="desc">Z-A</li>
-            </ul>
-          </details>
-
-          <!-- Жанры -->
-          <details class="dd" id="ddGenre">
-            <summary class="dd__summary" role="button" aria-expanded="false">
-              <span>Genre</span>
-              <svg class="dd__chev" width="16" height="16">
-                <use href="/img/sprite.svg#icon-icon_close"></use>
-              </svg>
-            </summary>
-            <ul class="dd__menu" role="menu" id="genreList">
-              <!-- наполняется из API /genres -->
-            </ul>
-          </details>
+        <div class="filters__group">
+          <button
+            type="button"
+            class="dd__btn"
+            id="genreToggle"
+            aria-expanded="false"
+          >
+            <span>Genre</span>
+            <svg class="icon">
+              <use href="/img/sprite.svg#icon-icon_menu_mobile_navbar"></use>
+            </svg>
+          </button>
+          <ul class="dd__menu" id="genreMenu">
+            <li class="dd__item is-loading">Loading…</li>
+          </ul>
         </div>
       </aside>
 
-      <!-- Контент -->
-      <div class="artists__content">
-        <!-- Empty state -->
-        <div id="emptyState" class="empty hdn" aria-live="polite">
-          <div class="empty__card">
-            <img
-              class="empty__img"
-              src="/img/empty-state.png"
-              alt=""
-              onerror="this.classList.add('hdn')"
-            />
-            <div class="empty__inner">
-              <div class="empty__icon">!</div>
-              <h3 class="empty__title">Silence on the stage…</h3>
-              <p class="empty__text">
-                Looks like no artists match your filters. Try changing them or
-                hit “Reset Filters”.
-              </p>
-              <button class="empty__btn" type="button" id="emptyReset">
-                Reset filters
-              </button>
-            </div>
-          </div>
+      <!-- Сетка карточек -->
+      <div class="gallery" data-gallery></div>
+
+      <!-- Пустое состояние -->
+      <div class="empty hiden" id="artistsEmpty">
+        <div class="empty__box">
+          <div class="empty__icon">!</div>
+          <h3 class="empty__title">Silence on the stage...</h3>
+          <p class="empty__text">
+            Looks like no artists match your filters.<br />
+            Try changing them or hit “Reset filters” to bring back the beat.
+          </p>
+          <button class="empty__btn" id="emptyResetBtn" type="button">
+            Reset filters
+          </button>
         </div>
-
-        <div id="artistsGrid" class="grid" aria-live="polite"></div>
-        <nav id="paginator" class="paginator" aria-label="Pagination"></nav>
       </div>
     </div>
 
-    <!-- Модалка -->
-    <div class="modal hdn" id="artistModal" aria-hidden="true">
-      <div class="modal__backdrop" data-close="backdrop"></div>
-      <div
-        class="modal__dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="artistModalTitle"
-      >
-        <button
-          class="modal__close"
-          type="button"
-          id="modalClose"
-          aria-label="Close"
-        >
-          <svg width="20" height="20">
-            <use href="/img/sprite.svg#icon-icon_close"></use>
-          </svg>
-        </button>
-        <div class="modal__body" id="modalBody"><!-- filled by JS --></div>
-      </div>
-    </div>
+    <!-- Пагинация -->
+    <div class="paginator"></div>
   </div>
 </section>

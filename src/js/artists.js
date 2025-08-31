@@ -1,283 +1,289 @@
-import { fetchArtists, fetchIndAboutArtist } from './api';
+import { fetchArtists, fetchGenres, fetchIndAboutArtist } from "./api";
 
-const state = { page: 1, limit: 8, total: 0, sort: '', genre: '', q: '' };
+const sprite = "/img/sprite.svg";
 
-const grid = document.getElementById('artistsGrid');
-const paginator = document.getElementById('paginator');
-const emptyState = document.getElementById('emptyState');
+/* ---------- состояние ---------- */
+const st = { page:1, limit:8, genre:"", sort:"", q:"", total:0, artists:[] };
+const section   = document.querySelector(".artists");
+const gallery   = section.querySelector("[data-gallery]");
+const paginator = section.querySelector(".paginator");
+const emptyBox  = section.querySelector("#artistsEmpty");
+const filters   = section.querySelector("#filters");
+const toggleBtn = section.querySelector("#filtersToggle");
 
-const filtersTrigger = document.getElementById('filtersTrigger');
-const filtersPanel = document.getElementById('filtersPanel');
-const filtersReset = document.getElementById('filtersReset');
-const emptyReset = document.getElementById('emptyReset');
+/* элементы фильтров */
+const searchInput = filters.querySelector("#filtersSearchInput");
+const searchBtn   = filters.querySelector("#filtersSearchBtn");
+const resetBtn    = filters.querySelector("#filtersReset");
+const sortBtn     = filters.querySelector("#sortToggle");
+const sortMenu    = filters.querySelector("#sortMenu");
+const genreBtn    = filters.querySelector("#genreToggle");
+const genreMenu   = filters.querySelector("#genreMenu");
 
-const searchForm = document.getElementById('filtersSearchForm');
-const searchInput = document.getElementById('searchInput');
+const sortIconUse  = sortBtn.querySelector("use");
+const genreIconUse = genreBtn.querySelector("use");
+const toggleIconUse= toggleBtn.querySelector("use");
 
-const ddSort = document.getElementById('ddSort');
-const ddGenre = document.getElementById('ddGenre');
-const genreList = document.getElementById('genreList');
+/* ---------- утилиты ---------- */
+const isDesktop = () => window.matchMedia("(min-width:1440px)").matches;
+const setIcon = (useEl, id) => useEl && useEl.setAttribute("href", `${sprite}#${id}`);
+const esc = s => String(s ?? "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
 
-const modal = document.getElementById('artistModal');
-const modalClose = document.getElementById('modalClose');
-const modalBody = document.getElementById('modalBody');
-
-const escapeHtml = s =>
-  String(s ?? '')
-    .replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;')
-    .replaceAll('"','&quot;').replaceAll("'",'&#039;');
-
-/* ---------- иконки-триггеры (вниз = крестик, вверх = «гамбургер») ---------- */
-const ICON_DOWN = '/img/sprite.svg#icon-icon_close';
-const ICON_UP   = '/img/sprite.svg#icon-icon_menu_mobile_navbar';
-
-function setTriggerIcon(open) {
-  const use = filtersTrigger.querySelector('use');
-  if (use) use.setAttribute('href', open ? ICON_UP : ICON_DOWN);
-}
-function togglePanel(force) {
-  const open = typeof force === 'boolean' ? force : filtersPanel.dataset.open !== 'true';
-  filtersPanel.dataset.open = String(open);
-  filtersTrigger.setAttribute('aria-expanded', String(open));
-  setTriggerIcon(open);
-}
-function setDetailsIcon(detailsEl){
-  const use = detailsEl.querySelector('.dd__chev use');
-  if (!use) return;
-  use.setAttribute('href', detailsEl.open ? ICON_UP : ICON_DOWN);
-  const summary = detailsEl.querySelector('.dd__summary');
-  if (summary) summary.setAttribute('aria-expanded', String(!!detailsEl.open));
+/* ---------- фильтры ---------- */
+function updateFiltersVisibility(open){
+  if (isDesktop()){
+    filters.setAttribute("aria-hidden","false"); // стационарно слева
+    toggleBtn.setAttribute("aria-expanded","false");
+    setIcon(toggleIconUse, "icon-icon_menu_mobile_navbar");
+  } else {
+    filters.setAttribute("aria-hidden", open ? "false" : "true");
+    toggleBtn.setAttribute("aria-expanded", String(open));
+    setIcon(toggleIconUse, open ? "icon-icon_close" : "icon-icon_menu_mobile_navbar");
+  }
 }
 
-/* ---------- отрисовка ---------- */
-function clearGrid(){ grid.innerHTML = ''; }
-function showEmpty(show){
-  emptyState.classList.toggle('hdn', !show);
-  // когда пусто — убираем пагинатор
-  if (show) paginator.style.display = 'none';
-}
-function showPaginator(show){ paginator.style.display = show ? 'flex' : 'none'; }
+/* ---------- рендер ---------- */
+function renderCards(list){
+  gallery.innerHTML = list.map(a=>{
+    const id    = a.id;
+    const name  = a.strArtist || a.name || "Unknown";
+    const img   = a.strArtistThumb || a.image || "";
+    const bio   = a.strBiographyEN || a.description || "";
+    const tags  = Array.isArray(a.genres) ? a.genres : [];
 
-function renderCards(artists) {
-  const html = artists.map(a => {
-    const tags = (a.genres || []).map(g => `<span class="tag">${escapeHtml(g)}</span>`).join('');
     return `
-    <article class="card">
-      <div class="card__media">
-        <img class="card__img" src="${escapeHtml(a.strArtistThumb)}" alt="${escapeHtml(a.strArtist)}" loading="lazy">
-      </div>
-      <div class="card__body" data-id="${a.id}">
-        <div class="tags">${tags}</div>
-        <h3 class="card__title">${escapeHtml(a.strArtist)}</h3>
-        <p class="card__text">${escapeHtml(a.strBiographyEN || '')}</p>
-        <div class="card__footer">
-          <button class="card__link" data-action="learn-more">Learn More
-            <svg width="8" height="15"><use href="/img/sprite.svg#icon-icon_play_artists_sections"></use></svg>
-          </button>
+      <div class="card">
+        <div class="card__media">
+          <img src="${img}" alt="${esc(name)}" loading="lazy" />
+        </div>
+        <div class="card__body" data-id="${id}">
+          <div class="tags">${tags.map(g=>`<span class="tag">${esc(g)}</span>`).join("")}</div>
+          <h3 class="card__title">${esc(name)}</h3>
+          <p class="card__text">${esc(bio)}</p>
+          <div class="card__footer">
+            <button class="card__link">Learn More
+              <svg class="icon-learn-more"><use href="${sprite}#icon-icon_play_artists_sections"></use></svg>
+            </button>
+          </div>
         </div>
       </div>
-    </article>`;
-  }).join('');
-  grid.insertAdjacentHTML('beforeend', html);
+    `;
+  }).join("");
 }
 
-function renderPaginator(total, page, limit) {
-  state.total = total;
-  const totalPages = Math.max(1, Math.ceil(total / limit));
-  const btn = (label, p, disabled=false, active=false) =>
-    `<button class="paginator__btn ${active ? 'paginator__btn--active' : ''}"
-             data-page="${p}" ${disabled ? 'disabled' : ''}>${label}</button>`;
+function renderPagination(total, page, limit){
+  const pages = Math.max(1, Math.ceil(total/limit));
+  if (!total){ paginator.innerHTML = ""; return; }
 
-  const parts = [];
-  const windowSize = 5;
-  let start = Math.max(1, page - 2);
-  let end = Math.min(totalPages, start + windowSize - 1);
-  start = Math.max(1, end - windowSize + 1);
+  const btn = (label, p, dis=false, act=false, aria="") =>
+    `<button class="pg__btn${act?" is-act":""}${dis?" is-dis":""}" data-page="${p}" ${dis?"disabled":""} ${aria}>${label}</button>`;
 
-  parts.push(btn('‹', Math.max(1, page - 1), page === 1));
-  if (start > 1) parts.push(btn('1', 1, false, page === 1), '<span class="paginator__btn" disabled>…</span>');
-  for (let i = start; i <= end; i++) parts.push(btn(String(i), i, false, i === page));
-  if (end < totalPages) parts.push('<span class="paginator__btn" disabled>…</span>', btn(String(totalPages), totalPages, false, page === totalPages));
-  parts.push(btn('›', Math.min(totalPages, page + 1), page === totalPages));
+  const items = [];
+  const first=1, last=pages;
+  const prev = Math.max(first, page-1);
+  const next = Math.min(last,  page+1);
 
-  paginator.innerHTML = parts.join('');
-  showPaginator(totalPages > 1);
+  items.push(btn("‹", prev, page===first, false, 'aria-label="Previous"'));
+
+  const show = new Set([first, page-1, page, page+1, last].filter(n=>n>=first && n<=last));
+  let lastPrinted = 0;
+  [...show].sort((a,b)=>a-b).forEach(n=>{
+    if (lastPrinted && n-lastPrinted>1) items.push(`<span class="pg__dots">…</span>`);
+    items.push(btn(String(n), n, false, n===page));
+    lastPrinted = n;
+  });
+
+  items.push(btn("›", next, page===last, false, 'aria-label="Next"'));
+  paginator.innerHTML = items.join("");
 }
 
-async function loadArtists({ reset = true } = {}) {
-  const { page, limit, sort, genre, q } = state;
+/* ---------- пустое состояние ---------- */
+function showEmpty(show){
+  emptyBox.classList.toggle("hiden", !show);
+  if (show) gallery.innerHTML = "";
+}
 
-  // Важно: твой fetchArtists должен уметь принимать эти параметры (page, limit, sort, genre, q)
-  const { artists, totalArtists } = await fetchArtists({ page, limit, sort, genre, q })
-    .catch(() => ({ artists: [], totalArtists: 0 }));
+/* ---------- загрузка данных ---------- */
+async function loadGenres(){
+  const list = await fetchGenres(); // [{label,value}]
+  genreMenu.innerHTML = list.map(({label,value}) =>
+    `<li><button type="button" class="dd__item" data-genre="${esc(value)}">${esc(label)}</button></li>`
+  ).join("");
+}
 
-  if (reset) clearGrid();
+async function loadArtists(){
+  const { artists, totalArtists } = await fetchArtists(st);
+  st.artists = artists; st.total = totalArtists;
 
-  if (!artists.length) {
-    showEmpty(true);
-    return;
-  }
-
+  if (!artists.length){ showEmpty(true); renderPagination(0, st.page, st.limit); return; }
   showEmpty(false);
   renderCards(artists);
-  renderPaginator(totalArtists ?? artists.length, page, limit);
+  renderPagination(totalArtists, st.page, st.limit);
 }
 
-/* ---------- пагинация ---------- */
-paginator.addEventListener('click', e => {
-  const btn = e.target.closest('button[data-page]');
-  if (!btn) return;
-  const p = Number(btn.dataset.page);
-  if (!Number.isFinite(p) || p === state.page) return;
-  state.page = p;
-  loadArtists({ reset: true });
+/* ---------- события ---------- */
+toggleBtn.addEventListener("click", ()=>{
+  const willOpen = toggleBtn.getAttribute("aria-expanded") !== "true";
+  updateFiltersVisibility(willOpen);
+});
+window.addEventListener("resize", ()=> updateFiltersVisibility(false) );
+
+sortBtn.addEventListener("click", ()=>{
+  const open = sortBtn.getAttribute("aria-expanded") !== "true";
+  sortBtn.setAttribute("aria-expanded", String(open));
+  sortMenu.classList.toggle("is-open", open);
+  setIcon(sortIconUse, open ? "icon-icon_close" : "icon-icon_menu_mobile_navbar");
+  // закрыть соседний
+  genreBtn.setAttribute("aria-expanded","false");
+  genreMenu.classList.remove("is-open");
+  setIcon(genreIconUse,"icon-icon_menu_mobile_navbar");
 });
 
-/* ---------- Learn More -> модалка ---------- */
-grid.addEventListener('click', async e => {
-  const btn = e.target.closest('[data-action="learn-more"]');
-  if (!btn) return;
-  const card = btn.closest('.card__body');
-  const id = card?.dataset.id;
-  if (!id) return;
+genreBtn.addEventListener("click", ()=>{
+  const open = genreBtn.getAttribute("aria-expanded") !== "true";
+  genreBtn.setAttribute("aria-expanded", String(open));
+  genreMenu.classList.toggle("is-open", open);
+  setIcon(genreIconUse, open ? "icon-icon_close" : "icon-icon_menu_mobile_navbar");
+  // закрыть соседний
+  sortBtn.setAttribute("aria-expanded","false");
+  sortMenu.classList.remove("is-open");
+  setIcon(sortIconUse,"icon-icon_menu_mobile_navbar");
+});
 
-  const title = card.querySelector('.card__title')?.textContent?.trim() || 'Artist';
-  const img = card.previousElementSibling.querySelector('img')?.getAttribute('src') || '';
+sortMenu.addEventListener("click", e=>{
+  const btn = e.target.closest(".dd__item"); if (!btn) return;
+  st.sort = btn.dataset.sort || "";
+  st.page = 1;
+  sortBtn.click(); // закрыть
+  loadArtists();
+});
 
-  // лоадер (минимальный)
-  modalBody.innerHTML = `<h3 id="artistModalTitle" class="artists__title" style="font-size:28px;margin:0 0 12px">${escapeHtml(title)}</h3>
-    <div class="modal__hero"><img src="${escapeHtml(img)}" alt="${escapeHtml(title)}"></div>
-    <p style="opacity:.8;margin:0 0 12px">Loading albums…</p>`;
-  openModal();
+genreMenu.addEventListener("click", e=>{
+  const btn = e.target.closest(".dd__item"); if (!btn) return;
+  st.genre = btn.dataset.genre || "";
+  st.page = 1;
+  genreBtn.click(); // закрыть
+  loadArtists();
+});
 
-  let albums = [];
-  try {
-    const resp = await fetchIndAboutArtist(id);
-    albums = Array.isArray(resp.albums) ? resp.albums : [];
-  } catch { /* ignore */ }
+searchBtn.addEventListener("click", ()=>{
+  st.q = searchInput.value.trim(); st.page = 1; loadArtists();
+});
+searchInput.addEventListener("keydown", e=>{
+  if (e.key === "Enter"){ st.q = searchInput.value.trim(); st.page = 1; loadArtists(); }
+});
 
-  const albumsHtml = !albums.length
-    ? `<div class="modal__album" style="grid-column: 1 / -1;"><h4>No albums found</h4><p class="modal__tracks">—</p></div>`
-    : albums.map(a => `
-      <div class="modal__album">
-        <h4>${escapeHtml(a.strAlbum || 'Album')}</h4>
-        <div class="modal__tracks">
-          ${(a.tracks || []).length
-            ? a.tracks.map(t => `
-              <div class="modal__tracks-row">
-                <span>${escapeHtml(t.strTrack || '—')}</span>
-                <span>${escapeHtml(t.strTrackTime || '—')}</span>
-                ${t.strMusicVid ? `<a href="${escapeHtml(t.strMusicVid)}" target="_blank" rel="noopener" aria-label="YouTube">
-                  <svg width="18" height="18"><use href="/img/sprite.svg#icon-icon_youtube_footer"></use></svg>
-                </a>` : '<span></span>'}
-              </div>
-            `).join('')
-            : `<div class="modal__tracks-row"><span>—</span><span>—</span><span></span></div>`}
-        </div>
+resetBtn.addEventListener("click", ()=>{
+  st.page=1; st.genre=""; st.sort=""; st.q="";
+  searchInput.value = "";
+  sortBtn.setAttribute("aria-expanded","false"); sortMenu.classList.remove("is-open"); setIcon(sortIconUse,"icon-icon_menu_mobile_navbar");
+  genreBtn.setAttribute("aria-expanded","false"); genreMenu.classList.remove("is-open"); setIcon(genreIconUse,"icon-icon_menu_mobile_navbar");
+  if (!isDesktop()) updateFiltersVisibility(false);
+  loadArtists();
+});
+
+emptyBox.querySelector("#emptyResetBtn").addEventListener("click", ()=> resetBtn.click() );
+
+paginator.addEventListener("click", e=>{
+  const b = e.target.closest(".pg__btn"); if (!b || b.disabled) return;
+  st.page = Number(b.dataset.page);
+  loadArtists();
+  window.scrollTo({ top: section.offsetTop - 12, behavior: "smooth" });
+});
+
+gallery.addEventListener("click", async e=>{
+  const btn = e.target.closest(".card__link"); if (!btn) return;
+  const id = btn.closest(".card__body")?.dataset?.id; if (!id) return;
+  openModal(id);
+});
+
+/* ---------- модалка ---------- */
+let modal;
+function ensureModal(){
+  if (modal) return modal;
+  modal = document.createElement("div");
+  modal.className = "modal hiden";
+  modal.innerHTML = `
+    <div class="modal__backdrop"></div>
+    <div class="modal__box" role="dialog" aria-modal="true">
+      <button class="modal__close" aria-label="Close">
+        <svg class="icon"><use href="${sprite}#icon-icon_close"></use></svg>
+      </button>
+      <div class="modal__content"><div class="modal__loader">Loading…</div></div>
+    </div>`;
+  document.body.appendChild(modal);
+
+  const close = ()=>{ modal.classList.add("hiden"); document.body.style.overflow=""; document.removeEventListener("keydown", onEsc); };
+  const onEsc = e=>{ if (e.key==="Escape") close(); };
+
+  modal.querySelector(".modal__backdrop").addEventListener("click", close);
+  modal.querySelector(".modal__close").addEventListener("click", close);
+  modal.close = close; modal.onEsc = onEsc;
+  return modal;
+}
+async function openModal(id){
+  const m = ensureModal();
+  m.classList.remove("hiden"); document.body.style.overflow="hidden"; document.addEventListener("keydown", m.onEsc);
+  const box = m.querySelector(".modal__content");
+  box.innerHTML = `<div class="modal__loader">Loading…</div>`;
+
+  // найдём краткие данные из текущего списка
+  const brief = st.artists.find(a=> String(a.id) === String(id)) || {};
+  const name  = brief.strArtist || brief.name || "Unknown";
+  const img   = brief.strArtistThumb || brief.image || "";
+  const genres= Array.isArray(brief.genres) ? brief.genres : [];
+
+  const { albums } = await fetchIndAboutArtist(id);
+
+  const rows = (tracks)=> (tracks||[]).map(t=>{
+    const n = t.strTrack || t.name || "Track";
+    const len = t.intDuration || t.length || t.time || "";
+    const link = t.strMusicVid || t.youtube || t.url || "";
+    return `<li class="tr">
+      <span class="tr__name">${esc(n)}</span>
+      <span class="tr__time">${esc(len)}</span>
+      <span class="tr__link">${link ? `<a href="${link}" target="_blank" rel="noreferrer"><svg class="icon"><use href="${sprite}#icon-icon_youtube_footer"></use></svg></a>` : ""}</span>
+    </li>`;
+  }).join("");
+
+  const albumsHtml = (albums && albums.length)
+    ? albums.map(alb=>{
+        const title = alb.strAlbum || alb.title || "Untitled";
+        const list = alb.tracks || alb.songs || [];
+        return `<section class="album">
+          <h5 class="album__title">${esc(title)}</h5>
+          <ul class="table">
+            <li class="th"><span>Track</span><span>Time</span><span>Link</span></li>
+            ${rows(list)}
+          </ul>
+        </section>`;
+      }).join("")
+    : `<div class="albums__empty">No albums data</div>`;
+
+  box.innerHTML = `
+    <h3 class="modal__title">${esc(name)}</h3>
+    <div class="modal__hero">
+      ${img ? `<img class="modal__img" src="${img}" alt="${esc(name)}">` : ""}
+      <div class="modal__facts">
+        <div><b>Years active</b><span>${brief.yearsActive ?? "information missing"}</span></div>
+        <div><b>Sex</b><span>${brief.sex ?? (brief.type ?? "—")}</span></div>
+        <div><b>Members</b><span>${brief.members ?? "—"}</span></div>
+        <div><b>Country</b><span>${brief.country ?? "—"}</span></div>
       </div>
-    `).join('');
-
-  modalBody.innerHTML = `
-    <h3 id="artistModalTitle" class="artists__title" style="font-size:28px;margin:0 0 12px">${escapeHtml(title)}</h3>
-    <div class="modal__hero"><img src="${escapeHtml(img)}" alt="${escapeHtml(title)}"></div>
-    <h4 style="margin:12px 0 8px">Albums</h4>
-    <div class="modal__grid">${albumsHtml}</div>
+    </div>
+    <div class="modal__bio">
+      <h4>Biography</h4>
+      <p>${esc(brief.strBiographyEN || brief.description || "—")}</p>
+      <div class="tags">${genres.map(g=>`<span class="tag">${esc(g)}</span>`).join("")}</div>
+    </div>
+    <h4 class="modal__albumsTitle">Albums</h4>
+    <div class="modal__albums">${albumsHtml}</div>
   `;
-});
-
-function openModal(){
-  modal.classList.remove('hdn');
-  modal.setAttribute('aria-hidden', 'false');
-  document.body.style.overflow = 'hidden';
 }
-function closeModal(){
-  modal.classList.add('hdn');
-  modal.setAttribute('aria-hidden', 'true');
-  document.body.style.overflow = '';
-  modalBody.innerHTML = '';
-}
-modalClose.addEventListener('click', closeModal);
-modal.addEventListener('click', e => { if (e.target.dataset.close === 'backdrop') closeModal(); });
-window.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.classList.contains('hdn')) closeModal(); });
-
-/* ---------- панель фильтров (tablet/mobile) ---------- */
-filtersTrigger.addEventListener('click', () => { togglePanel(); });
-
-/* ---------- reset ---------- */
-function doReset() {
-  state.page = 1; state.sort = ''; state.genre = ''; state.q = '';
-  searchInput.value = '';
-  ddSort.removeAttribute('open'); ddGenre.removeAttribute('open');
-  setDetailsIcon(ddSort); setDetailsIcon(ddGenre);
-  togglePanel(false);
-  loadArtists({ reset: true });
-}
-filtersReset.addEventListener('click', doReset);
-emptyReset.addEventListener('click', doReset);
-
-/* ---------- поиск ---------- */
-searchForm.addEventListener('submit', e => { e.preventDefault(); doSearch(); });
-searchInput.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); doSearch(); } });
-function doSearch(){
-  state.q = searchInput.value.trim();
-  state.page = 1;
-  loadArtists({ reset: true });
-}
-
-/* ---------- сортировка ---------- */
-ddSort.addEventListener('toggle', () => setDetailsIcon(ddSort));
-ddSort.addEventListener('click', e => {
-  const li = e.target.closest('.dd__item'); if (!li) return;
-  state.sort = li.dataset.value || '';
-  state.page = 1;
-  ddSort.removeAttribute('open');
-  setDetailsIcon(ddSort);
-  loadArtists({ reset: true });
-});
-
-/* ---------- жанры ---------- */
-async function loadGenres() {
-  try {
-    const res = await fetch('https://sound-wave.b.goit.study/api/genres');
-    const data = await res.json();
-    const items = ['All Genres', ...data].map(name => {
-      const val = name === 'All Genres' ? '' : name;
-      return `<li class="dd__item" role="menuitem" data-value="${escapeHtml(val)}">${escapeHtml(name)}</li>`;
-    }).join('');
-    genreList.innerHTML = items;
-  } catch { /* ignore */ }
-}
-ddGenre.addEventListener('toggle', () => setDetailsIcon(ddGenre));
-ddGenre.addEventListener('click', e => {
-  const li = e.target.closest('.dd__item'); if (!li) return;
-  state.genre = li.dataset.value || '';
-  state.page = 1;
-  ddGenre.removeAttribute('open');
-  setDetailsIcon(ddGenre);
-  loadArtists({ reset: true });
-});
-
-/* только один открытый <details> за раз */
-[ddSort, ddGenre].forEach(dd => {
-  dd.addEventListener('toggle', () => {
-    if (dd.open) (dd === ddSort ? ddGenre : ddSort).removeAttribute('open');
-  });
-});
-
-/* закрывать панель вне клика (tablet/mobile) */
-document.addEventListener('click', e => {
-  if (window.matchMedia('(min-width: 1440px)').matches) return;
-  if (filtersPanel.contains(e.target) || filtersTrigger.contains(e.target)) return;
-  if (filtersPanel.dataset.open === 'true') togglePanel(false);
-});
 
 /* ---------- init ---------- */
 (async function init(){
-  // привести иконки к начальному состоянию
-  setTriggerIcon(false);
-  setDetailsIcon(ddSort);
-  setDetailsIcon(ddGenre);
-
+  updateFiltersVisibility(false);     // моб/таб — закрыт; десктоп — виден слева
   await loadGenres();
-  await loadArtists({ reset: true });
+  await loadArtists();
 })();
