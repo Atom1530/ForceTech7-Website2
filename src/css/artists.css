@@ -1,3 +1,9 @@
+.artists-container {
+    max-width: 288px;
+    width: 100%;
+    margin: 0 auto;
+}
+
 .header-1 {
     color: var(--color-scheme-1-text);
     font-weight: 600;
@@ -72,6 +78,9 @@
     height: 177px;
     border-radius: 16px;
     object-fit: cover;
+
+    object-position: top;
+
     display: block;
 }
 
@@ -214,6 +223,10 @@
 }
 
 @media (min-width: 768px) {
+    .artists-container {
+        max-width: 704px;
+    }
+
     .card__media img {
         height: 432px;
     }
@@ -231,6 +244,10 @@
 }
 
 @media (min-width: 1440px) {
+    .artists-container {
+        max-width: 1312px;
+    }
+
     .header-section-artists {
         margin-top: 112px;
         width: 500px;
@@ -239,10 +256,17 @@
     .gallery {
         padding-top: 80px;
         padding-bottom: 64px;
+        gap: 32px;
     }
 
     .card {
-        width: 640px;
+
+        flex: 1 1 calc(50% - 16px);
+        /* 50% ширини мінус половина gap */
+        max-width: 640px;
+        /* щоб не розтягувались надто */
+
+        /* width: 640px; */
         height: 593px;
     }
 

@@ -76,9 +76,13 @@ fetchArtists().then(({ artists, totalArtists, }) => {
 
 function loadMore(images) {
 
-
-  const markup = images.map(({ id, strArtistThumb, genres, strArtist, strBiographyEN }) => `
-  <div class="card">
+  const noDescAvailable = 'No description available'
+  const markup = images.map(({ id, strArtistThumb, genres, strArtist, strBiographyEN }) => {
+    let description = strBiographyEN
+    if (!description) {
+      description = noDescAvailable
+    }
+    return `<div class="card">
       <div class="card__media">
     <img src="${strArtistThumb}" alt="${strArtist}" />
   </div>
@@ -87,7 +91,7 @@ function loadMore(images) {
       ${genres.map(genre => `<span class="tag">${genre}</span>`).join('')}
     </div>
     <h3 class="card__title">${strArtist}</h3>
-    <p class="card__text">${strBiographyEN}</p>
+    <p class="card__text">${description}</p>
     <div class="card__footer">
 <button class="card__link">Learn More <svg class="icon-learn-more">
             <use href="../img/sprite.svg#icon-icon_play_artists_sections"></use>
@@ -95,7 +99,7 @@ function loadMore(images) {
     </div>
   </div>
   </div>
-`).join('');
+`}).join('');
 
   const gallery = document.querySelector('.gallery')
   gallery.insertAdjacentHTML('beforeend', markup)
@@ -112,6 +116,7 @@ button.addEventListener('click', () => {
     loadedArtists += artists.length
     if (loadedArtists >= totalArtists) {
       deactivateBtn()
+      button.disabled = true;
       return
     }
     showBtn()
