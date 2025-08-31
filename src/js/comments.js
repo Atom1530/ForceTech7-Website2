@@ -63,12 +63,20 @@ const formRating = document.getElementById("customer-rating");
 createStars(formRating, parseInt(formRating.dataset.rating) || 0);
 
 const swiper = new Swiper('.swiper', {
-        slidesPerView: 1,
+  slidesPerView: 1,
+  spaceBetween: 20,
         loop: true,
-        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-  pagination: { el: '.swiper-pagination', clickable: true },
-        grabCursor: true,
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', grabCursor: true, },
+  pagination: { el: '.swiper-pagination', clickable: true, },
 });
+
+document.querySelector('.swiper-button-prev').addEventListener('click', () => {
+  swiper.slidePrev();
+})
+document.querySelector('.swiper-button-next').addEventListener('click', () => {
+  swiper.slideNext();
+})
+
 
 async function loadReviews() {
   const wrapper = document.querySelector(".swiper-wrapper");
