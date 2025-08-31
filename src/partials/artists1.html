@@ -7,76 +7,89 @@
   </div>
 
   <div class="artists1__layout">
-    <!-- Filters -->
     <aside class="filters" id="filters">
       <div class="filters__bar">
         <span class="filters__label">Filters</span>
 
-        <!-- Desktop reset (слева) -->
         <button id="filters-reset" type="button" class="filters__reset">
           Reset
         </button>
 
-        <!-- Кнопка для планшет/моб -->
-        <button id="filters-toggle" type="button" class="filters__toggle">
+        <!-- Кнопка панели (планшет/моб) -->
+        <button
+          id="filters-toggle"
+          type="button"
+          class="filters__toggle"
+          aria-controls="filters-panel"
+          aria-expanded="false"
+        >
           <span>Search and Filters</span>
-          <svg class="ico">
+          <svg class="ico" aria-hidden="true">
             <use
               id="filters-toggle-ico"
-              href="/img/sprite.svg#icon-chevron-down"
+              href="/img/sprite.svg#icon-arrow-up"
             ></use>
           </svg>
         </button>
       </div>
 
-      <!-- Панель фильтров: слева стационарно на ≥1440, как попап на <1440 -->
       <div id="filters-panel" class="filters__panel" aria-hidden="true">
-        <!-- Search -->
         <label class="fld fld-search">
-          <svg class="ico"><use href="/img/sprite.svg#icon-search"></use></svg>
+          <svg class="ico" aria-hidden="true">
+            <use href="/img/sprite.svg#icon-search"></use>
+          </svg>
           <input id="flt-q" type="search" placeholder="Search" />
-          <button id="flt-q-btn" type="button" class="ghost-btn">
-            <svg class="ico">
+          <button
+            id="flt-q-btn"
+            type="button"
+            class="ghost-btn"
+            aria-label="Search"
+          >
+            <svg class="ico" aria-hidden="true">
               <use href="/img/sprite.svg#icon-search"></use>
             </svg>
           </button>
         </label>
 
-        <!-- Sorting -->
+        <!-- Сортировка -->
         <div class="dd" data-dd="sort">
-          <button class="dd__btn" id="dd-sort-btn" type="button">
+          <button
+            class="dd__btn"
+            id="dd-sort-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="dd-sort-list"
+          >
             <span>Sorting</span>
-            <svg class="ico">
-              <use
-                id="dd-sort-ico"
-                href="/img/sprite.svg#icon-chevron-down"
-              ></use>
+            <svg class="ico" aria-hidden="true">
+              <use id="dd-sort-ico" href="/img/sprite.svg#icon-arrow-up"></use>
             </svg>
           </button>
-          <ul class="dd__list" id="dd-sort-list">
+          <ul class="dd__list" id="dd-sort-list" role="listbox">
             <li data-val="">Default</li>
             <li data-val="asc">A–Z</li>
             <li data-val="desc">Z–A</li>
           </ul>
         </div>
 
-        <!-- Genre -->
+        <!-- Жанр -->
         <div class="dd" data-dd="genre">
-          <button class="dd__btn" id="dd-genre-btn" type="button">
+          <button
+            class="dd__btn"
+            id="dd-genre-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="dd-genre-list"
+          >
             <span>Genre</span>
-            <svg class="ico">
-              <use
-                id="dd-genre-ico"
-                href="/img/sprite.svg#icon-chevron-down"
-              ></use>
+            <svg class="ico" aria-hidden="true">
+              <use id="dd-genre-ico" href="/img/sprite.svg#icon-arrow-up"></use>
             </svg>
           </button>
-          <ul class="dd__list" id="dd-genre-list">
-            <!-- filled in JS -->
-          </ul>
+          <ul class="dd__list" id="dd-genre-list" role="listbox"></ul>
         </div>
 
-        <!-- Reset (видим только на планшет/моб) -->
+        <!-- Reset (моб/таб) -->
         <button
           id="filters-reset-sm"
           class="filters__reset filters__reset--sm"
@@ -87,12 +100,11 @@
       </div>
     </aside>
 
-    <!-- Контент справа -->
+    <!-- Правый столбец: контент -->
     <div class="artists1__content">
-      <!-- пустое состояние -->
       <div id="artists-empty" class="empty" hidden>
         <div class="empty__card">
-          <div class="empty__icon">!</div>
+          <div class="empty__icon" aria-hidden="true">!</div>
           <h3 class="empty__title">Silence on the stage…</h3>
           <p class="empty__text">
             Looks like no artists match your filters. Try changing them or hit
@@ -104,22 +116,29 @@
         </div>
       </div>
 
-      <!-- лоадер -->
+      <!-- Лоадер -->
       <div id="artists-loader" class="loader" hidden></div>
 
-      <!-- грид карточек -->
+      <!-- Сетка карточек -->
       <ul id="artists-grid" class="grid"></ul>
 
-      <!-- пагинация -->
+      <!-- Пагинация -->
       <nav id="artists-pager" class="pager" aria-label="Pagination"></nav>
     </div>
   </div>
 
-  <!-- модалка -->
+  <!-- Модалка -->
   <div id="artist-modal" class="amodal" hidden>
     <div class="amodal__backdrop"></div>
     <div class="amodal__dialog" role="dialog" aria-modal="true">
-      <button class="amodal__close" id="am-close" type="button">×</button>
+      <button
+        class="amodal__close"
+        id="am-close"
+        type="button"
+        aria-label="Close"
+      >
+        ×
+      </button>
       <div class="amodal__body" id="am-body">
         <div class="amodal__loader loader"></div>
       </div>

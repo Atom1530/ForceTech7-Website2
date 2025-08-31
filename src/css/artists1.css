@@ -1,5 +1,3 @@
-/* === базовые хелперы для секции artists1 === */
-/* гарантируем, что hidden реально скрывает элемент */
 [hidden] {
   display: none !important;
 }
@@ -312,7 +310,6 @@
   color: #e8e8ec;
 }
 
-/* ======= фиксированные размеры карточек по макету ======= */
 /* Мобайл */
 @media (max-width: 767.98px) {
   .filters__reset {
@@ -325,7 +322,7 @@
     height: 177px;
   }
 }
-/* Tablet (одна колонка карточек, картинка 704×432) */
+
 @media (min-width: 768px) and (max-width: 1439.98px) {
   .filters__reset {
     display: none;
@@ -339,7 +336,7 @@
     margin: 0 auto;
   }
 }
-/* Desktop (2 колонки 472×290, фильтры слева) */
+
 @media (min-width: 1440px) {
   .artists1__layout {
     grid-template-columns: 340px 1fr;
@@ -364,7 +361,7 @@
     height: 290px;
   }
 }
-/* сделать иконки видимыми и крутить вниз/вверх */
+
 .dd__btn {
   display: flex;
   align-items: center;
@@ -378,12 +375,38 @@
   fill: currentColor;
   transition: transform 0.2s ease;
 }
-/* если некоторые браузеры игнорят fill на <use> */
+
 .dd__btn .ico use {
   fill: currentColor;
 }
 
-/* когда дропдаун открыт — поворачиваем ту же стрелку */
 .dd--open .dd__btn .ico {
   transform: rotate(180deg);
+}
+
+.filters__toggle .ico,
+.dd__btn .ico {
+  width: 16px;
+  height: 16px;
+  fill: #fff;
+  transition: transform 0.2s ease;
+}
+.filters__toggle .ico use,
+.dd__btn .ico use {
+  fill: currentColor;
+}
+
+.dd.open .dd__btn .ico {
+  transform: rotate(180deg);
+}
+
+#filters-toggle[aria-expanded='true'] .ico {
+  transform: rotate(180deg);
+}
+.filters .ico,
+.dd__btn .ico {
+  color: #fff;
+}
+.filters .ico use {
+  fill: currentColor;
 }
