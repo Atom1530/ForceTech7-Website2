@@ -1,0 +1,131 @@
+<section class="artists" id="artists">
+  <div class="artists__container">
+    <div class="artists__head">
+      <p class="artists__eyebrow">Artists</p>
+      <h2 class="artists__title">Explore Your New Favorite Artists</h2>
+    </div>
+
+    <div class="artists__layout">
+      <!-- Фильтры -->
+      <aside class="filters" aria-label="Filters">
+        <!-- Триггер для tablet/mobile -->
+        <button
+          class="filters__trigger"
+          type="button"
+          id="filtersTrigger"
+          aria-expanded="false"
+        >
+          <span>Search and Filters</span>
+          <svg class="filters__trigger-ic" width="20" height="20">
+            <!-- вниз (временно крестик) -->
+            <use href="/img/sprite.svg#icon-icon_close"></use>
+          </svg>
+        </button>
+
+        <!-- Панель фильтров -->
+        <div class="filters__panel" id="filtersPanel" data-open="false">
+          <div class="filters__top">
+            <span class="filters__label">Filters</span>
+            <button class="filters__reset" type="button" id="filtersReset">
+              Reset
+            </button>
+          </div>
+
+          <!-- Поиск -->
+          <form class="filters__search" id="filtersSearchForm">
+            <svg class="filters__search-ic" width="20" height="20">
+              <use href="/img/sprite.svg#icon-search"></use>
+            </svg>
+            <input
+              class="filters__search-input"
+              id="searchInput"
+              type="search"
+              placeholder="Search"
+              autocomplete="off"
+            />
+          </form>
+
+          <!-- Сортировка -->
+          <details class="dd" id="ddSort">
+            <summary class="dd__summary" role="button" aria-expanded="false">
+              <span>Sorting</span>
+              <svg class="dd__chev" width="16" height="16">
+                <use href="/img/sprite.svg#icon-icon_close"></use>
+              </svg>
+            </summary>
+            <ul class="dd__menu" role="menu">
+              <li class="dd__item" role="menuitem" data-value="">Default</li>
+              <li class="dd__item" role="menuitem" data-value="asc">A-Z</li>
+              <li class="dd__item" role="menuitem" data-value="desc">Z-A</li>
+            </ul>
+          </details>
+
+          <!-- Жанры -->
+          <details class="dd" id="ddGenre">
+            <summary class="dd__summary" role="button" aria-expanded="false">
+              <span>Genre</span>
+              <svg class="dd__chev" width="16" height="16">
+                <use href="/img/sprite.svg#icon-icon_close"></use>
+              </svg>
+            </summary>
+            <ul class="dd__menu" role="menu" id="genreList">
+              <!-- наполняется из API /genres -->
+            </ul>
+          </details>
+        </div>
+      </aside>
+
+      <!-- Контент -->
+      <div class="artists__content">
+        <!-- Empty state -->
+        <div id="emptyState" class="empty hdn" aria-live="polite">
+          <div class="empty__card">
+            <img
+              class="empty__img"
+              src="/img/empty-state.png"
+              alt=""
+              onerror="this.classList.add('hdn')"
+            />
+            <div class="empty__inner">
+              <div class="empty__icon">!</div>
+              <h3 class="empty__title">Silence on the stage…</h3>
+              <p class="empty__text">
+                Looks like no artists match your filters. Try changing them or
+                hit “Reset Filters”.
+              </p>
+              <button class="empty__btn" type="button" id="emptyReset">
+                Reset filters
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div id="artistsGrid" class="grid" aria-live="polite"></div>
+        <nav id="paginator" class="paginator" aria-label="Pagination"></nav>
+      </div>
+    </div>
+
+    <!-- Модалка -->
+    <div class="modal hdn" id="artistModal" aria-hidden="true">
+      <div class="modal__backdrop" data-close="backdrop"></div>
+      <div
+        class="modal__dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="artistModalTitle"
+      >
+        <button
+          class="modal__close"
+          type="button"
+          id="modalClose"
+          aria-label="Close"
+        >
+          <svg width="20" height="20">
+            <use href="/img/sprite.svg#icon-icon_close"></use>
+          </svg>
+        </button>
+        <div class="modal__body" id="modalBody"><!-- filled by JS --></div>
+      </div>
+    </div>
+  </div>
+</section>

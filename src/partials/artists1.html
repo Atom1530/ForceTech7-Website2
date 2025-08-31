@@ -1,125 +1,19 @@
-<section id="artists" class="artists">
-  <div class="artists__container">
-    <p class="artists__eyebrow">Artists</p>
-    <h1 class="artists__title">Explore Your New Favorite Artists</h1>
-
-    <div class="artists__toolbar">
-      <span class="artists__filters-label">Filters</span>
-
-      <button
-        class="filters-toggle"
-        aria-haspopup="dialog"
-        aria-controls="filtersModal"
-      >
-        <span>Search and Filters</span>
-        <span class="filters-toggle__caret" aria-hidden="true"></span>
-      </button>
-
-      <button class="filters-reset" type="button">Reset</button>
+<div class="container">
+  <section class="artists" id="artists">
+    <div class="header-section-artists">
+      <!-- id="about" -->
+      <h1 class="header-1">Artists</h1>
+      <h2 class="header-2">Explore Your New Favorite Artists</h2>
     </div>
 
-    <!-- Empty state -->
-    <aside
-      id="emptyState"
-      class="empty hidden"
-      role="region"
-      aria-live="polite"
-    >
-      <div class="empty__icon" aria-hidden="true">!</div>
-      <div class="empty__content">
-        <h2 class="empty__title">Silence on the stage...</h2>
-        <p class="empty__text">
-          Looks like no artists match your filters. Try changing them or hit
-          “Reset Filters” to bring back the beat.
-        </p>
-        <button class="empty__btn" type="button" data-action="reset">
-          Reset filters
-        </button>
-      </div>
-    </aside>
+    <div class="gallery"></div>
 
-    <!-- Галерея -->
-    <div id="artistsGrid" class="gallery" aria-live="polite"></div>
-
-    <!-- Пагинация -->
-    <nav
-      id="artistsPagination"
-      class="pagination"
-      aria-label="Pagination"
-    ></nav>
-  </div>
-
-  <!-- Модалка «Search and Filters» -->
-  <div
-    id="filtersModal"
-    class="filters-modal"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="filtersTitle"
-  >
-    <div class="filters-panel" role="document">
-      <header class="filters-panel__top">
-        <h3 id="filtersTitle" class="filters-panel__title">
-          Search and Filters
-        </h3>
-        <button class="modal-close" aria-label="Close filters">
-          <svg class="icon">
-            <use href="/img/sprite.svg#icon-icon_close"></use>
-          </svg>
-        </button>
-      </header>
-
-      <form id="filtersForm" class="filters-form" autocomplete="off">
-        <!-- Search -->
-        <label class="field search">
-          <span class="search__icon" aria-hidden="true">
-            <svg class="icon"><use href="/img/sprite.svg#Lupa"></use></svg>
-          </span>
-          <input
-            id="q"
-            name="q"
-            class="input"
-            type="search"
-            placeholder="Search"
-          />
-          <button type="button" class="search__clear" title="Clear">
-            <svg class="icon">
-              <use href="/img/sprite.svg#icon-icon_close"></use>
-            </svg>
-          </button>
-        </label>
-
-        <!-- Sorting -->
-        <details class="field details">
-          <summary class="details__summary">Sorting</summary>
-          <div class="details__list">
-            <label
-              ><input type="radio" name="sort" value="default" checked />
-              <span>Default</span></label
-            >
-            <label
-              ><input type="radio" name="sort" value="az" />
-              <span>A–Z</span></label
-            >
-            <label
-              ><input type="radio" name="sort" value="za" />
-              <span>Z–A</span></label
-            >
-          </div>
-        </details>
-
-        <!-- Genre -->
-        <details class="field details" open>
-          <summary class="details__summary">Genre</summary>
-          <div class="details__list details__list--scroll" id="genreList">
-            <!-- наполняется JS -->
-          </div>
-        </details>
-      </form>
-    </div>
-  </div>
-</section>
-
-<!-- Подключения секции -->
-<link rel="stylesheet" href="/src/css/artists1.css" />
-<script type="module" src="/src/js/artists1.js"></script>
+    <button class="load-more hiden">
+      Load More
+      <svg class="icon-btn">
+        <use href="/img/sprite.svg#icon-icon_download_load_more_art_sec"></use>
+      </svg>
+    </button>
+    <div class="loader"></div>
+  </section>
+</div>
