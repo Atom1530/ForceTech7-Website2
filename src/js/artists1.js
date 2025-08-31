@@ -206,6 +206,22 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
     loadArtists();
   });
 
+  const sortDD  = document.querySelector('.dd[data-dd="sort"]');
+const genreDD = document.querySelector('.dd[data-dd="genre"]');
+
+function toggleDD(dd, force) {
+  const willOpen = typeof force === 'boolean' ? force : !dd.classList.contains('dd--open');
+  [sortDD, genreDD].forEach(d => d !== dd && d.classList.remove('dd--open'));
+  dd.classList.toggle('dd--open', willOpen);
+}
+
+document.getElementById('dd-sort-btn') ?.addEventListener('click', () => toggleDD(sortDD));
+document.getElementById('dd-genre-btn')?.addEventListener('click', () => toggleDD(genreDD));
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.dd')) [sortDD, genreDD].forEach(d => d.classList.remove('dd--open'));
+});
+
+
   // поиск
   function doSearch(){
     state.q = searchInput.value.trim();

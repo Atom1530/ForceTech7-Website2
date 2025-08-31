@@ -364,3 +364,26 @@
     height: 290px;
   }
 }
+/* сделать иконки видимыми и крутить вниз/вверх */
+.dd__btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.dd__btn .ico {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
+  fill: currentColor;
+  transition: transform 0.2s ease;
+}
+/* если некоторые браузеры игнорят fill на <use> */
+.dd__btn .ico use {
+  fill: currentColor;
+}
+
+/* когда дропдаун открыт — поворачиваем ту же стрелку */
+.dd--open .dd__btn .ico {
+  transform: rotate(180deg);
+}
