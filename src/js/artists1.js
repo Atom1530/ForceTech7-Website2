@@ -263,81 +263,102 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
     await renderModal(id);
   });
 
-  modalClose.addEventListener("click", closeModal);
-  modal.addEventListener("click",(e)=>{ if(e.target.classList.contains("amodal__backdrop")) closeModal(); });
-  document.addEventListener("keydown",(e)=>{ if(e.key==="Escape" && !modal.hasAttribute("hidden")) closeModal(); });
+ function openModal(){
+  modal.removeAttribute("hidden");
+  document.body.classList.add("no-scroll");
+  modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
+}
 
-  function openModal(){ modal.removeAttribute("hidden"); document.documentElement.style.overflow="hidden"; modalBody.innerHTML = `<div class="amodal__loader loader"></div>`; }
-  function closeModal(){ modal.setAttribute("hidden",""); document.documentElement.style.overflow=""; modalBody.innerHTML = ""; }
+function closeModal(){
+  modal.setAttribute("hidden", "");
+  document.body.classList.remove("no-scroll");
+  modalBody.innerHTML = "";
+}
 
-  function years(details){
-    const s = details?.intFormedYear || details?.yearStart || details?.formedYear;
-    const e = details?.intDisbandedYear || details?.yearEnd || details?.disbandedYear;
-    if (s && e) return `${s}–${e}`;
-    if (s) return `${s}—present`;
-    return "—";
-  }
-  function formatDuration(ms){
-    const n = Number(ms);
-    if (!n || isNaN(n)) return "—";
-    const sec = Math.floor(n/1000);
-    const m = Math.floor(sec/60);
-    const s = String(sec%60).padStart(2,"0");
-    return `${m}:${s}`;
-  }
-  function trackRow(t){
-    const title = t?.title || t?.strTrack || t?.name || "—";
-    const dur   = formatDuration(t?.time || t?.duration || t?.strDuration || t?.intDuration);
-    const y     = t?.movie || t?.youtube || t?.youtube_url || t?.url || t?.strMusicVid || "";
-    const yIcon = `<svg class="ico" style="width:14px;height:14px"><use href="#icon-icon_youtube_footer"></use></svg>`;
-    return `<li class="tr"><span>${title}</span><span>${dur}</span><span>${y ? `<a href="${y}" target="_blank" rel="noopener">${yIcon}</a>` : ""}</span></li>`;
-  }
-  async function renderModal(id){
-    const [a, albums] = await Promise.all([fetchArtist(id), fetchArtistAlbums(id)]);
-    const d = a || {};
-    const name    = d?.strArtist || d?.name || "Unknown artist";
-    const img     = d?.strArtistThumb || d?.photo || d?.image || "https://via.placeholder.com/960x400?text=No+Image";
-    const country = d?.strCountry || d?.country || "—";
-    const members = d?.intMembers || d?.members || "—";
-    const sex     = d?.strGender || d?.sex || "—";
-    const bio     = d?.strBiographyEN || d?.about || "";
-    const genres  = Array.isArray(d?.genres) ? d.genres : (d?.genre ? [d.genre] : []);
+function fmtTime(ms){
+  // принимает ms как число или строку; возвращает mm:ss / 'N/A'
+  const n = Number(ms);
+  if (!isFinite(n) || n <= 0) return "N/A";
+  const total = Math.floor(n/1000);
+  const m = Math.floor(total/60);
+  const s = String(total%60).padStart(2,"0");
+  return `${m}:${s}`;
+}
 
-    const albumsMarkup = (albums||[]).map(alb=>{
-      const title  = alb?.title || alb?.strAlbum || alb?.name || "Album";
-      const tracks = Array.isArray(alb?.tracks) ? alb.tracks : (Array.isArray(alb?.songs) ? alb.songs : []);
-      return `
-        <div class="album">
-          <h4 class="album__title">${title}</h4>
-          <ul class="tbl">
-            <li class="th"><span>Track</span><span>Time</span><span>Link</span></li>
-            ${tracks.map(trackRow).join("")}
-          </ul>
-        </div>`;
-    }).join("");
+function years(details){
+  const s = details?.intFormedYear || details?.yearStart || details?.formedYear;
+  const e = details?.intDisbandedYear || details?.intDiedYear || details?.yearEnd || details?.disbandedYear;
+  if (s && e) return `${s}–${e}`;
+  if (s) return `${s}–present`;
+  return "information missing";
+}
 
-    modalBody.innerHTML = `
-      <h3 style="font:700 28px/1.2 'Epilogue';margin:0 0 14px;color:#fff">${name}</h3>
-      <img src="${img}" alt="${name}" style="width:100%;max-height:420px;object-fit:cover;border-radius:12px;margin:8px 0 16px">
-      <div class="cols" style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px">
-        <div>
-          <div><b>Years active</b><br>${years(d)}</div>
-          <div style="margin-top:10px"><b>Members</b><br>${members}</div>
+function trackRow(t){
+  const title = t?.strTrack || t?.title || t?.name || "—";
+  const dur   = fmtTime(t?.intDuration || t?.duration || t?.time);
+  const link  = t?.movie || t?.youtube || t?.youtube_url || t?.url || t?.strMusicVid;
+  const yIcon = `<svg class="ico ico-yt"><use href="#icon-icon_youtube_footer"></use></svg>`;
+  return `<li class="tr"><span>${title}</span><span>${dur}</span><span>${link ? `<a href="${link}" target="_blank" rel="noopener">${yIcon}</a>` : `<span class="yt-ph"></span>`}</span></li>`;
+}
+
+async function renderModal(id){
+  const [a, albums] = await Promise.all([fetchArtist(id), fetchArtistAlbums(id)]);
+  const d = a || {};
+  const name    = d?.strArtist || d?.name || "Unknown artist";
+  const img     = d?.strArtistThumb || d?.photo || d?.image || "https://via.placeholder.com/960x400?text=No+Image";
+  const country = d?.strCountry || d?.country || "N/A";
+  const members = d?.intMembers || d?.members || "N/A";
+  const sex     = d?.strGender || d?.sex || "N/A";
+  const bio     = d?.strBiographyEN || d?.about || "";
+  const genres  = Array.isArray(d?.genres) ? d.genres : (d?.genre ? [d.genre] : []);
+
+  const albumsMarkup = (albums||[]).map(alb=>{
+    const title  = alb?.strAlbum || alb?.title || alb?.name || "Album";
+    const tracks = Array.isArray(alb?.tracks) ? alb.tracks :
+                   (Array.isArray(alb?.songs) ? alb.songs : []);
+    return `
+      <div class="am-album">
+        <div class="am-album__title">${title}</div>
+        <ul class="tbl">
+          <li class="th"><span>Track</span><span>Time</span><span>Link</span></li>
+          ${tracks.map(trackRow).join("")}
+        </ul>
+      </div>`;
+  }).join("");
+
+  modalBody.innerHTML = `
+    <h3 class="amodal__title">${name}</h3>
+
+    <div class="amodal__content">
+      <img class="amodal__img" src="${img}" alt="${name}" loading="lazy">
+      <div class="amodal__info">
+        <div class="am-meta">
+          <div class="am-meta__col">
+            <div class="am-meta__item"><span class="lbl">Years active</span><span class="val">${years(d)}</span></div>
+            <div class="am-meta__item"><span class="lbl">Sex</span><span class="val">${sex}</span></div>
+          </div>
+          <div class="am-meta__col">
+            <div class="am-meta__item"><span class="lbl">Members</span><span class="val">${members}</span></div>
+            <div class="am-meta__item"><span class="lbl">Country</span><span class="val">${country}</span></div>
+          </div>
         </div>
-        <div>
-          <div><b>Sex</b><br>${sex}</div>
-          <div style="margin-top:10px"><b>Country</b><br>${country}</div>
-        </div>
-      </div>
-      <div style="margin:10px 0 14px"><b>Biography</b><br><p style="margin:6px 0 0">${bio || "—"}</p></div>
-      <div class="card__tags" style="margin:12px 0 18px">${genres.map(g=>`<span class="tag">${g}</span>`).join("")}</div>
 
-      <h3 style="font:700 22px/1.2 'IBM Plex Sans';margin:12px 0 8px">Albums</h3>
-      <div class="albums" style="display:grid;gap:16px;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
-        ${albumsMarkup || "<p>—</p>"}
+        <div class="am-bio">
+          <div class="lbl">Biography</div>
+          <p>${bio || "—"}</p>
+        </div>
+
+        ${genres.length ? `<div class="am-tags">${genres.map(g=>`<span class="tag">${g}</span>`).join("")}</div>` : ""}
       </div>
-    `;
-  }
+    </div>
+
+    <h4 class="amodal__albums-title">Albums</h4>
+    <div class="amodal__albums">
+      ${albumsMarkup || "<p class='muted'>No albums found for this artist.</p>"}
+    </div>
+  `;
+}
+
 
   // init
   syncPanelMode();
