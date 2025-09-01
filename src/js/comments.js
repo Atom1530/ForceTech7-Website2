@@ -4,6 +4,9 @@ import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
 
+import iziToast from 'izitoast';
+import "izitoast/dist/css/iziToast.min.css";
+
 
 
 const overlay = document.querySelector(".overlay");
@@ -65,17 +68,24 @@ createStars(formRating, parseInt(formRating.dataset.rating) || 0);
 const swiper = new Swiper('.swiper', {
   slidesPerView: 1,
   spaceBetween: 20,
-        loop: true,
-        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', grabCursor: true, },
+  loop: true,
+        grabCursor: true,
+        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', },
   pagination: { el: '.swiper-pagination', clickable: true, },
 });
-
 document.querySelector('.swiper-button-prev').addEventListener('click', () => {
   swiper.slidePrev();
 })
 document.querySelector('.swiper-button-next').addEventListener('click', () => {
   swiper.slideNext();
 })
+
+//dots
+const dots = document.querySelector('.swiper-pagination');
+dots.innerHTML = `
+  <span class="swiper-dots" data-i="#{first}"></span>
+    <span class="swiper-dots" data-i="#{second}"></span>
+  <span class="swiper-dots" data-i="#{third}"></span>`
 
 
 async function loadReviews() {
@@ -99,34 +109,15 @@ async function loadReviews() {
       const starContainer = slide.querySelector(".rating");
       createStars(starContainer, stars);
     });
-    swiper.update()
+swiper.update()
   } catch (err) {
-    console.error("Error:", err);
+    iziToast.error({
+      title: 'Error',
+      message: 'Bad request (invalid request params)'
+    })
   }
 }
 
-// pagination
-const firstDot = document.getElementById('first');
-const secondDot = document.getElementById('second');
-const thirdDot = document.getElementById('third');
-function activeDot(index, totalSlides) {
-  [firstDot, secondDot, thirdDot].forEach(dot => dot.classList.remove('active'));
-  if (index === 0) {
-    firstDot.classList.add('active')
-  } else if (index === totalSlides - 1) {
-    thirdDot.classList.add('active')
-  } else {
-    secondDot.classList.add('active')
-  }
-}
-swiper.on('slideChange', () => {
-  activeDot(swiper.activeIndex, swiper.slides.length);
-});
-activeDot(swiper.activeIndex, swiper.slides.length);
-
-firstDot.addEventListener('click', () => swiper.slideTo(0));
-secondDot.addEventListener('click', () => swiper.slideTo(1));
-thirdDot.addEventListener('click', () => swiper.slideTo(swiper.slides.length - 1));
 
 // data to API
 form.addEventListener("submit", async (e) => {
@@ -137,17 +128,15 @@ form.addEventListener("submit", async (e) => {
   console.log("Name:", name);
   console.log("Message:", message);
   console.log("Rating:", rating);
-  function showError(msg) {
-    alert(msg);
-  }
+
     if (!name || name.length < 2 || name.length > 16) {
-    return showError("Shortest name - 2 letters; Largest name - 16 letters")
+      return iziToast.error({ message: 'Shortest name - 2 letters; Largest name - 16 letters' })
   };
   if (!message || message.length < 10 || message.length > 512) {
-    return showError("Min message - 10 symbols; Max message - 512 symbols")
+    return iziToast.error({ message: 'Min message - 10 symbols; Max message - 512 symbols' })
   }
   if (rating < 1 || rating > 5) {
-    return showError("Rating must be between '1' and '5'")
+    return iziToast.error({ message: "Rating must be between '1' and '5'" })
   }
   try {
     const response = await fetch("https://sound-wave.b.goit.study/api/feedbacks", {
@@ -165,9 +154,10 @@ form.addEventListener("submit", async (e) => {
     })
     
     if (!response.ok) {
-      throw new Error(`Error: ${response.status}`);
+      iziToast.error({
+        title: 'Error:',
+        message: '${response.status}'});
     } 
-    console.log("Feedback is processed");
 
     form.reset();
     formRating.dataset.rating = 0;
@@ -177,8 +167,8 @@ form.addEventListener("submit", async (e) => {
     document.body.classList.remove("no-scroll");
     loadReviews();
   } catch (err) {
-    console.error(err);
-    alert("Bad request (invalid request body)")
+
+    iziToast.error({ message: 'Bad request (invalid request body)' })
   }
 })
 document.addEventListener("DOMContentLoaded", loadReviews);
