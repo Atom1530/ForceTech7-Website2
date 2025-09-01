@@ -3,9 +3,8 @@
   display: none !important;
 }
 
-/* ===== Заголовочный блок ===== */
+/* ===== Header ===== */
 .artists1.container {
-  /* как в образце 3 */
   margin-top: 64px;
 }
 @media (min-width: 1440px) {
@@ -14,45 +13,36 @@
   }
 }
 
-/* подпись "Artists" над заголовком */
 .artists1__head .eyebrow {
   color: #9aa0a6;
   font: 600 16px/1.5 'IBM Plex Sans', system-ui;
   margin-bottom: 16px;
 }
-
-/* сам блок заголовка (контейнер) */
 .artists1__head {
-  /* по умолчанию (мобайл) тянется на ширину контейнера */
   margin: 0 0 24px 0;
 }
-
-/* планшет: заголовок имеет ту же ширину, что и карточки (704px), центрируется */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   .artists1__head {
     max-width: 704px;
-    margin: 0 auto 32px; /* центр по контейнеру */
+    margin: 0 auto 32px;
   }
 }
-
 @media (min-width: 1440px) {
   .artists1__head {
-    max-width: 863px; /* было 863px — мало; даём запас под реальные метрики */
-    margin: 0 0 80px 0; /* 372 = 340 (фильтры) + 32 (gap) */
+    max-width: 863px;
+    margin: 0 0 80px 0;
   }
 }
 
-/* ===== Текст заголовка ===== */
 .artists1__head .title {
   color: #fff;
   font-family: 'Epilogue', system-ui;
   font-weight: 700;
-  line-height: 1.2;
   letter-spacing: -0.01em;
   margin: 0;
   font-size: 44px;
+  line-height: 1.2;
 }
-
 @media (min-width: 1440px) {
   .artists1__head .title {
     font-size: 84px;
@@ -69,12 +59,12 @@
 }
 @media (min-width: 1440px) {
   .artists1__layout {
-    grid-template-columns: 304px 1fr; /* ширина панели как в REF */
+    grid-template-columns: 304px 1fr;
     gap: 32px;
   }
 }
 
-/* ===== Filters bar ===== */
+/* ===== Filters: bar + toggle ===== */
 .filters__bar {
   display: flex;
   align-items: center;
@@ -91,8 +81,8 @@
   color: #b8b9c0;
   cursor: pointer;
 }
-/* mobile/tablet переключатель */
-.filters__toggle {
+
+#filters-toggle {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -105,10 +95,10 @@
   position: relative;
   padding-right: 30px;
 }
-.filters__toggle .ico {
+#filters-toggle .ico {
   display: none !important;
-} /* рисуем стрелку псевдоэлементом */
-.filters__toggle::after {
+}
+#filters-toggle::after {
   content: '';
   position: absolute;
   right: 12px;
@@ -124,17 +114,21 @@
   transform: translateY(-50%) rotate(-135deg);
 }
 
-/* Панель фильтров: размеры как в REF (не меняем цветовую схему) */
-.filters__panel {
+/* ===== Filters panel (base) ===== */
+.filters {
+  position: relative;
+  z-index: 5;
+} /* чтобы overlay-списки были поверх карточек */
+#filters-panel {
   background: #1e1d24;
-  border-radius: 12px; /* 12px как в REF */
-  padding: 24px; /* 24px как в REF */
-  border: 1px solid #262626; /* контур как в REF */
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #262626;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   margin-top: 12px;
+  overflow: visible;
 }
-
-/* mobile/tablet скрывать по aria-hidden; desktop — всегда показывать */
+/* mobile/tablet: управляем показом через aria-hidden */
 @media (max-width: 1439.98px) {
   #filters-panel[aria-hidden='true'] {
     display: none;
@@ -143,16 +137,19 @@
     display: block;
   }
 }
+/* desktop: панель всегда видна + тёмный фон */
 @media (min-width: 1440px) {
   #filters-toggle {
     display: none !important;
   }
   #filters-panel {
     display: block !important;
+    background: #060307;
+    border: 1px solid rgba(255, 255, 255, 0.12);
   }
 }
 
-/* ===== Search field (иконка 24px слева, кнопки справа нет) ===== */
+/* ===== Search field ===== */
 .fld {
   display: flex;
   align-items: center;
@@ -161,7 +158,7 @@
   border-radius: 12px;
   padding: 12px 14px;
   margin-bottom: 12px;
-  min-height: 48px; /* высота как в REF-UX */
+  min-height: 48px;
 }
 .fld .ico {
   width: 24px;
@@ -178,10 +175,16 @@
 }
 #flt-q-btn {
   display: none !important;
-} /* в REF справа кнопки/лупы нет */
+} /* справа кнопки нет */
+#flt-q::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
 
-/* ===== Dropdowns (псевдо-стрелки, размеры как в REF) ===== */
+/* ===== Dropdowns (overlay, не двигают сетку) ===== */
 .dd {
+  position: relative;
   background: #272630;
   border-radius: 12px;
   margin-bottom: 12px;
@@ -200,8 +203,7 @@
   min-height: 48px;
   position: relative;
   padding-right: 30px;
-  font-size: 16px;
-  font-weight: 600;
+  font: 600 16px/1 'IBM Plex Sans';
 }
 .dd__btn .ico {
   display: none !important;
@@ -223,10 +225,23 @@
 }
 
 .dd__list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 1px);
+  z-index: 30;
   display: none;
-  max-height: 260px;
+  max-height: 320px;
   overflow: auto;
-  padding: 6px 0;
+  padding: 8px 0;
+  background: #0d0d0d;
+  border: 1px solid #262626;
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.dd.open .dd__list {
+  display: block;
 }
 .dd__list li {
   list-style: none;
@@ -240,13 +255,74 @@
   border-radius: 10px;
 }
 
+/* desktop-стили для дропдаунов */
+@media (min-width: 1440px) {
+  .fld,
+  .dd {
+    background: #060307;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .dd__list {
+    background: #060307;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 0;
+  }
+}
+
+/* ===== MOBILE button & panel full-width ===== */
+@media (max-width: 767.98px) {
+  .filters__bar {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+  #filters-toggle {
+    order: 3;
+    width: 100%;
+    height: 56px;
+    padding: 0 16px;
+    border-radius: 24px;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    color: #fff;
+    justify-content: space-between;
+  }
+  #filters-panel {
+    width: 100%;
+    margin-top: 12px;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    border-radius: 12px;
+  }
+}
+
+/* ===== TABLET: кнопка/панель 304px прижаты вправо ===== */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  #filters-toggle {
+    width: 304px;
+    height: 56px;
+    margin-left: auto;
+    padding: 0 16px;
+    border-radius: 12px;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    color: #fff;
+    justify-content: space-between;
+  }
+  #filters-panel {
+    width: 304px;
+    margin: 12px 0 0 auto;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    border-radius: 12px;
+  }
+}
+
 /* ===== Grid / Cards ===== */
-/* как в REF: большие вертикальные интервалы на мобиле, компактней на десктопе */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 64px; /* mobile: gap 64px */
-  justify-content: center;
+  gap: 64px;
+  justify-content: center; /* mobile gap 64 */
 }
 .card {
   color: #e8e8ec;
@@ -257,7 +333,7 @@
   display: block;
   border-radius: 16px;
   object-fit: cover;
-  height: 177px; /* mobile */
+  height: 177px;
 }
 .card__tags {
   display: flex;
@@ -272,8 +348,7 @@
   height: 32px;
   display: inline-flex;
   align-items: center;
-  font-weight: 600;
-  font-size: 16px;
+  font: 600 16px/1 'IBM Plex Sans';
 }
 .card__title {
   color: #fff;
@@ -283,7 +358,7 @@
 }
 .card__text {
   color: #fff;
-  font: 400 18px/1.5 'IBM Plex Sans'; /* как в REF: 18px */
+  font: 400 18px/1.5 'IBM Plex Sans';
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -291,7 +366,6 @@
   margin-bottom: 24px;
 }
 .card__link {
-  margin-top: 0;
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -299,15 +373,23 @@
   border: 0;
   color: #fff;
   cursor: pointer;
-  font: 500 18px/1.5 'IBM Plex Sans'; /* как в REF: 18px */
+  font: 500 18px/1.5 'IBM Plex Sans';
+  margin-top: 0;
 }
 .card__link .ico {
   width: 24px;
   height: 24px;
   fill: #fff;
+  margin-left: 6px;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+.card__link:hover .ico,
+.card__link:focus .ico {
+  transform: translateX(2px);
+  fill: #764191;
 }
 
-/* Tablet (>=768) — одна широкая карточка по центру, высота фото 432px, ширина 704px */
+/* Tablet cards */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   .grid {
     grid-template-columns: 1fr;
@@ -321,8 +403,7 @@
     height: 432px;
   }
 }
-
-/* Desktop (>=1440) — две колонки, gap 32px, высота фото 393px, как в REF */
+/* Desktop cards (2 col) */
 @media (min-width: 1440px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
@@ -333,12 +414,12 @@
   }
 }
 
-/* ===== Pager (оставляем твоё, правим только отступы под REF) ===== */
+/* ===== Pager ===== */
 .pager {
   display: flex;
   justify-content: center;
   gap: 6px;
-  margin: 32px 0 64px; /* 32 сверху, 64 снизу */
+  margin: 32px 0 64px;
 }
 .pager button {
   min-width: 36px;
@@ -362,7 +443,7 @@
   pointer-events: none;
 }
 
-/* ===== Empty state (размеры заголовка как в нашем стиле, ок) ===== */
+/* ===== Empty state ===== */
 .empty {
   margin-top: 16px;
 }
@@ -412,7 +493,7 @@
   }
 }
 
-/* ===== Modal (оставляем твою логику/цвета, только размеры подчищены) ===== */
+/* ===== Modal ===== */
 .amodal {
   position: fixed;
   inset: 0;
@@ -424,66 +505,11 @@
   position: absolute;
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
+  z-index: 1;
 }
 .amodal__dialog {
   position: relative;
-  background: #151419;
-  border-radius: 16px;
-  max-width: 1312px;
-  width: calc(100% - 48px);
-  max-height: 90vh;
-  overflow: auto;
-  padding: 20px;
-}
-@media (min-width: 768px) {
-  .amodal__dialog {
-    padding: 24px;
-  }
-}
-@media (min-width: 1440px) {
-  .amodal__dialog {
-    padding: 64px;
-  }
-}
-.amodal__close {
-  position: absolute;
-  right: 12px;
-  top: 8px;
-  border: 0;
-  background: transparent;
-  color: #fff;
-  font-size: 28px;
-  cursor: pointer;
-}
-.amodal__body {
-  color: #e8e8ec;
-}
-
-/* ===== Icons: всегда белые ===== */
-.artists1 .ico,
-.artists1 .ico use,
-.artists1 .ico path {
-  --color1: #fff;
-  fill: #fff !important;
-  color: #fff !important;
-}
-
-/* clear у search в WebKit */
-#flt-q::-webkit-search-cancel-button {
-  -webkit-appearance: none;
-  appearance: none;
-  display: none;
-}
-
-/* запрет прокрутки под модалкой */
-.no-scroll {
-  position: fixed;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* Диалог и оверлей — остаются как у тебя, дополним размеры */
-.amodal__dialog {
+  z-index: 2;
   background: #060307;
   border-radius: 16px;
   width: calc(100% - 48px);
@@ -503,12 +529,24 @@
     padding: 64px;
   }
 }
+.amodal__close {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  border: 0;
+  background: transparent;
+  color: #fff;
+  font-size: 28px;
+  cursor: pointer;
+}
+.amodal__body {
+  color: #e8e8ec;
+}
 
-/* Заголовок */
 .amodal__title {
   font: 700 20px/1.3 'Epilogue', system-ui;
-  text-align: center;
   color: #fff;
+  text-align: center;
   margin: 0 0 16px;
 }
 @media (min-width: 768px) {
@@ -517,7 +555,6 @@
   }
 }
 
-/* Карточка шапки модалки */
 .amodal__content {
   display: flex;
   flex-direction: column;
@@ -530,21 +567,17 @@
     align-items: flex-start;
   }
 }
-
 .amodal__img {
   width: 100%;
   border-radius: 16px;
   object-fit: cover;
 }
 
-/* Блок инфо справа от фото */
 .amodal__info {
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
-
-/* Пары характеристик */
 .am-meta {
   display: flex;
   gap: 16px;
@@ -568,7 +601,6 @@
   color: #e8e8ec;
 }
 
-/* Биография с прокруткой и грид-высотой как в рефе */
 .am-bio .lbl {
   margin-bottom: 8px;
 }
@@ -578,7 +610,6 @@
   line-height: 1.5;
   display: -webkit-box;
   -webkit-line-clamp: 10;
-  line-clamp: 10;
   -webkit-box-orient: vertical;
   overflow: auto;
 }
@@ -589,7 +620,6 @@
   }
 }
 
-/* Жанры */
 .am-tags {
   display: flex;
   gap: 16px;
@@ -606,13 +636,10 @@
   align-items: center;
 }
 
-/* Заголовок блока альбомов */
 .amodal__albums-title {
   margin: 16px 0;
   font: 700 24px/1.3 'Epilogue', system-ui;
 }
-
-/* Сетка альбомов */
 .amodal__albums {
   display: flex;
   flex-direction: column;
@@ -633,7 +660,6 @@
   }
 }
 
-/* Карточка альбома и таблица треков */
 .am-album {
   background: #1e1c1f;
   border-radius: 16px;
@@ -649,7 +675,7 @@
   color: #fff;
 }
 
-/* Табличка */
+/* Tracks table */
 .tbl {
   display: flex;
   flex-direction: column;
@@ -679,7 +705,7 @@
   border-radius: 8px;
 }
 
-/* колонки шириной как в рефе */
+/* columns */
 .th span:nth-child(1),
 .tr span:nth-child(1) {
   flex-basis: 60%;
@@ -695,314 +721,381 @@
   text-align: right;
 }
 
-.ico-yt {
-  width: 24px;
-  height: 24px;
-  fill: #fff;
-  transition: fill 0.25s;
-}
-a:hover .ico-yt {
-  fill: #764191;
-}
-.yt-ph {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
-}
-
-/* мелочь */
-.muted {
-  color: #b8b9c0;
-}
-
-/* блокировка прокрутки под модалкой */
-.no-scroll {
-  position: fixed;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* размеры и фон как в рефе */
-.amodal__dialog {
-  background: #060307;
-  border-radius: 16px;
-  width: calc(100% - 48px);
-  max-height: 90vh;
-  overflow: auto;
-  padding: 52px 8px;
-}
-@media (min-width: 768px) {
-  .amodal__dialog {
-    max-width: 702px;
-    padding: 64px 24px;
-  }
-}
-@media (min-width: 1440px) {
-  .amodal__dialog {
-    max-width: 1312px;
-    padding: 64px;
-  }
-}
-
-.amodal__title {
-  font: 700 20px/1.3 'Epilogue', system-ui;
-  color: #fff;
-  text-align: center;
-  margin: 0 0 16px;
-}
-@media (min-width: 768px) {
-  .amodal__title {
-    font-size: 32px;
-  }
-}
-
-.amodal__content {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-@media (min-width: 1440px) {
-  .amodal__content {
-    flex-direction: row;
-    gap: 32px;
-    align-items: flex-start;
-  }
-}
-
-.amodal__img {
-  width: 100%;
-  border-radius: 16px;
-  object-fit: cover;
-}
-.amodal__info {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.am-meta {
-  display: flex;
-  gap: 16px;
-}
-.am-meta__col {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  min-width: 150px;
-}
-.lbl {
-  font-weight: 600;
-  color: #fff;
-  line-height: 1.5;
-}
-.val {
-  color: #e8e8ec;
-}
-
-.am-bio .lbl {
-  margin-bottom: 8px;
-}
-.am-bio p {
-  margin: 0;
-  color: #e8e8ec;
-  line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 10;
-  line-clamp: 10;
-  -webkit-box-orient: vertical;
-  overflow: auto;
-}
-@media (min-width: 768px) {
-  .am-bio p {
-    -webkit-line-clamp: 12;
-    line-clamp: 12;
-  }
-}
-
-.am-tags {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-.am-tags .tag {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  padding: 4px 10px;
-  height: 32px;
-  font-weight: 600;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-}
-
-.amodal__albums-title {
-  margin: 16px 0;
-  font: 700 24px/1.3 'Epilogue', system-ui;
-}
-
-.amodal__albums {
-  display: flex;
-  flex-direction: column;
-  gap: 32px;
-}
-@media (min-width: 768px) {
-  .amodal__albums {
-    flex-direction: row;
-    flex-wrap: wrap;
-  }
-  .amodal__albums .am-album {
-    width: calc((100% - 32px) / 2);
-  }
-}
-@media (min-width: 1440px) {
-  .amodal__albums .am-album {
-    width: calc((100% - 96px) / 4);
-  }
-}
-
-.am-album {
-  background: #1e1c1f;
-  border-radius: 16px;
-  padding: 14px 11px;
-  display: flex;
-  flex-direction: column;
-  min-width: 250px;
-}
-.am-album__title {
-  font-weight: 600;
-  font-size: 16px;
-  margin: 0 0 12px;
-  color: #fff;
-}
-
-.tbl {
-  display: flex;
-  flex-direction: column;
-}
-.tbl .th {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 4px 12px;
-  font-weight: 600;
-  font-size: 12px;
-  color: #fff;
-}
-.tr {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 12px;
-  font-size: 12px;
-  color: #e8e8ec;
-}
-.tr:nth-child(2n) {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 8px;
-}
-
-.th span:nth-child(1),
-.tr span:nth-child(1) {
-  flex-basis: 60%;
-}
-.th span:nth-child(2),
-.tr span:nth-child(2) {
-  flex-basis: 20%;
-  text-align: left;
-}
-.th span:nth-child(3),
-.tr span:nth-child(3) {
-  flex-basis: 10%;
-  text-align: right;
-}
-
+/* YouTube icon + placeholder */
 .am-yt {
   width: 24px;
   height: 24px;
   fill: #fff;
-  transition: fill 0.25s;
-}
-a:hover .am-yt {
-  fill: #764191;
-}
-.yt-ph {
   display: inline-block;
-  width: 24px;
-  height: 24px;
-}
-
-/* не даём фону перекрывать диалог */
-.amodal__backdrop {
-  z-index: 1;
-}
-.amodal__dialog {
-  z-index: 2;
-  position: relative;
-}
-
-/* курсор на крестике */
-.amodal__close {
-  cursor: pointer;
-}
-
-/* блокируем прокрутку под модалкой */
-.no-scroll {
-  position: fixed;
-  width: 100%;
-  overflow: hidden;
-}
-
-/* ютуб-иконка */
-.am-yt {
-  width: 24px;
-  height: 24px;
-  fill: #fff;
-  transition: fill 0.25s;
-  display: inline-block;
+  transition: fill 0.2s ease;
 }
 a:hover .am-yt,
 a:focus .am-yt {
   fill: #764191;
 }
-
-/* заглушка, когда ссылки нет, чтобы сетка не "гуляла" */
 .yt-ph {
   display: inline-block;
   width: 24px;
   height: 24px;
 }
 
-/* YouTube-плей (треки в модалке) */
-.am-yt {
-  width: 24px;
-  height: 24px;
-  display: inline-block;
-  fill: #fff;
-  transition: fill 0.2s ease;
+/* ===== Helpers ===== */
+.muted {
+  color: #b8b9c0;
 }
-.yt:hover .am-yt,
-.yt:focus .am-yt {
-  fill: #764191;
+.no-scroll {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
 }
 
-/* чтобы третья колонка не прыгала, если ссылки нет */
-.yt-ph {
-  display: inline-block;
-  width: 24px;
-  height: 24px;
+/* ===== Icons: force white ===== */
+.artists1 .ico,
+.artists1 .ico use,
+.artists1 .ico path {
+  --color1: #fff;
+  fill: #fff !important;
+  color: #fff !important;
+}
+/* ================== PATCH: фильтры ================== */
+
+/* 1) Мобайл/планшет: панель фильтров — ОВЕРЛЕЙ поверх карточек */
+@media (max-width: 1439.98px) {
+  .filters {
+    position: relative;
+    z-index: 5;
+  } /* якорь + слой выше сетки */
+
+  #filters-panel {
+    position: absolute; /* <-- ключ: не влияет на поток */
+    top: calc(100% + 12px); /* сразу под баром фильтров */
+    left: 0;
+    right: 0; /* мобайл: на всю ширину контейнера */
+    z-index: 20;
+    /* безопасные габариты и скролл внутри */
+    max-height: min(80vh, 720px);
+    overflow: auto;
+    /* нынешний стиль панели оставляем */
+  }
 }
 
-/* стрелка в Learn More */
-.card__link .ico {
-  width: 24px;
-  height: 24px;
-  margin-left: 6px;
-  fill: #fff;
-  transition: transform 0.2s ease, fill 0.2s ease;
+/* 1a) Планшет: панель фикс-ширины и прижата к правому краю */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  #filters-panel {
+    width: 304px;
+    left: auto;
+    right: 0; /* прижимаем вправо, как просили */
+  }
 }
-.card__link:hover .ico,
-.card__link:focus .ico {
-  transform: translateX(2px);
-  fill: #764191;
+
+/* 2) Выпадающие списки ВНУТРИ панели на моб/планшете — НЕ overlay, а «распахиваются» */
+@media (max-width: 1439.98px) {
+  /* сброс абсолютного позиционирования только внутри панели */
+  #filters-panel .dd {
+    position: static;
+  }
+  #filters-panel .dd__list {
+    position: static !important; /* ключ: вынимаем из overlay-режима */
+    display: none;
+    max-height: 320px;
+    overflow: auto;
+    background: #0d0d0d;
+    border: 0;
+    border-top: 1px solid #262626;
+    border-radius: 0 0 12px 12px;
+    box-shadow: none;
+    padding: 8px 0;
+  }
+  #filters-panel .dd.open {
+    height: auto;
+  }
+  #filters-panel .dd.open .dd__list {
+    display: block;
+  } /* раскрытие толкает Genre/Sorting вниз */
+}
+
+/* 3) Десктоп: оставляем overlay-списки и тёмный тулбар */
+@media (min-width: 1440px) {
+  .fld,
+  .dd {
+    background: #060307;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+  }
+  .dd {
+    position: relative;
+  } /* якорь для overlay */
+  .dd__list {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: calc(100% - 1px);
+    z-index: 30;
+    display: none;
+    max-height: 320px;
+    overflow: auto;
+    background: #060307;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-top: 0;
+    border-radius: 0 0 12px 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+    padding: 8px 0;
+  }
+  .dd.open .dd__list {
+    display: block;
+  }
+  .dd.open .dd__btn {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+/* ===== DESKTOP: dropdownы расширяют панель (без overlay) ===== */
+@media (min-width: 1440px) {
+  /* панель может расти вниз, ничего не обрезаем */
+  #filters-panel {
+    overflow: visible;
+  }
+
+  /* убираем якорь для overlay и абсолютное позиционирование списков */
+  #filters-panel .dd {
+    position: static !important;
+  }
+  #filters-panel .dd__list {
+    position: static !important; /* ← ключ: больше не overlay */
+    display: none;
+    max-height: 320px; /* можно снять ограничение, если нужно */
+    overflow: auto;
+    background: #060307; /* как у десктоп-тулбара */
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 12px 12px;
+    box-shadow: none;
+    padding: 8px 0;
+  }
+  #filters-panel .dd.open .dd__list {
+    display: block;
+  }
+  #filters-panel .dd.open .dd__btn {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+/* ===== DESKTOP: кнопки как в фигме ===== */
+@media (min-width: 1440px) {
+  /* ширина колонки панели = 304px */
+  #filters-panel {
+    width: 304px; /* соответствует колонке */
+    background: #060307; /* тёмный фон панели */
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    overflow: visible; /* чтобы раскрытые списки влезали */
+  }
+
+  /* базовые блоки на ширину панели и с нужной окантовкой */
+  #filters-panel .fld,
+  #filters-panel .dd {
+    width: 100%; /* = 304px за счёт ширины панели */
+    background: transparent; /* как в фигме: rgba(255,255,255,0) */
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+
+  /* размеры самих «кнопок» (Sorting/Genre) */
+  #filters-panel .dd__btn {
+    height: 43px;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px; /* верхние углы */
+  }
+  /* стрелочка-псевдоэлементу хватит места с новым паддингом */
+  #filters-panel .dd__btn::after {
+    right: 12px;
+  }
+
+  /* выпадающие списки — без overlay, расширяют панель вниз */
+  #filters-panel .dd {
+    position: static !important;
+  }
+  #filters-panel .dd__list {
+    position: static !important;
+    display: none;
+    max-height: 320px;
+    overflow: auto;
+    background: #060307; /* в цвет панели */
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 12px 12px; /* нижние углы */
+    box-shadow: none;
+    padding: 8px 0;
+  }
+  #filters-panel .dd.open .dd__list {
+    display: block;
+  }
+  #filters-panel .dd.open .dd__btn {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  /* поле поиска — по тем же метрикам высоты/паддингов */
+  #filters-panel .fld {
+    min-height: 43px;
+    padding: 8px 12px;
+  }
+  #filters-panel .fld .ico {
+    width: 24px;
+    height: 24px;
+  }
+
+  /* если вдруг понадобилось стилизовать скрытый toggle и на десктопе */
+  #filters-toggle {
+    width: 304px;
+    height: 43px;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+  }
+}
+/* ===== TABLET: размеры тулбара и кнопки Search по рефу ===== */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  /* Панель фильтров (тулбар) */
+  #filters-panel {
+    width: 304px;
+    min-height: 343px; /* берём min-height, чтобы не резать список при раскрытии */
+    padding: 12px;
+    border-radius: 12px;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    margin: 12px 0 0 auto; /* справа, как и было */
+    box-shadow: none;
+    overflow: visible; /* выпадающие списки не обрезаются */
+  }
+
+  /* Блок поиска перестраиваем: иконка — внутри поля, кнопка — ниже */
+  #filters-panel .fld {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0; /* паддинг переносим на само поле */
+    background: transparent;
+    border: 0;
+  }
+  /* иконка слева в поле */
+  #filters-panel .fld .ico {
+    position: absolute;
+    left: 12px;
+    top: 12px; /* вертикально центровано при высоте поля 47px */
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+  /* само поле ввода: 47px высоты, паддинг под иконку */
+  #flt-q {
+    width: 100%;
+    height: 47px;
+    padding: 10px 12px 10px 44px; /* место под лупу слева */
+    border-radius: 12px;
+    border: 1px solid #262626;
+    background: transparent;
+    font-size: 16px;
+    color: #fff;
+    outline: 0;
+  }
+
+  /* включаем кнопку поиска и стилизуем по рефу */
+  #flt-q-btn {
+    display: inline-flex; /* раньше было скрыто */
+    align-items: center;
+    justify-content: center;
+    width: 233px;
+    height: 47px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    color: #fff;
+    gap: 8px;
+    margin-left: auto; /* прижимаем вправо */
+    cursor: pointer;
+  }
+  /* иконка внутри кнопки поиска */
+  #flt-q-btn .ico {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+}
+/* ====== MOBILE: кнопка на всю ширину, текст по центру ====== */
+@media (max-width: 767.98px) {
+  #filters-toggle {
+    /* центрируем надпись */
+    justify-content: center !important;
+    text-align: center;
+    /* стрелка — абсолютная, поэтому не смещает текст */
+    position: relative;
+  }
+  /* стрелка (если где-то отключена) */
+  #filters-toggle::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-50%) rotate(45deg);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+  #filters-toggle[aria-expanded='true']::after {
+    transform: translateY(-50%) rotate(-135deg);
+  }
+}
+
+/* ====== TABLET: точные размеры кнопки 233×47, текст по центру ====== */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  #filters-toggle {
+    width: 233px !important;
+    height: 47px !important;
+    padding: 10px 24px !important;
+    border-radius: 12px !important;
+
+    /* стиль кнопки из рефа */
+    background: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    border: 0 !important;
+
+    /* выравнивание текста по центру */
+    display: flex;
+    align-items: center;
+    justify-content: center !important;
+    text-align: center;
+
+    position: relative; /* для стрелки */
+    color: #fff; /* как было */
+  }
+
+  /* стрелка справа, не влияет на центрирование текста */
+  #filters-toggle::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-50%) rotate(45deg);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+  #filters-toggle[aria-expanded='true']::after {
+    transform: translateY(-50%) rotate(-135deg);
+  }
 }

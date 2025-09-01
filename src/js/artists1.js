@@ -84,7 +84,7 @@ const SPRITE = "/img/sprite.svg";
       <button class="card__link" data-action="more">
         Learn More
         <svg class="ico" aria-hidden="true">
-          <use href="${SPRITE}#icon-icon_right_button_feedback_sec"></use>
+          <use href="${SPRITE}#icon-icon_play_artists_sections"></use>
         </svg>
       </button>
     </li>`;
@@ -328,7 +328,7 @@ function trackRow(t) {
 
   const yIco  = `
     <svg class="ico am-yt" aria-hidden="true">
-      <use href="${SPRITE}#icon-icon_play_artists_sections"></use>
+      <use href="${SPRITE}#icon-icon_youtube_footer"></use>
     </svg>`;
 
   return `
