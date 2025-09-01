@@ -1,82 +1,107 @@
-const refs = {
-  modalOverlayArtists: document.querySelector('.modal-overlay-artists'),
-  closeModalBtn: document.querySelector('.close-btn'),
-  body: document.querySelector('body'),
-  loader: document.querySelector('.modal-loader'),
-  artistsSection: document.querySelector('#artists-card-id'), 
-};
+
+import { fetchIndAboutArtist } from './api.js';
+
+const modalOverlay = document.querySelector('.modal-overlay-artists');
+const modalBody = document.querySelector('.modal-body'); // контейнер внутри оверлея
 
 function showLoader() {
-  refs.loader.classList.add('is-visible');
+  modalBody.innerHTML = '<div class="loader">Loading...</div>';
 }
 
 function hideLoader() {
-  refs.loader.classList.remove('is-visible');
+  const loader = modalBody.querySelector('.loader');
+  if (loader) loader.remove();
 }
 
-window.history.scrollRestoration = 'manual';
-
-window.addEventListener('load', () => {
-  window.scrollTo(0, 0);
-  console.log('Page loaded, scroll set to top');
-});
-
-function onModalOverlayClick(event) {
-  if (event.target === refs.modalOverlayArtists) {
-    console.log('Overlay clicked, closing modal');
-    closeModal();
-  }
+function formatDuration(ms) {
+  if (!ms) return '—';
+  const totalSec = Math.floor(ms / 1000);
+  const min = Math.floor(totalSec / 60);
+  const sec = String(totalSec % 60).padStart(2, '0');
+  return `${min}:${sec}`;
 }
 
-function onDocumentKeydown(event) {
-  if (
-    refs.modalOverlayArtists.classList.contains('is-open') &&
-    event.key === 'Escape'
-  ) {
-    console.log('Escape pressed, closing modal');
-    closeModal();
-  }
-}
+export async function openModal(artistData) {
+  if (!artistData) return;
 
-export function openModal() {
-  console.log('Opening modal');
-  refs.modalOverlayArtists.classList.add('is-open');
+  const { id, strArtist, strArtistThumb, strBiographyEN, genres = [] } = artistData;
 
-  const scrollY = window.scrollY || window.pageYOffset;
-  refs.body.style.top = `-${scrollY}px`; 
-  refs.body.classList.add('no-scroll');
+  modalOverlay.classList.add('is-open');
+  document.body.classList.add('no-scroll');
 
-  refs.closeModalBtn.addEventListener('click', closeModal);
-  refs.modalOverlayArtists.addEventListener('click', onModalOverlayClick);
-  document.addEventListener('keydown', onDocumentKeydown);
   showLoader();
+
+  try {
+    const { albums } = await fetchIndAboutArtist(id);
+
+    let albumsMarkup = '';
+    if (albums.length) {
+      albumsMarkup = albums.map(album => {
+        const tracksMarkup = album.tracks?.map(track => `
+          <li class="track">
+            <span>${track.strTrack || 'No name'}</span>
+            <span>${formatDuration(track.intDuration)}</span>
+            <span>${track.movie ? `<a href="${track.movie}" target="_blank">YouTube</a>` : ''}</span>
+          </li>
+        `).join('') || '';
+        return `
+          <div class="album">
+            <h4>${album.strAlbum || 'Unknown Album'}</h4>
+            <ul class="tracks">
+              <li class="track header"><span>Track</span><span>Time</span><span>Link</span></li>
+              ${tracksMarkup}
+            </ul>
+          </div>
+        `;
+      }).join('');
+    } else {
+      albumsMarkup = '<p>No albums found for this artist.</p>';
+    }
+
+    modalBody.innerHTML = `
+      <button class="close-btn">×</button>
+      <div class="modal-content">
+        <div class="artist-header">
+          <img src="${strArtistThumb}" alt="${strArtist}" class="artist-photo"/>
+          <h2 class="artist-name">${strArtist}</h2>
+          ${genres.length ? `<div class="artist-genres">${genres.map(g=>`<span class="genre">${g}</span>`).join('')}</div>` : ''}
+        </div>
+        <div class="artist-bio">
+          <h3>Biography</h3>
+          <p>${strBiographyEN || 'No biography available.'}</p>
+        </div>
+        <h3>Albums</h3>
+        <div class="artist-albums">
+          ${albumsMarkup}
+        </div>
+      </div>
+    `;
+
+    modalBody.querySelector('.close-btn').addEventListener('click', closeModal);
+
+  } catch (err) {
+    modalBody.innerHTML = '<p>Error loading artist info.</p>';
+  } finally {
+    hideLoader();
+  }
 }
 
 export function closeModal() {
-  console.log('Closing modal');
-  refs.modalOverlayArtists.classList.remove('is-open');
-
-  const scrollY = parseInt(refs.body.style.top || '0') * -1;
-  refs.body.classList.remove('no-scroll');
-  refs.body.style.top = '';
-  window.scrollTo(0, scrollY);
-
-  refs.closeModalBtn.removeEventListener('click', closeModal);
-  refs.modalOverlayArtists.removeEventListener('click', onModalOverlayClick);
-  document.removeEventListener('keydown', onDocumentKeydown);
-  hideLoader();
+  modalOverlay.classList.remove('is-open');
+  document.body.classList.remove('no-scroll');
+  modalBody.innerHTML = '';
 }
 
-if (refs.artistsSection) {
-  refs.artistsSection.addEventListener('click', (event) => {
-    const learnMoreButton = event.target.closest('.artist-card-link, .card__link');
-    if (!learnMoreButton) return;
+// Закрытие кликом на оверлей
+modalOverlay.addEventListener('click', (e) => {
+  if (e.target === modalOverlay) closeModal();
+});
 
-    if (learnMoreButton.tagName === 'A') event.preventDefault();
+// Закрытие по ESC
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && modalOverlay.classList.contains('is-open')) closeModal();
+});
 
-    console.log('Artist card clicked, opening modal');
-    openModal();
-  });
-} else {
-  console.warn('Виконавців з ID "artists-card-id" не знайдено.');
-}
+
+window.openModal = openModal;
+window.closeModal = closeModal;
