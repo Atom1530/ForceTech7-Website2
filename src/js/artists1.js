@@ -3,32 +3,28 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
 
 const SPRITE = "/img/sprite.svg";
 
-/* ================= Toast helper (vanilla) ================= */
+/* ================= Toast helper ================= */
 (function initToast() {
   if (window.__toast) return;
   const box = document.createElement("div");
   box.className = "toast-container";
   document.body.appendChild(box);
-
   const show = (message, kind = "info", timeout = 3000) => {
     const item = document.createElement("div");
     item.className = `toast toast--${kind}`;
     item.setAttribute("role", "status");
     item.textContent = String(message || "");
     box.appendChild(item);
-
     const t = setTimeout(() => {
       item.classList.add("toast--hide");
       item.addEventListener("animationend", () => item.remove(), { once: true });
     }, timeout);
-
     item.addEventListener("click", () => {
       clearTimeout(t);
       item.classList.add("toast--hide");
       item.addEventListener("animationend", () => item.remove(), { once: true });
     });
   };
-
   window.__toast = {
     show,
     info: (m, t) => show(m, "info", t),
@@ -37,38 +33,37 @@ const SPRITE = "/img/sprite.svg";
   };
 })();
 
-/* ===== Scroll lock (фикс без дёрганий) ===== */
+/* ================= Scroll lock ================= */
 let __scrollY = 0;
 function lockScroll() {
   __scrollY = window.scrollY || document.documentElement.scrollTop || 0;
-  document.body.style.position = 'fixed';
+  document.body.style.position = "fixed";
   document.body.style.top = `-${__scrollY}px`;
-  document.body.style.left = '0';
-  document.body.style.right = '0';
-  document.body.style.width = '100%';
+  document.body.style.left = "0";
+  document.body.style.right = "0";
+  document.body.style.width = "100%";
 }
 function unlockScroll() {
-  document.body.style.position = '';
-  document.body.style.top = '';
-  document.body.style.left = '';
-  document.body.style.right = '';
-  document.body.style.width = '';
+  document.body.style.position = "";
+  document.body.style.top = "";
+  document.body.style.left = "";
+  document.body.style.right = "";
+  document.body.style.width = "";
   window.scrollTo(0, __scrollY);
 }
-
 
 /* ================= Artists Section ================= */
 (function initArtists1() {
   const root = document.querySelector("#artists-section");
   if (!root) return;
 
-  // ---- refs
+  // Refs
   const panel = root.querySelector("#filters-panel");
   const toggleBtn = root.querySelector("#filters-toggle");
   const resetBtn = root.querySelector("#filters-reset");
   const resetBtnSm = root.querySelector("#filters-reset-sm");
   const searchInput = root.querySelector("#flt-q");
-  const searchBtn = root.querySelector("#flt-q-btn"); // может отсутствовать
+  const searchBtn = root.querySelector("#flt-q-btn");
 
   const ddSort = root.querySelector('.dd[data-dd="sort"]');
   const ddSortBtn = root.querySelector("#dd-sort-btn");
@@ -87,18 +82,18 @@ function unlockScroll() {
   const modalBody = root.querySelector("#am-body");
   const modalClose = root.querySelector("#am-close");
 
-  // ---- state
+  // State
   const state = {
     page: 1,
     limit: 8,
     total: 0,
-    sort: "",      // "", "asc", "desc"
-    genre: "",     // "" | "Rock" | ...
-    q: "",         // search query
+    sort: "",
+    genre: "",
+    q: "",
     isMobilePanelOpen: false,
   };
 
-  // ---- utils
+  // Utils
   const show = (el) => el && el.removeAttribute("hidden");
   const hide = (el) => el && el.setAttribute("hidden", "");
   const isDesktop = () => matchMedia("(min-width:1440px)").matches;
@@ -120,17 +115,13 @@ function unlockScroll() {
     else { hide(empty); show(grid); }
   }
 
-  /* ====== Build card (с srcset) ====== */
   function buildCard(a) {
     const id = a?.id || a?._id || a?.artistId || "";
     const name = a?.strArtist || a?.name || "Unknown";
     const img = a?.strArtistThumb || a?.photo || a?.image || "https://via.placeholder.com/960x540?text=No+Image";
     const about = a?.strBiographyEN || a?.about || "";
     const tags = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
-
-    // sizes: 50vw на десктопе (две колонки), 704px на планшете, 100vw на мобайле
     const sizes = "(min-width:1440px) 50vw, (min-width:768px) 704px, 100vw";
-
     return `
       <li class="card" data-id="${id}">
         <div class="card__media">
@@ -173,10 +164,8 @@ function unlockScroll() {
     pager.innerHTML = out.join("");
   }
 
-  /* ====== Genres: small loader in dropdown ====== */
   async function loadGenres() {
     try {
-      // визуальный лоадер в списке жанров
       ddGenre?.classList.add("loading");
       ddGenreBtn?.setAttribute("aria-busy", "true");
       if (ddGenreBtn) ddGenreBtn.disabled = true;
@@ -185,11 +174,9 @@ function unlockScroll() {
           <span class="dd__spinner" aria-hidden="true"></span>
           <span>Loading…</span>
         </li>`;
-
       const list = await fetchGenres();
       ddGenreList.innerHTML = list.map(g => `<li data-val="${g}">${g}</li>`).join("");
     } catch {
-      // на всякий случай fallback (api уже показывает toast)
       ddGenreList.innerHTML = `<li data-val="">All Genres</li>`;
     } finally {
       ddGenre?.classList.remove("loading");
@@ -198,16 +185,12 @@ function unlockScroll() {
     }
   }
 
-  /* ====== Artists list ====== */
   async function loadArtists() {
     show(loader); hide(pager);
-
     const query = state.q.trim();
     const wantSearch = query.length >= 1;
-
     let list = [];
     let total = 0;
-
     try {
       const server = await fetchArtists({
         page: state.page,
@@ -216,36 +199,23 @@ function unlockScroll() {
         sort: state.sort || "",
         name: wantSearch ? query : "",
       });
-
       list = Array.isArray(server.artists) ? server.artists : [];
       total = Number(server.totalArtists || list.length || 0);
     } catch {
       list = [];
       total = 0;
-      // toast уже показан в api
     }
-
-    // клиентская сортировка на всякий
     if (state.sort === "asc")  list = list.slice().sort((a,b)=> byName(a).localeCompare(byName(b)));
     if (state.sort === "desc") list = list.slice().sort((a,b)=> byName(b).localeCompare(byName(a)));
-
-    if (!list.length){
-      hide(loader);
-      grid.innerHTML = "";
-      applyEmpty(true);
-      return;
-    }
-
+    if (!list.length){ hide(loader); grid.innerHTML = ""; applyEmpty(true); return; }
     applyEmpty(false);
     renderGrid(list);
-
     const totalPages = Math.max(1, Math.ceil(total / state.limit));
     renderPager(state.page, totalPages);
     show(pager);
     hide(loader);
   }
 
-  /* ====== Common interactions ====== */
   function resetAll() {
     state.page = 1;
     state.sort = "";
@@ -300,7 +270,6 @@ function unlockScroll() {
     loadArtists();
   });
 
-  // поиск
   function doSearch(){
     state.q = searchInput.value.trim();
     state.page = 1;
@@ -321,28 +290,372 @@ function unlockScroll() {
     loadArtists();
   });
 
-  /* ====== Modal ====== */
-function openModal() {
-  modal.removeAttribute("hidden");
-  lockScroll();
-  modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
-  addEscListener();
-}
+  /* ================= Mini YouTube Player ================= */
+  function getYouTubeId(url) {
+    try {
+      const u = new URL(url);
+      if (/youtu\.be$/.test(u.hostname)) return u.pathname.slice(1);
+      if (u.searchParams.get("v")) return u.searchParams.get("v");
+      const m = u.pathname.match(/\/(embed|shorts|v)\/([^/?#]+)/);
+      if (m) return m[2];
+      return "";
+    } catch { return ""; }
+  }
 
-function closeModal() {
-  modal.setAttribute("hidden", "");
-  unlockScroll(); 
-  modalBody.innerHTML = "";
-  removeEscListener();
-}
+  let playerDock = null;
+  let playerFrame = null;
+  let playerOpenLink = null;
 
+  function ensurePlayerDock() {
+    if (playerDock) return;
+    const dialog = modal.querySelector(".amodal__dialog");
+    playerDock = document.createElement("div");
+    playerDock.className = "am-player";
+    playerDock.innerHTML = `
+      <div class="am-player__inner" role="region" aria-label="YouTube mini player">
+        <div class="am-player__frame"></div>
+        <div class="am-player__bar">
+          <a class="am-player__yt" href="#" target="_blank" rel="noopener noreferrer">Open on YouTube ↗</a>
+          <button class="am-player__close" type="button" aria-label="Close player">×</button>
+        </div>
+      </div>`;
+    dialog.appendChild(playerDock);
+    playerFrame = playerDock.querySelector(".am-player__frame");
+    playerOpenLink = playerDock.querySelector(".am-player__yt");
+    playerDock.querySelector(".am-player__close").addEventListener("click", closePlayer);
+  }
+
+  function openPlayer(youtubeUrl) {
+    const id = getYouTubeId(youtubeUrl);
+    if (!id) { window.__toast?.error("Не удалось открыть видео."); return; }
+    ensurePlayerDock();
+    const src = `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0&modestbranding=1`;
+    let iframe = playerFrame.querySelector("iframe");
+    if (!iframe) {
+      iframe = document.createElement("iframe");
+      iframe.setAttribute("title", "YouTube video player");
+      iframe.setAttribute("allow","accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share");
+      iframe.setAttribute("allowfullscreen", "true");
+      iframe.setAttribute("referrerpolicy", "origin-when-cross-origin");
+      playerFrame.appendChild(iframe);
+    }
+    iframe.src = src;
+    playerOpenLink.href = youtubeUrl;
+    playerDock.classList.add("am-player--active");
+  }
+
+  function closePlayer() {
+    if (!playerDock) return;
+    const iframe = playerFrame?.querySelector("iframe");
+    if (iframe) iframe.src = "";
+    playerDock.classList.remove("am-player--active");
+  }
+
+  modal.addEventListener("click", (e) => {
+    const a = e.target.closest("a.yt");
+    if (!a) return;
+    e.preventDefault();
+    openPlayer(a.href);
+  });
+
+  /* ================= Image Zoom Lightbox (global, pinch + bounds) ================= */
+  let zoomOverlay = null;
+  let zoomImg = null;
+  let zoomLink = null;
+  let stageEl = null;
+
+  // pan/zoom state
+  let isPanning = false;
+  let startX = 0, startY = 0;
+  let curX = 0, curY = 0;
+  let scale = 1;
+
+  // pinch state
+  const activePointers = new Map(); // id -> {x,y}
+  let pinchActive = false;
+  let pinchBaseDist = 0;
+  let pinchBaseScale = 1;
+
+  // bounds base (measured at scale=1)
+  let baseW = 0, baseH = 0;
+  let stageW = 0, stageH = 0;
+
+  function clamp(v, min, max){ return Math.max(min, Math.min(max, v)); }
+  function dist(a,b){ const dx=a.x-b.x, dy=a.y-b.y; return Math.hypot(dx,dy); }
+  function midpoint(a,b){ return { x:(a.x+b.x)/2, y:(a.y+b.y)/2 }; }
+
+  function ensureZoom() {
+    if (zoomOverlay) return;
+    zoomOverlay = document.createElement("div");
+    zoomOverlay.className = "am-zoom";
+    zoomOverlay.innerHTML = `
+      <div class="am-zoom__backdrop"></div>
+      <div class="am-zoom__dialog" role="dialog" aria-modal="true" aria-label="Image preview">
+        <div class="am-zoom__stage">
+          <img class="am-zoom__img" alt="">
+        </div>
+        <div class="am-zoom__bar">
+          <a class="am-zoom__open" href="#" target="_blank" rel="noopener noreferrer">Open original ↗</a>
+          <button class="am-zoom__close" type="button" aria-label="Close">×</button>
+        </div>
+      </div>`;
+    document.body.appendChild(zoomOverlay);
+
+    zoomImg  = zoomOverlay.querySelector(".am-zoom__img");
+    zoomLink = zoomOverlay.querySelector(".am-zoom__open");
+    stageEl  = zoomOverlay.querySelector(".am-zoom__stage");
+
+    zoomOverlay.querySelector(".am-zoom__backdrop").addEventListener("click", closeImgZoom);
+    zoomOverlay.querySelector(".am-zoom__close").addEventListener("click", closeImgZoom);
+
+    // Desktop UX
+    zoomImg.addEventListener("dblclick", toggleZoom);
+    zoomOverlay.addEventListener("wheel", onWheel, { passive: false });
+
+    // Pointer events (mouse/touch/pen)
+    zoomImg.addEventListener("pointerdown", onPointerDown);
+    zoomImg.addEventListener("pointermove", onPointerMove);
+    zoomImg.addEventListener("pointerup", onPointerUpCancel);
+    zoomImg.addEventListener("pointercancel", onPointerUpCancel);
+
+    // ESC to close
+    document.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape" && isZoomActive()) closeImgZoom();
+    });
+
+    // On resize: re-measure stage and clamp
+    window.addEventListener("resize", () => {
+      if (!isZoomActive()) return;
+      measureStage();
+      applyTransform();
+    });
+  }
+
+  function isZoomActive(){ return zoomOverlay && zoomOverlay.classList.contains("am-zoom--active"); }
+
+  function measureBase() {
+    // измеряем картинку в состоянии scale=1, translate=0
+    const prevTransform = zoomImg.style.transform;
+    zoomImg.style.transform = "translate3d(0,0,0) scale(1)";
+    const r = zoomImg.getBoundingClientRect();
+    zoomImg.style.transform = prevTransform;
+    baseW = r.width;
+    baseH = r.height;
+  }
+  function measureStage() {
+    const s = stageEl.getBoundingClientRect();
+    stageW = s.width;
+    stageH = s.height;
+  }
+
+  function clampPan() {
+    if (!baseW || !baseH || !stageW || !stageH) return;
+    const contentW = baseW * scale;
+    const contentH = baseH * scale;
+
+    // если контент меньше контейнера — центруем и не даём сдвигать
+    if (contentW <= stageW) curX = 0;
+    else {
+      const maxX = (contentW - stageW) / 2;
+      curX = clamp(curX, -maxX, maxX);
+    }
+
+    if (contentH <= stageH) curY = 0;
+    else {
+      const maxY = (contentH - stageH) / 2;
+      curY = clamp(curY, -maxY, maxY);
+    }
+  }
+
+  function openImgZoom(src, alt) {
+    if (!src) return;
+    ensureZoom();
+
+    // reset state
+    activePointers.clear();
+    pinchActive = false;
+    pinchBaseDist = 0;
+    pinchBaseScale = 1;
+    isPanning = false;
+    startX = startY = 0;
+    curX = curY = 0;
+    scale = 1;
+
+    zoomImg.src = src;
+    zoomImg.alt = alt || "";
+    zoomLink.href = src;
+
+    // применяем 1x, потом меряем и уже после — плавно работаем
+    applyTransform();
+
+    const doMeasure = () => {
+      measureStage();
+      measureBase();
+      clampPan();
+      applyTransform();
+    };
+
+    if (zoomImg.complete) {
+      // иногда complete=true, но размеры ещё 0 — отложим в кадр
+      requestAnimationFrame(doMeasure);
+    } else {
+      zoomImg.onload = () => {
+        requestAnimationFrame(doMeasure);
+      };
+    }
+
+    zoomOverlay.classList.add("am-zoom--active");
+  }
+
+  function closeImgZoom() {
+    if (!zoomOverlay) return;
+    zoomOverlay.classList.remove("am-zoom--active");
+    zoomImg.src = "";
+    activePointers.clear();
+    pinchActive = false;
+  }
+
+  function applyTransform() {
+    clampPan();
+    zoomImg.style.transform = `translate3d(${curX}px, ${curY}px, 0) scale(${scale})`;
+    zoomImg.style.cursor = scale > 1 ? (isPanning ? "grabbing" : "grab") : "zoom-in";
+  }
+
+  function toggleZoom() {
+    const prev = scale;
+    scale = prev > 1 ? 1 : 2;
+    if (scale === 1) { curX = 0; curY = 0; }
+    applyTransform();
+  }
+
+  function onWheel(e){
+    if (!isZoomActive()) return;
+    e.preventDefault();
+    const newScale = clamp(scale + (e.deltaY > 0 ? -0.15 : 0.15), 1, 3);
+
+    // масштабируем вокруг курсора (pivot)
+    const rect = zoomImg.getBoundingClientRect();
+    const pivot = { x: e.clientX, y: e.clientY };
+    const center = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+    const factor = newScale / scale;
+    curX += (center.x - pivot.x) * (1 - factor);
+    curY += (center.y - pivot.y) * (1 - factor);
+
+    scale = newScale;
+    if (scale === 1) { curX = 0; curY = 0; }
+    applyTransform();
+  }
+
+  /* ===== Pointer (pan + pinch) ===== */
+  function onPointerDown(e){
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    zoomImg.setPointerCapture(e.pointerId);
+
+    if (activePointers.size === 2) {
+      const [p1, p2] = Array.from(activePointers.values());
+      pinchActive = true;
+      pinchBaseDist = dist(p1, p2) || 1;
+      pinchBaseScale = scale;
+      isPanning = false;
+      return;
+    }
+    if (activePointers.size === 1 && scale > 1) {
+      isPanning = true;
+      startX = e.clientX - curX;
+      startY = e.clientY - curY;
+      applyTransform();
+    }
+  }
+
+  function onPointerMove(e){
+    if (!activePointers.has(e.pointerId)) return;
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    if (pinchActive && activePointers.size >= 2) {
+      const values = Array.from(activePointers.values());
+      const p1 = values[0], p2 = values[1];
+      const d = dist(p1, p2) || 1;
+      let newScale = clamp(pinchBaseScale * (d / pinchBaseDist), 1, 3);
+
+      // удерживаем под пальцами — якорим к midpoint
+      const mid = midpoint(p1, p2);
+      const rect = zoomImg.getBoundingClientRect();
+      const center = { x: rect.left + rect.width/2, y: rect.top + rect.height/2 };
+      const factor = newScale / scale;
+      curX += (center.x - mid.x) * (1 - factor);
+      curY += (center.y - mid.y) * (1 - factor);
+
+      scale = newScale;
+      if (scale === 1) { curX = 0; curY = 0; }
+      applyTransform();
+      return;
+    }
+
+    if (isPanning && activePointers.size === 1 && scale > 1) {
+      curX = e.clientX - startX;
+      curY = e.clientY - startY;
+      applyTransform();
+    }
+  }
+
+  function onPointerUpCancel(e){
+    if (activePointers.has(e.pointerId)) {
+      activePointers.delete(e.pointerId);
+    }
+    try { zoomImg.releasePointerCapture(e.pointerId); } catch {}
+
+    if (activePointers.size < 2) {
+      pinchActive = false;
+      pinchBaseDist = 0;
+    }
+    if (activePointers.size === 0) {
+      isPanning = false;
+      applyTransform();
+    }
+  }
+
+  // Клик по фото в модалке → зум
+  modal.addEventListener("click", (e) => {
+    const img = e.target.closest(".amodal__img");
+    if (!img) return;
+    const src = img.currentSrc || img.getAttribute("src") || img.getAttribute("data-src") || "";
+    openImgZoom(src, img.getAttribute("alt") || "");
+  });
+
+  // Клик по фото на сетке → зум
+  grid.addEventListener("click", (e) => {
+    const img = e.target.closest(".card__media img");
+    if (!img) return;
+    const src = img.currentSrc || img.src || "";
+    openImgZoom(src, img.alt || "");
+  });
+
+  /* ================= Modal open/close ================= */
+  function openModal() {
+    modal.removeAttribute("hidden");
+    lockScroll();
+    modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
+    addEscListener();
+  }
+  function closeModal() {
+    modal.setAttribute("hidden", "");
+    unlockScroll();
+    modalBody.innerHTML = "";
+    removeEscListener();
+    closePlayer();
+    closeImgZoom();
+  }
 
   modalClose?.addEventListener("click", closeModal);
   modal.addEventListener("click", (e) => {
     if (e.target.classList.contains("amodal__backdrop")) closeModal();
   });
 
-  const onEsc = (e) => { if (e.key === "Escape" && !modal.hasAttribute("hidden")) closeModal(); };
+  const onEsc = (e) => {
+    if (e.key !== "Escape" || modal.hasAttribute("hidden")) return;
+    if (isZoomActive()) closeImgZoom();
+    else closeModal();
+  };
   function addEscListener(){ document.addEventListener("keydown", onEsc); }
   function removeEscListener(){ document.removeEventListener("keydown", onEsc); }
 
@@ -367,12 +680,10 @@ function closeModal() {
     const title = t?.strTrack || t?.title || t?.name || "—";
     const dur   = fmtTime(t?.intDuration ?? t?.duration ?? t?.time);
     const link  = t?.movie ?? t?.youtube ?? t?.youtube_url ?? t?.url ?? t?.strMusicVid;
-
     const yIco  = `
       <svg class="ico am-yt" aria-hidden="true">
         <use href="${SPRITE}#icon-icon_youtube_footer"></use>
       </svg>`;
-
     return `
       <li class="tr">
         <span>${title}</span>
@@ -388,7 +699,6 @@ function closeModal() {
   async function renderModal(id){
     const [a, albums] = await Promise.all([fetchArtist(id), fetchArtistAlbums(id)]);
     const d = a || {};
-
     const name    = d?.strArtist || d?.name || "Unknown artist";
     const img     = d?.strArtistThumb || d?.photo || d?.image || "https://via.placeholder.com/960x540?text=No+Image";
     const country = d?.strCountry || d?.country || "N/A";
@@ -449,7 +759,6 @@ function closeModal() {
   loadGenres();
   loadArtists();
 
-  // карточка → модалка
   grid.addEventListener("click", async (e)=>{
     const btn = e.target.closest('[data-action="more"]'); if(!btn) return;
     const id = btn.closest(".card")?.dataset?.id; if(!id) return;
