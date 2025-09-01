@@ -23,31 +23,19 @@
           aria-expanded="false"
         >
           <span>Search and Filters</span>
-
-          <svg class="ico" aria-hidden="true">
-            <use id="filters-toggle-ico" href="#icon-arrow-up"></use>
-          </svg>
         </button>
       </div>
 
       <div id="filters-panel" class="filters__panel" aria-hidden="true">
+        <!-- Поле поиска: одна лупа слева, без правой кнопки -->
         <label class="fld fld-search">
-          <svg class="ico" aria-hidden="true">
-            <use href="#icon-search"></use>
+          <svg class="ico" aria-hidden="true" width="24" height="24">
+            <use href="/img/sprite.svg#icon-search"></use>
           </svg>
           <input id="flt-q" type="search" placeholder="Search" />
-          <button
-            id="flt-q-btn"
-            type="button"
-            class="ghost-btn"
-            aria-label="Search"
-          >
-            <svg class="ico" aria-hidden="true">
-              <use href="#icon-search"></use>
-            </svg>
-          </button>
         </label>
 
+        <!-- Сортировка -->
         <div class="dd" data-dd="sort">
           <button
             class="dd__btn"
@@ -57,9 +45,6 @@
             aria-controls="dd-sort-list"
           >
             <span>Sorting</span>
-            <svg class="ico" aria-hidden="true">
-              <use id="dd-sort-ico" href="#icon-arrow-up"></use>
-            </svg>
           </button>
           <ul class="dd__list" id="dd-sort-list" role="listbox">
             <li data-val="">Default</li>
@@ -68,6 +53,7 @@
           </ul>
         </div>
 
+        <!-- Жанр -->
         <div class="dd" data-dd="genre">
           <button
             class="dd__btn"
@@ -77,13 +63,11 @@
             aria-controls="dd-genre-list"
           >
             <span>Genre</span>
-            <svg class="ico" aria-hidden="true">
-              <use id="dd-genre-ico" href="#icon-arrow-up"></use>
-            </svg>
           </button>
           <ul class="dd__list" id="dd-genre-list" role="listbox"></ul>
         </div>
 
+        <!-- Reset (моб/таб) -->
         <button
           id="filters-reset-sm"
           class="filters__reset filters__reset--sm"
@@ -117,6 +101,7 @@
     </div>
   </div>
 
+  <!-- Модалка (твоя текущая разметка может остаться — JS под неё уже пишет) -->
   <div id="artist-modal" class="amodal" hidden>
     <div class="amodal__backdrop"></div>
     <div class="amodal__dialog" role="dialog" aria-modal="true">

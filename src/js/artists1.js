@@ -11,7 +11,7 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
   const resetBtn = root.querySelector("#filters-reset");
   const resetBtnSm = root.querySelector("#filters-reset-sm");
   const searchInput = root.querySelector("#flt-q");
-  const searchBtn = root.querySelector("#flt-q-btn");
+  const searchBtn = root.querySelector("#flt-q-btn"); // в HTML его больше нет — оставляем на всякий случай (ниже стоит ?. )
 
   const ddSort = root.querySelector('.dd[data-dd="sort"]');
   const ddSortBtn = root.querySelector("#dd-sort-btn");
@@ -35,9 +35,9 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
     page: 1,
     limit: 8,
     total: 0,
-    sort: "",     
-    genre: "",    
-    q: "",        
+    sort: "",     // "", "asc", "desc"
+    genre: "",    // "" или имя жанра
+    q: "",        // введённый текст
     isMobilePanelOpen: false,
   };
 
@@ -80,7 +80,7 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
         <p class="card__text">${about}</p>
         <button class="card__link" data-action="more">
           Learn More
-          <svg class="ico"><use href="#icon-icon_right_button_feedback_sec"></use></svg>
+          <svg class="ico" width="10" height="10"><use href="#icon-icon_right_button_feedback_sec"></use></svg>
         </button>
       </li>`;
   }
@@ -109,63 +109,70 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
     try{
       const list = await fetchGenres();
       ddGenreList.innerHTML = list.map(g=>`<li data-val="${g}">${g}</li>`).join("");
-    }catch{ ddGenreList.innerHTML = `<li data-val="">All Genres</li>`; }
+    }catch{
+      ddGenreList.innerHTML = `<li data-val="">All Genres</li>`;
+    }
   }
 
-  
+  // основная загрузка с серверным поиском + fallback
   async function loadArtists(){
     show(loader); hide(pager);
 
-    const wantSearch = (state.q.trim().length >= 2);
+    const query = state.q.trim();
+    const wantSearch = query.length >= 1;
+
     let list = [];
     let total = 0;
 
     try {
-      if (wantSearch) {
-       
-        const res = await fetchArtists({ page: 1, limit: 200, genre: state.genre || "" });
-        list = Array.isArray(res.artists) ? res.artists : [];
-       
-        if (state.genre) {
-          list = list.filter(a => {
-            const gs = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
-            return gs.includes(state.genre);
-          });
-        }
-        const ql = state.q.trim().toLowerCase();
+      // 1) основной запрос — серверный
+      const server = await fetchArtists({
+        page: state.page,
+        limit: state.limit,
+        genre: state.genre || "",
+        sort: state.sort || "",
+        name: wantSearch ? query : "",
+      });
+
+      list = Array.isArray(server.artists) ? server.artists : [];
+      total = Number(server.totalArtists || list.length || 0);
+
+      // 2) fallback: если ввели запрос, а сервер вернул пусто — достанем пачку и отфильтруем локально
+      if (wantSearch && list.length === 0) {
+        const big = await fetchArtists({
+          page: 1,
+          limit: 200,
+          genre: state.genre || "",
+          sort: "",        // чтобы не мешать локальной сортировке
+          name: "",        // без серверного фильтра
+        });
+        list = Array.isArray(big.artists) ? big.artists : [];
+        const ql = query.toLowerCase();
         list = list.filter(a => byName(a).includes(ql));
         total = list.length;
-      } else {
-        
-        const res = await fetchArtists({ page: state.page, limit: state.limit, genre: state.genre || "" });
-        list = Array.isArray(res.artists) ? res.artists : [];
-        total = Number(res.totalArtists || list.length || 0);
+
+        // пагинация для локального результата
+        const start = (state.page - 1) * state.limit;
+        list = list.slice(start, start + state.limit);
       }
     } catch {
-      list = []; total = 0;
+      list = [];
+      total = 0;
     }
 
-    
+    // локальная сортировка (дублируем серверную для консистентности)
     if (state.sort === "asc")  list = list.slice().sort((a,b)=> byName(a).localeCompare(byName(b)));
     if (state.sort === "desc") list = list.slice().sort((a,b)=> byName(b).localeCompare(byName(a)));
 
-   
-    let toRender = list;
-    let totalPages;
-    if (wantSearch) {
-      totalPages = Math.max(1, Math.ceil(list.length / state.limit));
-      const start = (state.page - 1) * state.limit;
-      toRender = list.slice(start, start + state.limit);
-    } else {
-      totalPages = Math.max(1, Math.ceil(total / state.limit));
-    }
-
-    if (!toRender.length){
+    // отрисовка
+    if (!list.length){
       hide(loader); grid.innerHTML = ""; applyEmpty(true); return;
     }
 
     applyEmpty(false);
-    renderGrid(toRender);
+    renderGrid(list);
+
+    const totalPages = Math.max(1, Math.ceil(total / state.limit));
     renderPager(state.page, totalPages);
     show(pager);
     hide(loader);
@@ -227,12 +234,13 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
     loadArtists();
   });
 
+  // поиск
   function doSearch(){
     state.q = searchInput.value.trim();
     state.page = 1;
     loadArtists();
   }
-  searchBtn.addEventListener("click", doSearch);
+  searchBtn?.addEventListener("click", doSearch); // если кнопки нет — не упадёт
   searchInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") doSearch(); });
 
   resetBtn.addEventListener("click", resetAll);
@@ -264,15 +272,23 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
 
   function years(details){
     const s = details?.intFormedYear || details?.yearStart || details?.formedYear;
-    const e = details?.intDiedYear   || details?.yearEnd   || details?.disbandedYear;
+    const e = details?.intDisbandedYear || details?.yearEnd || details?.disbandedYear;
     if (s && e) return `${s}–${e}`;
     if (s) return `${s}—present`;
     return "—";
   }
+  function formatDuration(ms){
+    const n = Number(ms);
+    if (!n || isNaN(n)) return "—";
+    const sec = Math.floor(n/1000);
+    const m = Math.floor(sec/60);
+    const s = String(sec%60).padStart(2,"0");
+    return `${m}:${s}`;
+  }
   function trackRow(t){
     const title = t?.title || t?.strTrack || t?.name || "—";
-    const dur   = t?.time || t?.duration || t?.strDuration || t?.intDuration || "—";
-    const y     = t?.youtube || t?.youtube_url || t?.url || t?.strMusicVid || "";
+    const dur   = formatDuration(t?.time || t?.duration || t?.strDuration || t?.intDuration);
+    const y     = t?.movie || t?.youtube || t?.youtube_url || t?.url || t?.strMusicVid || "";
     const yIcon = `<svg class="ico" style="width:14px;height:14px"><use href="#icon-icon_youtube_footer"></use></svg>`;
     return `<li class="tr"><span>${title}</span><span>${dur}</span><span>${y ? `<a href="${y}" target="_blank" rel="noopener">${yIcon}</a>` : ""}</span></li>`;
   }
@@ -328,4 +344,3 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
   loadGenres();
   loadArtists();
 })();
-

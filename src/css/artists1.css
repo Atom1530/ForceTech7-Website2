@@ -524,4 +524,79 @@
 .dd.open .dd__btn::after {
   transform: translateY(-50%) rotate(-135deg);
 }
-/* === конец вставки === */
+/* прячем стандартный clear у input[type=search] в WebKit/Chromium */
+#flt-q::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+/* Поле поиска: лупа слева, кнопки справа нет */
+.fld {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #272630;
+  border-radius: 12px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+}
+.fld .ico {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+}
+.fld input {
+  flex: 1 1 auto;
+  background: transparent;
+  border: 0;
+  color: #fff;
+  outline: 0;
+}
+
+/* Прячем svg в кнопках (используем псевдоэлементы-стрелки как в образце 1) */
+.filters__toggle .ico,
+.dd__btn .ico {
+  display: none !important;
+}
+
+/* Кнопка "Search and Filters": стрелка псевдоэлементом */
+.filters__toggle {
+  position: relative;
+  padding-right: 30px;
+}
+.filters__toggle::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.filters__toggle[aria-expanded='true']::after {
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+/* Дропдауны: стрелка псевдоэлементом */
+.dd__btn {
+  position: relative;
+  padding-right: 30px;
+}
+.dd__btn::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.dd.open .dd__btn::after {
+  transform: translateY(-50%) rotate(-135deg);
+}

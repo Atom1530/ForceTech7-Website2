@@ -1,4 +1,4 @@
-
+// /src/js/api1.js
 import axios from "axios";
 
 const api = axios.create({
@@ -6,9 +6,9 @@ const api = axios.create({
   timeout: 15000,
 });
 
-
+// artists list
 export async function fetchArtists(
-  { page = 1, limit = 8, genre = "", sort = "", q = "" } = {}
+  { page = 1, limit = 8, genre = "", sort = "", name = "" } = {}
 ) {
   try {
     const params = {
@@ -16,25 +16,28 @@ export async function fetchArtists(
       limit: Math.max(1, Number(limit) || 8),
     };
 
-    
+    // сервер ожидает sortName=asc|desc
     const s = String(sort).toLowerCase();
-    if (s === "asc" || s === "desc") params.sort = s;
+    if (s === "asc" || s === "desc") params.sortName = s;
 
+    // жанр
     const g = String(genre).trim();
     if (g && g !== "All Genres") params.genre = g;
 
-    const query = String(q).trim();
-    
-    if (query.length >= 2) params.q = query;
+    // поиск — сервер ожидает name
+    const n = String(name).trim();
+    if (n.length >= 1) params.name = n;
 
     const { data } = await api.get("/artists", { params });
     return {
       artists: Array.isArray(data?.artists) ? data.artists : [],
       totalArtists: Number(data?.totalArtists || 0),
+      page: Number(data?.page || params.page),
+      limit: Number(data?.limit || params.limit),
     };
   } catch (err) {
     console.warn("[api] fetchArtists", err?.message || err);
-    return { artists: [], totalArtists: 0 };
+    return { artists: [], totalArtists: 0, page: 1, limit };
   }
 }
 
@@ -43,7 +46,6 @@ export async function fetchGenres() {
   try {
     const { data } = await api.get("/genres");
     const raw = Array.isArray(data) ? data : (data?.genres || []);
-    
     const names = raw
       .map((g) =>
         typeof g === "string"
@@ -51,7 +53,6 @@ export async function fetchGenres() {
           : g?.name || g?.title || g?.genre || g?.label || ""
       )
       .filter(Boolean);
-    
     const uniq = [...new Set(names)];
     return ["All Genres", ...uniq];
   } catch (err) {
@@ -60,7 +61,7 @@ export async function fetchGenres() {
   }
 }
 
-// artist details (для модалки)
+// artist details
 export async function fetchArtist(id) {
   try {
     const { data } = await api.get(`/artists/${id}`);
@@ -70,7 +71,7 @@ export async function fetchArtist(id) {
   }
 }
 
-// albums for modal
+// albums
 export async function fetchArtistAlbums(id) {
   try {
     const { data } = await api.get(`/artists/${id}/albums`);
