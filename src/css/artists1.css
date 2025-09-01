@@ -279,7 +279,7 @@
     width: 100%;
     height: 56px;
     padding: 0 16px;
-    border-radius: 24px;
+
     background: #0d0d0d;
     border: 1px solid #262626;
     color: #fff;
@@ -943,7 +943,7 @@ a:focus .am-yt {
 @media (min-width: 768px) and (max-width: 1439.98px) {
   #filters-panel {
     width: 304px;
-    min-height: 343px;
+
     padding: 12px;
     border-radius: 12px;
     background: #0d0d0d;
@@ -1073,5 +1073,88 @@ a:focus .am-yt {
   }
   #filters-toggle[aria-expanded='true']::after {
     transform: translateY(-50%) rotate(-135deg);
+  }
+}
+
+/* === TABLET: Search field как на мобайле (серый короб) === */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  /* сам «контейнер» поля — делаем серым как на мобайле */
+  #filters-panel .fld {
+    background: #272630 !important; /* тот же серый, что и на мобиле */
+    border: 0 !important; /* рамку убираем – на мобиле её нет */
+    border-radius: 12px; /* совпадает с мобилой */
+    padding: 0; /* оставляем твой текущий layout с abs-иконкой */
+  }
+
+  /* сам input — прозрачный без рамки, чтобы просвечивал серый .fld */
+  #filters-panel #flt-q {
+    background: transparent !important;
+    border: 0 !important;
+    /* сохраняем твои размеры и внутренние отступы, чтобы иконка не наезжала */
+    height: 47px;
+    padding: 10px 12px 10px 44px;
+    color: #fff;
+  }
+
+  /* иконка остаётся белой, позиционирование как у тебя сейчас */
+  #filters-panel .fld .ico {
+    width: 24px;
+    height: 24px;
+    /* твои текущие координаты: */
+    left: 12px;
+    top: 12px;
+    position: absolute;
+    pointer-events: none;
+  }
+}
+
+/* === MOBILE + TABLET: один стиль для кнопок и поля поиска === */
+@media (max-width: 1439.98px) {
+  /* Кнопка Filters, контейнер поиска, кнопка Search, контейнеры Sorting/Genre */
+  .artists1 #filters-toggle,
+  .artists1 #filters-panel .fld,
+  .artists1 #filters-panel #flt-q-btn,
+  .artists1 #filters-panel .dd {
+    background: rgba(255, 255, 255, 0.1) !important;
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
+    border: 0 !important;
+    color: var(--color-white) !important;
+  }
+
+  /* Текст и стрелочки на дропдаунах — белыми */
+  .artists1 #filters-panel .dd__btn {
+    background: transparent !important; /* фон даёт .dd */
+    color: var(--color-white) !important;
+  }
+  .artists1 #filters-panel .dd__btn::after {
+    border-right-color: var(--color-white) !important;
+    border-bottom-color: var(--color-white) !important;
+  }
+
+  /* Иконка и текст в поле поиска */
+  .artists1 #filters-panel .fld .ico {
+    fill: var(--color-white) !important;
+    color: var(--color-white) !important;
+  }
+  .artists1 #filters-panel #flt-q {
+    background: transparent !important; /* чтобы просвечивал фон .fld */
+    color: var(--color-white) !important;
+  }
+  .artists1 #filters-panel #flt-q::placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  .artists1 #filters-panel #flt-q::-webkit-input-placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+  .artists1 #filters-panel #flt-q::-moz-placeholder {
+    color: rgba(255, 255, 255, 0.8) !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .artists1 #filters-panel #flt-q-btn {
+    border-radius: 12px !important;
   }
 }
