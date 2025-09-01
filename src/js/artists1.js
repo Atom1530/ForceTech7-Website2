@@ -1,6 +1,6 @@
-// /src/js/artists1.js
+
 import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api1.js";
-// Путь к внешнему спрайту 
+ 
 const SPRITE = "/img/sprite.svg";
 
 
@@ -33,14 +33,14 @@ const SPRITE = "/img/sprite.svg";
   const modalBody = root.querySelector("#am-body");
   const modalClose = root.querySelector("#am-close");
 
-  // ---- state
+  
   const state = {
     page: 1,
     limit: 8,
     total: 0,
-    sort: "",     // "", "asc", "desc"
-    genre: "",    // "" или имя жанра
-    q: "",        // введённый текст
+    sort: "",     
+    genre: "",   
+    q: "",        
     isMobilePanelOpen: false,
   };
 
@@ -110,7 +110,7 @@ const SPRITE = "/img/sprite.svg";
     pager.innerHTML = out.join("");
   }
 
-  // ---- data
+  
   async function loadGenres(){
     try{
       const list = await fetchGenres();
@@ -120,7 +120,7 @@ const SPRITE = "/img/sprite.svg";
     }
   }
 
-  // основная загрузка с серверным поиском + fallback
+ 
   async function loadArtists(){
     show(loader); hide(pager);
 
@@ -131,7 +131,7 @@ const SPRITE = "/img/sprite.svg";
     let total = 0;
 
     try {
-      // 1) основной запрос — серверный
+     
       const server = await fetchArtists({
         page: state.page,
         limit: state.limit,
@@ -143,21 +143,21 @@ const SPRITE = "/img/sprite.svg";
       list = Array.isArray(server.artists) ? server.artists : [];
       total = Number(server.totalArtists || list.length || 0);
 
-      // 2) fallback: если ввели запрос, а сервер вернул пусто — достанем пачку и отфильтруем локально
+     
       if (wantSearch && list.length === 0) {
         const big = await fetchArtists({
           page: 1,
           limit: 200,
           genre: state.genre || "",
-          sort: "",        // чтобы не мешать локальной сортировке
-          name: "",        // без серверного фильтра
+          sort: "",        
+          name: "",        
         });
         list = Array.isArray(big.artists) ? big.artists : [];
         const ql = query.toLowerCase();
         list = list.filter(a => byName(a).includes(ql));
         total = list.length;
 
-        // пагинация для локального результата
+        
         const start = (state.page - 1) * state.limit;
         list = list.slice(start, start + state.limit);
       }
@@ -166,11 +166,11 @@ const SPRITE = "/img/sprite.svg";
       total = 0;
     }
 
-    // локальная сортировка (дублируем серверную для консистентности)
+    
     if (state.sort === "asc")  list = list.slice().sort((a,b)=> byName(a).localeCompare(byName(b)));
     if (state.sort === "desc") list = list.slice().sort((a,b)=> byName(b).localeCompare(byName(a)));
 
-    // отрисовка
+    
     if (!list.length){
       hide(loader); grid.innerHTML = ""; applyEmpty(true); return;
     }
@@ -194,7 +194,7 @@ const SPRITE = "/img/sprite.svg";
     loadArtists();
   }
 
-  // ---- dropdowns
+  
   function closeDropdowns(except){
     [ddSort, ddGenre].forEach(dd=>{
       if (dd !== except) {
@@ -212,7 +212,7 @@ const SPRITE = "/img/sprite.svg";
     if (ul) ul.style.display = open ? "block" : "none";
   }
 
-  // ---- events
+  
   toggleBtn?.addEventListener("click", ()=>{
     state.isMobilePanelOpen = !state.isMobilePanelOpen;
     syncPanelMode();
@@ -246,7 +246,7 @@ const SPRITE = "/img/sprite.svg";
     state.page = 1;
     loadArtists();
   }
-  searchBtn?.addEventListener("click", doSearch); // если кнопки нет — не упадёт
+  searchBtn?.addEventListener("click", doSearch); 
   searchInput.addEventListener("keydown", (e)=>{ if(e.key === "Enter") doSearch(); });
 
   resetBtn.addEventListener("click", resetAll);
@@ -269,10 +269,10 @@ const SPRITE = "/img/sprite.svg";
     await renderModal(id);
   });
 
-// --- modal open/close ---
+
 function openModal() {
   modal.removeAttribute("hidden");
-  document.body.classList.add("no-scroll"); // фиксируем страницу под модалкой
+  document.body.classList.add("no-scroll"); 
   modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
 }
 function closeModal() {
@@ -281,15 +281,15 @@ function closeModal() {
   modalBody.innerHTML = "";
 }
 
-// кнопки/оверлей/Escape
+
 modalClose?.addEventListener("click", closeModal);
 
 modal.addEventListener("click", (e) => {
-  // клик по полупрозрачному фону закрывает модалку
+ 
   if (e.target.classList.contains("amodal__backdrop")) closeModal();
 });
 
-// Esc закрывает, когда модалка открыта
+
 document.addEventListener("keydown", (e) => {
   if (e.key === "Escape" && !modal.hasAttribute("hidden")) closeModal();
 });
@@ -323,7 +323,7 @@ function fmtTime(val) {
 function trackRow(t) {
   const title = t?.strTrack || t?.title || t?.name || "—";
   const dur   = fmtTime(t?.intDuration ?? t?.duration ?? t?.time);
-  // основное поле по рефу — movie; оставил запасные варианты
+  
   const link  = t?.movie ?? t?.youtube ?? t?.youtube_url ?? t?.url ?? t?.strMusicVid;
 
   const yIco  = `

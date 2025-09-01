@@ -175,14 +175,13 @@
 }
 #flt-q-btn {
   display: none !important;
-} /* справа кнопки нет */
+}
 #flt-q::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
   display: none;
 }
 
-/* ===== Dropdowns (overlay, не двигают сетку) ===== */
 .dd {
   position: relative;
   background: #272630;
@@ -295,7 +294,6 @@
   }
 }
 
-/* ===== TABLET: кнопка/панель 304px прижаты вправо ===== */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   #filters-toggle {
     width: 304px;
@@ -322,8 +320,9 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 64px;
-  justify-content: center; /* mobile gap 64 */
+  justify-content: center;
 }
+
 .card {
   color: #e8e8ec;
   max-width: 100%;
@@ -749,7 +748,6 @@ a:focus .am-yt {
   overflow: hidden;
 }
 
-/* ===== Icons: force white ===== */
 .artists1 .ico,
 .artists1 .ico use,
 .artists1 .ico path {
@@ -759,38 +757,33 @@ a:focus .am-yt {
 }
 /* ================== PATCH: фильтры ================== */
 
-/* 1) Мобайл/планшет: панель фильтров — ОВЕРЛЕЙ поверх карточек */
 @media (max-width: 1439.98px) {
   .filters {
     position: relative;
     z-index: 5;
-  } /* якорь + слой выше сетки */
+  }
 
   #filters-panel {
-    position: absolute; /* <-- ключ: не влияет на поток */
-    top: calc(100% + 12px); /* сразу под баром фильтров */
+    position: absolute;
+    top: calc(100% + 12px);
     left: 0;
-    right: 0; /* мобайл: на всю ширину контейнера */
+    right: 0;
     z-index: 20;
-    /* безопасные габариты и скролл внутри */
+
     max-height: min(80vh, 720px);
     overflow: auto;
-    /* нынешний стиль панели оставляем */
   }
 }
 
-/* 1a) Планшет: панель фикс-ширины и прижата к правому краю */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   #filters-panel {
     width: 304px;
     left: auto;
-    right: 0; /* прижимаем вправо, как просили */
+    right: 0;
   }
 }
 
-/* 2) Выпадающие списки ВНУТРИ панели на моб/планшете — НЕ overlay, а «распахиваются» */
 @media (max-width: 1439.98px) {
-  /* сброс абсолютного позиционирования только внутри панели */
   #filters-panel .dd {
     position: static;
   }
@@ -811,10 +804,9 @@ a:focus .am-yt {
   }
   #filters-panel .dd.open .dd__list {
     display: block;
-  } /* раскрытие толкает Genre/Sorting вниз */
+  }
 }
 
-/* 3) Десктоп: оставляем overlay-списки и тёмный тулбар */
 @media (min-width: 1440px) {
   .fld,
   .dd {
@@ -823,7 +815,7 @@ a:focus .am-yt {
   }
   .dd {
     position: relative;
-  } /* якорь для overlay */
+  }
   .dd__list {
     position: absolute;
     left: 0;
@@ -848,23 +840,21 @@ a:focus .am-yt {
     border-bottom-right-radius: 0;
   }
 }
-/* ===== DESKTOP: dropdownы расширяют панель (без overlay) ===== */
+
 @media (min-width: 1440px) {
-  /* панель может расти вниз, ничего не обрезаем */
   #filters-panel {
     overflow: visible;
   }
 
-  /* убираем якорь для overlay и абсолютное позиционирование списков */
   #filters-panel .dd {
     position: static !important;
   }
   #filters-panel .dd__list {
-    position: static !important; /* ← ключ: больше не overlay */
+    position: static !important;
     display: none;
-    max-height: 320px; /* можно снять ограничение, если нужно */
+    max-height: 320px;
     overflow: auto;
-    background: #060307; /* как у десктоп-тулбара */
+    background: #060307;
     border: 0;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
     border-radius: 0 0 12px 12px;
@@ -879,40 +869,36 @@ a:focus .am-yt {
     border-bottom-right-radius: 0;
   }
 }
-/* ===== DESKTOP: кнопки как в фигме ===== */
+
 @media (min-width: 1440px) {
-  /* ширина колонки панели = 304px */
   #filters-panel {
-    width: 304px; /* соответствует колонке */
-    background: #060307; /* тёмный фон панели */
+    width: 304px;
+    background: #060307;
     border: 1px solid rgba(255, 255, 255, 0.12);
-    overflow: visible; /* чтобы раскрытые списки влезали */
+    overflow: visible;
   }
 
-  /* базовые блоки на ширину панели и с нужной окантовкой */
   #filters-panel .fld,
   #filters-panel .dd {
-    width: 100%; /* = 304px за счёт ширины панели */
-    background: transparent; /* как в фигме: rgba(255,255,255,0) */
+    width: 100%;
+    background: transparent;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 12px;
     margin-bottom: 12px;
   }
 
-  /* размеры самих «кнопок» (Sorting/Genre) */
   #filters-panel .dd__btn {
     height: 43px;
     padding: 8px 12px;
     font-size: 16px;
     font-weight: 600;
-    border-radius: 12px; /* верхние углы */
+    border-radius: 12px;
   }
-  /* стрелочка-псевдоэлементу хватит места с новым паддингом */
+
   #filters-panel .dd__btn::after {
     right: 12px;
   }
 
-  /* выпадающие списки — без overlay, расширяют панель вниз */
   #filters-panel .dd {
     position: static !important;
   }
@@ -921,9 +907,9 @@ a:focus .am-yt {
     display: none;
     max-height: 320px;
     overflow: auto;
-    background: #060307; /* в цвет панели */
+    background: #060307;
     border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0 0 12px 12px; /* нижние углы */
+    border-radius: 0 0 12px 12px;
     box-shadow: none;
     padding: 8px 0;
   }
@@ -935,7 +921,6 @@ a:focus .am-yt {
     border-bottom-right-radius: 0;
   }
 
-  /* поле поиска — по тем же метрикам высоты/паддингов */
   #filters-panel .fld {
     min-height: 43px;
     padding: 8px 12px;
@@ -945,7 +930,6 @@ a:focus .am-yt {
     height: 24px;
   }
 
-  /* если вдруг понадобилось стилизовать скрытый toggle и на десктопе */
   #filters-toggle {
     width: 304px;
     height: 43px;
@@ -955,45 +939,43 @@ a:focus .am-yt {
     border-radius: 12px;
   }
 }
-/* ===== TABLET: размеры тулбара и кнопки Search по рефу ===== */
+
 @media (min-width: 768px) and (max-width: 1439.98px) {
-  /* Панель фильтров (тулбар) */
   #filters-panel {
     width: 304px;
-    min-height: 343px; /* берём min-height, чтобы не резать список при раскрытии */
+    min-height: 343px;
     padding: 12px;
     border-radius: 12px;
     background: #0d0d0d;
     border: 1px solid #262626;
-    margin: 12px 0 0 auto; /* справа, как и было */
+    margin: 12px 0 0 auto;
     box-shadow: none;
-    overflow: visible; /* выпадающие списки не обрезаются */
+    overflow: visible;
   }
 
-  /* Блок поиска перестраиваем: иконка — внутри поля, кнопка — ниже */
   #filters-panel .fld {
     position: relative;
     display: flex;
     flex-direction: column;
     gap: 12px;
-    padding: 0; /* паддинг переносим на само поле */
+    padding: 0;
     background: transparent;
     border: 0;
   }
-  /* иконка слева в поле */
+
   #filters-panel .fld .ico {
     position: absolute;
     left: 12px;
-    top: 12px; /* вертикально центровано при высоте поля 47px */
+    top: 12px;
     width: 24px;
     height: 24px;
     pointer-events: none;
   }
-  /* само поле ввода: 47px высоты, паддинг под иконку */
+
   #flt-q {
     width: 100%;
     height: 47px;
-    padding: 10px 12px 10px 44px; /* место под лупу слева */
+    padding: 10px 12px 10px 44px;
     border-radius: 12px;
     border: 1px solid #262626;
     background: transparent;
@@ -1002,9 +984,8 @@ a:focus .am-yt {
     outline: 0;
   }
 
-  /* включаем кнопку поиска и стилизуем по рефу */
   #flt-q-btn {
-    display: inline-flex; /* раньше было скрыто */
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     width: 233px;
@@ -1018,26 +999,25 @@ a:focus .am-yt {
       inset 0 0 0 1px rgba(255, 255, 255, 0.1);
     color: #fff;
     gap: 8px;
-    margin-left: auto; /* прижимаем вправо */
+    margin-left: auto;
     cursor: pointer;
   }
-  /* иконка внутри кнопки поиска */
+
   #flt-q-btn .ico {
     width: 24px;
     height: 24px;
     fill: currentColor;
   }
 }
-/* ====== MOBILE: кнопка на всю ширину, текст по центру ====== */
+
 @media (max-width: 767.98px) {
   #filters-toggle {
-    /* центрируем надпись */
     justify-content: center !important;
     text-align: center;
-    /* стрелка — абсолютная, поэтому не смещает текст */
+
     position: relative;
   }
-  /* стрелка (если где-то отключена) */
+
   #filters-toggle::after {
     content: '';
     position: absolute;
@@ -1056,7 +1036,6 @@ a:focus .am-yt {
   }
 }
 
-/* ====== TABLET: точные размеры кнопки 233×47, текст по центру ====== */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   #filters-toggle {
     width: 233px !important;
@@ -1064,24 +1043,21 @@ a:focus .am-yt {
     padding: 10px 24px !important;
     border-radius: 12px !important;
 
-    /* стиль кнопки из рефа */
     background: rgba(255, 255, 255, 0.1) !important;
     box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
       inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
       inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
     border: 0 !important;
 
-    /* выравнивание текста по центру */
     display: flex;
     align-items: center;
     justify-content: center !important;
     text-align: center;
 
-    position: relative; /* для стрелки */
-    color: #fff; /* как было */
+    position: relative;
+    color: #fff;
   }
 
-  /* стрелка справа, не влияет на центрирование текста */
   #filters-toggle::after {
     content: '';
     position: absolute;

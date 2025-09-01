@@ -27,7 +27,6 @@
       </div>
 
       <div id="filters-panel" class="filters__panel" aria-hidden="true">
-        <!-- Поле поиска: одна лупа слева, без правой кнопки -->
         <label class="fld fld-search">
           <svg class="ico" aria-hidden="true" width="24" height="24">
             <use href="/img/sprite.svg#icon-search"></use>
@@ -35,7 +34,6 @@
           <input id="flt-q" type="search" placeholder="Search" />
         </label>
 
-        <!-- Сортировка -->
         <div class="dd" data-dd="sort">
           <button
             class="dd__btn"
@@ -53,7 +51,6 @@
           </ul>
         </div>
 
-        <!-- Жанр -->
         <div class="dd" data-dd="genre">
           <button
             class="dd__btn"
@@ -67,7 +64,6 @@
           <ul class="dd__list" id="dd-genre-list" role="listbox"></ul>
         </div>
 
-        <!-- Reset (моб/таб) -->
         <button
           id="filters-reset-sm"
           class="filters__reset filters__reset--sm"
@@ -101,7 +97,6 @@
     </div>
   </div>
 
-  <!-- Модалка (твоя текущая разметка может остаться — JS под неё уже пишет) -->
   <div id="artist-modal" class="amodal" hidden>
     <div class="amodal__backdrop"></div>
     <div class="amodal__dialog" role="dialog" aria-modal="true">

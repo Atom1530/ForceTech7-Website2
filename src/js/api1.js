@@ -1,4 +1,4 @@
-// /src/js/api1.js
+
 import axios from "axios";
 
 const api = axios.create({
@@ -6,7 +6,7 @@ const api = axios.create({
   timeout: 15000,
 });
 
-// artists list
+
 export async function fetchArtists(
   { page = 1, limit = 8, genre = "", sort = "", name = "" } = {}
 ) {
@@ -16,15 +16,15 @@ export async function fetchArtists(
       limit: Math.max(1, Number(limit) || 8),
     };
 
-    // сервер ожидает sortName=asc|desc
+    
     const s = String(sort).toLowerCase();
     if (s === "asc" || s === "desc") params.sortName = s;
 
-    // жанр
+    
     const g = String(genre).trim();
     if (g && g !== "All Genres") params.genre = g;
 
-    // поиск — сервер ожидает name
+    
     const n = String(name).trim();
     if (n.length >= 1) params.name = n;
 
@@ -41,7 +41,7 @@ export async function fetchArtists(
   }
 }
 
-// genres
+
 export async function fetchGenres() {
   try {
     const { data } = await api.get("/genres");
@@ -61,7 +61,7 @@ export async function fetchGenres() {
   }
 }
 
-// artist details
+
 export async function fetchArtist(id) {
   try {
     const { data } = await api.get(`/artists/${id}`);
@@ -71,18 +71,17 @@ export async function fetchArtist(id) {
   }
 }
 
-// albums
-// albums for modal — поддерживаем оба формата ответа API
+
 export async function fetchArtistAlbums(id) {
   try {
     const { data } = await api.get(`/artists/${id}/albums`);
-    // формат А: массив альбомов
+    
     if (Array.isArray(data)) return data;
 
-    // формат B (как в рефе): объект с полем albumsList
+    
     if (Array.isArray(data?.albumsList)) return data.albumsList;
 
-    // запасной случай: вдруг поле называется иначе
+    
     if (Array.isArray(data?.albums)) return data.albums;
 
     return [];
