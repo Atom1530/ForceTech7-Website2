@@ -31,7 +31,12 @@
 
 }
 
-
+html,
+body {
+  overflow-x: clip;
+ 
+  width: 100%;
+}
 
 *,
 *::before,
@@ -41,6 +46,7 @@
 
 html {
   scroll-behavior: smooth;
+  
 }
 
 body {
