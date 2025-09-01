@@ -1,5 +1,8 @@
 // /src/js/artists1.js
 import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api1.js";
+// Путь к внешнему спрайту 
+const SPRITE = "/img/sprite.svg";
+
 
 (function initArtists1() {
   const root = document.querySelector("#artists-section");
@@ -67,23 +70,26 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
   }
 
   function buildCard(a){
-    const id = a?.id || a?._id || a?.artistId || "";
-    const name = a?.strArtist || a?.name || "Unknown";
-    const img = a?.strArtistThumb || a?.photo || a?.image || "https://via.placeholder.com/472x290?text=No+Image";
-    const about = a?.strBiographyEN || a?.about || "";
-    const tags = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
-    return `
-      <li class="card" data-id="${id}">
-        <div class="card__media"><img src="${img}" alt="${name}" loading="lazy"></div>
-        <div class="card__tags">${tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
-        <h3 class="card__title">${name}</h3>
-        <p class="card__text">${about}</p>
-        <button class="card__link" data-action="more">
-          Learn More
-          <svg class="ico" width="10" height="10"><use href="#icon-icon_right_button_feedback_sec"></use></svg>
-        </button>
-      </li>`;
-  }
+  const id = a?.id || a?._id || a?.artistId || "";
+  const name = a?.strArtist || a?.name || "Unknown";
+  const img = a?.strArtistThumb || a?.photo || a?.image || "https://via.placeholder.com/472x290?text=No+Image";
+  const about = a?.strBiographyEN || a?.about || "";
+  const tags = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
+  return `
+    <li class="card" data-id="${id}">
+      <div class="card__media"><img src="${img}" alt="${name}" loading="lazy"></div>
+      <div class="card__tags">${tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+      <h3 class="card__title">${name}</h3>
+      <p class="card__text">${about}</p>
+      <button class="card__link" data-action="more">
+        Learn More
+        <svg class="ico" aria-hidden="true">
+          <use href="${SPRITE}#icon-icon_right_button_feedback_sec"></use>
+        </svg>
+      </button>
+    </li>`;
+}
+
 
   function renderGrid(arr){ grid.innerHTML = arr.map(buildCard).join(""); }
 
@@ -263,26 +269,41 @@ import { fetchArtists, fetchGenres, fetchArtist, fetchArtistAlbums } from "./api
     await renderModal(id);
   });
 
- function openModal(){
+// --- modal open/close ---
+function openModal() {
   modal.removeAttribute("hidden");
-  document.body.classList.add("no-scroll");
+  document.body.classList.add("no-scroll"); // фиксируем страницу под модалкой
   modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
 }
-
-function closeModal(){
+function closeModal() {
   modal.setAttribute("hidden", "");
   document.body.classList.remove("no-scroll");
   modalBody.innerHTML = "";
 }
 
-function fmtTime(ms){
-  const n = Number(ms);
-  if (!isFinite(n) || n <= 0) return "N/A";
-  const total = Math.floor(n/1000);
-  const m = Math.floor(total/60);
-  const s = String(total%60).padStart(2,"0");
+// кнопки/оверлей/Escape
+modalClose?.addEventListener("click", closeModal);
+
+modal.addEventListener("click", (e) => {
+  // клик по полупрозрачному фону закрывает модалку
+  if (e.target.classList.contains("amodal__backdrop")) closeModal();
+});
+
+// Esc закрывает, когда модалка открыта
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape" && !modal.hasAttribute("hidden")) closeModal();
+});
+
+
+function fmtTime(val) {
+  let ms = Number(val);
+  if (!isFinite(ms)) return "—";
+  const totalSec = Math.round(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = String(totalSec % 60).padStart(2, "0");
   return `${m}:${s}`;
-}
+  }
+  
 function years(details){
   const s = details?.intFormedYear || details?.yearStart || details?.formedYear;
   const e = details?.intDisbandedYear || details?.intDiedYear || details?.yearEnd || details?.disbandedYear;
@@ -290,13 +311,38 @@ function years(details){
   if (s) return `${s}–present`;
   return "information missing";
 }
-function trackRow(t){
-  const title = t?.strTrack || t?.title || t?.name || "—";
-  const dur   = fmtTime(t?.intDuration || t?.duration || t?.time);
-  const link  = t?.movie || t?.youtube || t?.youtube_url || t?.url || t?.strMusicVid;
-  const yIco  = `<svg class="ico am-yt"><use href="#icon-icon_youtube_footer"></use></svg>`;
-  return `<li class="tr"><span>${title}</span><span>${dur}</span><span>${link ? `<a href="${link}" target="_blank" rel="noopener">${yIco}</a>` : `<span class="yt-ph"></span>`}</span></li>`;
+function fmtTime(val) {
+  let ms = Number(val);
+  if (!isFinite(ms)) return "—";
+  const total = Math.round(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = String(total % 60).padStart(2, "0");
+  return `${m}:${s}`;
 }
+
+function trackRow(t) {
+  const title = t?.strTrack || t?.title || t?.name || "—";
+  const dur   = fmtTime(t?.intDuration ?? t?.duration ?? t?.time);
+  // основное поле по рефу — movie; оставил запасные варианты
+  const link  = t?.movie ?? t?.youtube ?? t?.youtube_url ?? t?.url ?? t?.strMusicVid;
+
+  const yIco  = `
+    <svg class="ico am-yt" aria-hidden="true">
+      <use href="${SPRITE}#icon-icon_play_artists_sections"></use>
+    </svg>`;
+
+  return `
+    <li class="tr">
+      <span>${title}</span>
+      <span>${dur}</span>
+      <span>
+        ${link
+          ? `<a class="yt" href="${link}" target="_blank" rel="noopener" aria-label="Watch on YouTube">${yIco}</a>`
+          : `<span class="yt-ph"></span>`}
+      </span>
+    </li>`;
+}
+
 
 async function renderModal(id){
   const [a, albums] = await Promise.all([fetchArtist(id), fetchArtistAlbums(id)]);

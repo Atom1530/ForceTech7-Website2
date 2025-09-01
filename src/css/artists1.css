@@ -931,3 +931,78 @@ a:hover .am-yt {
   width: 24px;
   height: 24px;
 }
+
+/* не даём фону перекрывать диалог */
+.amodal__backdrop {
+  z-index: 1;
+}
+.amodal__dialog {
+  z-index: 2;
+  position: relative;
+}
+
+/* курсор на крестике */
+.amodal__close {
+  cursor: pointer;
+}
+
+/* блокируем прокрутку под модалкой */
+.no-scroll {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* ютуб-иконка */
+.am-yt {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+  transition: fill 0.25s;
+  display: inline-block;
+}
+a:hover .am-yt,
+a:focus .am-yt {
+  fill: #764191;
+}
+
+/* заглушка, когда ссылки нет, чтобы сетка не "гуляла" */
+.yt-ph {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+/* YouTube-плей (треки в модалке) */
+.am-yt {
+  width: 24px;
+  height: 24px;
+  display: inline-block;
+  fill: #fff;
+  transition: fill 0.2s ease;
+}
+.yt:hover .am-yt,
+.yt:focus .am-yt {
+  fill: #764191;
+}
+
+/* чтобы третья колонка не прыгала, если ссылки нет */
+.yt-ph {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+/* стрелка в Learn More */
+.card__link .ico {
+  width: 24px;
+  height: 24px;
+  margin-left: 6px;
+  fill: #fff;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+.card__link:hover .ico,
+.card__link:focus .ico {
+  transform: translateX(2px);
+  fill: #764191;
+}
