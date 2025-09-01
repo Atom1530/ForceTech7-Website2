@@ -19,7 +19,7 @@
   margin-bottom: 16px;
 }
 .artists1__head {
-  margin: 0 0 24px 0;
+  margin: 0 0 24px;
 }
 @media (min-width: 768px) and (max-width: 1439.98px) {
   .artists1__head {
@@ -30,12 +30,12 @@
 @media (min-width: 1440px) {
   .artists1__head {
     max-width: 863px;
-    margin: 0 0 80px 0;
+    margin: 0 0 80px;
   }
 }
 
 .artists1__head .title {
-  color: #fff;
+  color: var(--color-white);
   font-family: 'Epilogue', system-ui;
   font-weight: 700;
   letter-spacing: -0.01em;
@@ -89,8 +89,8 @@
   background: #2d2b33;
   border: 0;
   border-radius: 12px;
-  color: #e8e8ec;
-  padding: 10px 14px;
+  color: var(--color-white);
+  padding: 10px 14px 10px 14px;
   cursor: pointer;
   position: relative;
   padding-right: 30px;
@@ -118,7 +118,7 @@
 .filters {
   position: relative;
   z-index: 5;
-} /* чтобы overlay-списки были поверх карточек */
+} /* overlay-списки поверх карточек */
 #filters-panel {
   background: #1e1d24;
   border-radius: 12px;
@@ -128,7 +128,7 @@
   margin-top: 12px;
   overflow: visible;
 }
-/* mobile/tablet: управляем показом через aria-hidden */
+/* mobile/tablet: aria-hidden управляет показом */
 @media (max-width: 1439.98px) {
   #filters-panel[aria-hidden='true'] {
     display: none;
@@ -137,19 +137,19 @@
     display: block;
   }
 }
-/* desktop: панель всегда видна + тёмный фон */
+/* desktop: панель всегда видна */
 @media (min-width: 1440px) {
   #filters-toggle {
     display: none !important;
   }
   #filters-panel {
     display: block !important;
-    background: #060307;
+    background: var(--color-neutral-darkest);
     border: 1px solid rgba(255, 255, 255, 0.12);
   }
 }
 
-/* ===== Search field ===== */
+/* ===== Search & Dropdowns (base) ===== */
 .fld {
   display: flex;
   align-items: center;
@@ -163,23 +163,23 @@
 .fld .ico {
   width: 24px;
   height: 24px;
-  fill: #fff;
+  fill: var(--color-white);
 }
 #flt-q {
   flex: 1 1 auto;
   background: transparent;
   border: 0;
-  color: #fff;
+  color: var(--color-white);
   outline: 0;
   font-size: 16px;
-}
-#flt-q-btn {
-  display: none !important;
 }
 #flt-q::-webkit-search-cancel-button {
   -webkit-appearance: none;
   appearance: none;
   display: none;
+}
+#flt-q-btn {
+  display: none !important;
 }
 
 .dd {
@@ -254,37 +254,113 @@
   border-radius: 10px;
 }
 
-/* desktop-стили для дропдаунов */
+/* ===== Desktop specifics (1440+) ===== */
 @media (min-width: 1440px) {
   .fld,
   .dd {
-    background: #060307;
+    background: var(--color-neutral-darkest);
     border: 1px solid rgba(255, 255, 255, 0.12);
   }
-  .dd__list {
-    background: #060307;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-top: 0;
+  #filters-panel {
+    width: 304px;
+    overflow: visible;
+  }
+  #filters-panel .fld,
+  #filters-panel .dd {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  #filters-panel .dd__btn {
+    height: 43px;
+    padding: 8px 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 12px;
+  }
+  #filters-panel .dd__btn::after {
+    right: 12px;
+  }
+
+  /* списки в панели — без overlay, разворачиваются внутри */
+  #filters-panel .dd {
+    position: static !important;
+  }
+  #filters-panel .dd__list {
+    position: static !important;
+    display: none;
+    max-height: 320px;
+    overflow: auto;
+    background: var(--color-neutral-darkest);
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 12px 12px;
+    box-shadow: none;
+    padding: 8px 0;
+  }
+  #filters-panel .dd.open .dd__list {
+    display: block;
+  }
+  #filters-panel .dd.open .dd__btn {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  #filters-panel .fld {
+    min-height: 43px;
+    padding: 8px 12px;
+  }
+  #filters-panel .fld .ico {
+    width: 24px;
+    height: 24px;
+  }
+
+  #filters-toggle {
+    width: 304px;
+    height: 43px;
+    padding: 8px 12px;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
   }
 }
 
-/* ===== MOBILE button & panel full-width ===== */
+/* ===== Mobile layout (<768) ===== */
 @media (max-width: 767.98px) {
   .filters__bar {
     flex-wrap: wrap;
     row-gap: 12px;
   }
+
   #filters-toggle {
     order: 3;
     width: 100%;
     height: 56px;
     padding: 0 16px;
-
-    background: #0d0d0d;
-    border: 1px solid #262626;
-    color: #fff;
     justify-content: space-between;
+    color: var(--color-white);
+    position: relative;
+    text-align: center;
   }
+  #filters-toggle::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-50%) rotate(45deg);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+  #filters-toggle[aria-expanded='true']::after {
+    transform: translateY(-50%) rotate(-135deg);
+  }
+
   #filters-panel {
     width: 100%;
     margin-top: 12px;
@@ -294,38 +370,122 @@
   }
 }
 
+/* ===== Tablet layout (768–1439) ===== */
 @media (min-width: 768px) and (max-width: 1439.98px) {
-  #filters-toggle {
-    width: 304px;
-    height: 56px;
-    margin-left: auto;
-    padding: 0 16px;
-    border-radius: 12px;
-    background: #0d0d0d;
-    border: 1px solid #262626;
-    color: #fff;
-    justify-content: space-between;
-  }
   #filters-panel {
     width: 304px;
     margin: 12px 0 0 auto;
+    padding: 12px;
+    border-radius: 12px;
     background: #0d0d0d;
     border: 1px solid #262626;
+    box-shadow: none;
+    overflow: visible;
+  }
+  /* Search field структура как на мобайле (без !important) */
+  .artists1 #filters-panel .fld {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+    background: #272630;
+    border: 0;
     border-radius: 12px;
+  }
+  .artists1 #filters-panel .fld .ico {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+  #flt-q {
+    width: 100%;
+    height: 47px;
+    padding: 10px 12px 10px 44px;
+    border-radius: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 16px;
+    color: var(--color-white);
+    outline: 0;
+  }
+
+  /* планшетная кнопка Search */
+  #flt-q-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 233px;
+    height: 47px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+    gap: 8px;
+    margin-left: auto;
+    cursor: pointer;
+  }
+  #flt-q-btn .ico {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  /* планшетная кнопка Filters — компактная */
+  #filters-toggle {
+    width: 233px;
+    height: 47px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: var(--color-white);
+    position: relative;
+  }
+  #filters-toggle::after {
+    content: '';
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    width: 8px;
+    height: 8px;
+    border-right: 2px solid currentColor;
+    border-bottom: 2px solid currentColor;
+    transform: translateY(-50%) rotate(45deg);
+    transition: transform 0.2s ease;
+    pointer-events: none;
+  }
+  #filters-toggle[aria-expanded='true']::after {
+    transform: translateY(-50%) rotate(-135deg);
   }
 }
 
-/* ===== Grid / Cards ===== */
+/* ===== GRID / CARDS ===== */
 .grid {
   display: grid;
   grid-template-columns: 1fr;
   gap: 64px;
   justify-content: center;
 }
-
 .card {
   color: #e8e8ec;
   max-width: 100%;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
 }
 .card__media img {
   width: 100%;
@@ -333,6 +493,7 @@
   border-radius: 16px;
   object-fit: cover;
   height: 177px;
+  object-position: center top;
 }
 .card__tags {
   display: flex;
@@ -350,13 +511,13 @@
   font: 600 16px/1 'IBM Plex Sans';
 }
 .card__title {
-  color: #fff;
+  color: var(--color-white);
   font: 700 32px/1.3 'Epilogue', system-ui;
   letter-spacing: -0.01em;
   margin: 0 0 8px;
 }
 .card__text {
-  color: #fff;
+  color: var(--color-white);
   font: 400 18px/1.5 'IBM Plex Sans';
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -370,25 +531,39 @@
   gap: 8px;
   background: none;
   border: 0;
-  color: #fff;
+  color: var(--color-white);
   cursor: pointer;
   font: 500 18px/1.5 'IBM Plex Sans';
   margin-top: 0;
+  border-radius: 12px;
 }
 .card__link .ico {
   width: 24px;
   height: 24px;
-  fill: #fff;
+  fill: var(--color-white);
   margin-left: 6px;
   transition: transform 0.2s ease, fill 0.2s ease;
 }
-.card__link:hover .ico,
-.card__link:focus .ico {
-  transform: translateX(2px);
-  fill: #764191;
+@media (hover: hover) {
+  .artists1 .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+  .card__link:hover .ico,
+  .card__link:focus .ico {
+    transform: translateX(2px);
+    fill: var(--color-affair);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .artists1 .card {
+    transition: none;
+  }
+  .card__link .ico {
+    transition: none;
+  }
 }
 
-/* Tablet cards */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   .grid {
     grid-template-columns: 1fr;
@@ -402,7 +577,6 @@
     height: 432px;
   }
 }
-/* Desktop cards (2 col) */
 @media (min-width: 1440px) {
   .grid {
     grid-template-columns: repeat(2, 1fr);
@@ -464,13 +638,13 @@
 }
 .empty__title {
   font: 700 32px/1.2 'Epilogue';
-  color: #fff;
+  color: var(--color-white);
   margin: 0 0 12px;
 }
 .empty__btn {
   background: #6d3bd1;
   border: 0;
-  color: #fff;
+  color: var(--color-white);
   border-radius: 12px;
   padding: 10px 18px;
   cursor: pointer;
@@ -509,7 +683,7 @@
 .amodal__dialog {
   position: relative;
   z-index: 2;
-  background: #060307;
+  background: var(--color-neutral-darkest);
   border-radius: 16px;
   width: calc(100% - 48px);
   max-height: 90vh;
@@ -534,7 +708,7 @@
   top: 8px;
   border: 0;
   background: transparent;
-  color: #fff;
+  color: var(--color-white);
   font-size: 28px;
   cursor: pointer;
 }
@@ -544,7 +718,7 @@
 
 .amodal__title {
   font: 700 20px/1.3 'Epilogue', system-ui;
-  color: #fff;
+  color: var(--color-white);
   text-align: center;
   margin: 0 0 16px;
 }
@@ -593,7 +767,7 @@
 }
 .lbl {
   font-weight: 600;
-  color: #fff;
+  color: var(--color-white);
   line-height: 1.5;
 }
 .val {
@@ -658,7 +832,6 @@
     width: calc((100% - 96px) / 4);
   }
 }
-
 .am-album {
   background: #1e1c1f;
   border-radius: 16px;
@@ -671,10 +844,10 @@
   font-weight: 600;
   font-size: 16px;
   margin: 0 0 12px;
-  color: #fff;
+  color: var(--color-white);
 }
 
-/* Tracks table */
+/* ===== Tracks table ===== */
 .tbl {
   display: flex;
   flex-direction: column;
@@ -688,7 +861,7 @@
   font-weight: 600;
   font-size: 12px;
   line-height: 1.5;
-  color: #fff;
+  color: var(--color-white);
 }
 .tr {
   display: flex;
@@ -704,7 +877,7 @@
   border-radius: 8px;
 }
 
-/* columns */
+/* ===== Table columns ===== */
 .th span:nth-child(1),
 .tr span:nth-child(1) {
   flex-basis: 60%;
@@ -720,17 +893,17 @@
   text-align: right;
 }
 
-/* YouTube icon + placeholder */
+/* ===== Icons ===== */
 .am-yt {
   width: 24px;
   height: 24px;
-  fill: #fff;
+  fill: var(--color-white);
   display: inline-block;
   transition: fill 0.2s ease;
 }
 a:hover .am-yt,
 a:focus .am-yt {
-  fill: #764191;
+  fill: var(--color-affair);
 }
 .yt-ph {
   display: inline-block;
@@ -747,48 +920,34 @@ a:focus .am-yt {
   width: 100%;
   overflow: hidden;
 }
-
 .artists1 .ico,
 .artists1 .ico use,
 .artists1 .ico path {
-  --color1: #fff;
-  fill: #fff !important;
-  color: #fff !important;
+  --color1: var(--color-white);
+  fill: var(--color-white) !important;
+  color: var(--color-white) !important;
 }
-/* ================== PATCH: фильтры ================== */
 
+/* ================== PATCH: фильтры: overlay -> panel (mobile/tablet) ================== */
 @media (max-width: 1439.98px) {
   .filters {
     position: relative;
     z-index: 5;
   }
-
   #filters-panel {
     position: absolute;
     top: calc(100% + 12px);
     left: 0;
     right: 0;
     z-index: 20;
-
     max-height: min(80vh, 720px);
     overflow: auto;
   }
-}
-
-@media (min-width: 768px) and (max-width: 1439.98px) {
-  #filters-panel {
-    width: 304px;
-    left: auto;
-    right: 0;
-  }
-}
-
-@media (max-width: 1439.98px) {
   #filters-panel .dd {
     position: static;
   }
   #filters-panel .dd__list {
-    position: static !important; /* ключ: вынимаем из overlay-режима */
+    position: static !important;
     display: none;
     max-height: 320px;
     overflow: auto;
@@ -807,354 +966,40 @@ a:focus .am-yt {
   }
 }
 
-@media (min-width: 1440px) {
-  .fld,
-  .dd {
-    background: #060307;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-  }
-  .dd {
-    position: relative;
-  }
-  .dd__list {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: calc(100% - 1px);
-    z-index: 30;
-    display: none;
-    max-height: 320px;
-    overflow: auto;
-    background: #060307;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    border-top: 0;
-    border-radius: 0 0 12px 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
-    padding: 8px 0;
-  }
-  .dd.open .dd__list {
-    display: block;
-  }
-  .dd.open .dd__btn {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-}
-
-@media (min-width: 1440px) {
-  #filters-panel {
-    overflow: visible;
-  }
-
-  #filters-panel .dd {
-    position: static !important;
-  }
-  #filters-panel .dd__list {
-    position: static !important;
-    display: none;
-    max-height: 320px;
-    overflow: auto;
-    background: #060307;
-    border: 0;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0 0 12px 12px;
-    box-shadow: none;
-    padding: 8px 0;
-  }
-  #filters-panel .dd.open .dd__list {
-    display: block;
-  }
-  #filters-panel .dd.open .dd__btn {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-}
-
-@media (min-width: 1440px) {
-  #filters-panel {
-    width: 304px;
-    background: #060307;
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    overflow: visible;
-  }
-
-  #filters-panel .fld,
-  #filters-panel .dd {
-    width: 100%;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-    margin-bottom: 12px;
-  }
-
-  #filters-panel .dd__btn {
-    height: 43px;
-    padding: 8px 12px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 12px;
-  }
-
-  #filters-panel .dd__btn::after {
-    right: 12px;
-  }
-
-  #filters-panel .dd {
-    position: static !important;
-  }
-  #filters-panel .dd__list {
-    position: static !important;
-    display: none;
-    max-height: 320px;
-    overflow: auto;
-    background: #060307;
-    border-top: 1px solid rgba(255, 255, 255, 0.12);
-    border-radius: 0 0 12px 12px;
-    box-shadow: none;
-    padding: 8px 0;
-  }
-  #filters-panel .dd.open .dd__list {
-    display: block;
-  }
-  #filters-panel .dd.open .dd__btn {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  #filters-panel .fld {
-    min-height: 43px;
-    padding: 8px 12px;
-  }
-  #filters-panel .fld .ico {
-    width: 24px;
-    height: 24px;
-  }
-
-  #filters-toggle {
-    width: 304px;
-    height: 43px;
-    padding: 8px 12px;
-    background: transparent;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 12px;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1439.98px) {
-  #filters-panel {
-    width: 304px;
-
-    padding: 12px;
-    border-radius: 12px;
-    background: #0d0d0d;
-    border: 1px solid #262626;
-    margin: 12px 0 0 auto;
-    box-shadow: none;
-    overflow: visible;
-  }
-
-  #filters-panel .fld {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding: 0;
-    background: transparent;
-    border: 0;
-  }
-
-  #filters-panel .fld .ico {
-    position: absolute;
-    left: 12px;
-    top: 12px;
-    width: 24px;
-    height: 24px;
-    pointer-events: none;
-  }
-
-  #flt-q {
-    width: 100%;
-    height: 47px;
-    padding: 10px 12px 10px 44px;
-    border-radius: 12px;
-    border: 1px solid #262626;
-    background: transparent;
-    font-size: 16px;
-    color: #fff;
-    outline: 0;
-  }
-
-  #flt-q-btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 233px;
-    height: 47px;
-    padding: 10px 24px;
-    border-radius: 12px;
-    border: none;
-    background: rgba(255, 255, 255, 0.1);
-    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
-      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
-    color: #fff;
-    gap: 8px;
-    margin-left: auto;
-    cursor: pointer;
-  }
-
-  #flt-q-btn .ico {
-    width: 24px;
-    height: 24px;
-    fill: currentColor;
-  }
-}
-
-@media (max-width: 767.98px) {
-  #filters-toggle {
-    justify-content: center !important;
-    text-align: center;
-
-    position: relative;
-  }
-
-  #filters-toggle::after {
-    content: '';
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: translateY(-50%) rotate(45deg);
-    transition: transform 0.2s ease;
-    pointer-events: none;
-  }
-  #filters-toggle[aria-expanded='true']::after {
-    transform: translateY(-50%) rotate(-135deg);
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1439.98px) {
-  #filters-toggle {
-    width: 233px !important;
-    height: 47px !important;
-    padding: 10px 24px !important;
-    border-radius: 12px !important;
-
-    background: rgba(255, 255, 255, 0.1) !important;
-    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
-      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-    border: 0 !important;
-
-    display: flex;
-    align-items: center;
-    justify-content: center !important;
-    text-align: center;
-
-    position: relative;
-    color: #fff;
-  }
-
-  #filters-toggle::after {
-    content: '';
-    position: absolute;
-    right: 12px;
-    top: 50%;
-    width: 8px;
-    height: 8px;
-    border-right: 2px solid currentColor;
-    border-bottom: 2px solid currentColor;
-    transform: translateY(-50%) rotate(45deg);
-    transition: transform 0.2s ease;
-    pointer-events: none;
-  }
-  #filters-toggle[aria-expanded='true']::after {
-    transform: translateY(-50%) rotate(-135deg);
-  }
-}
-
-/* === TABLET: Search field как на мобайле (серый короб) === */
-@media (min-width: 768px) and (max-width: 1439.98px) {
-  /* сам «контейнер» поля — делаем серым как на мобайле */
-  #filters-panel .fld {
-    background: #272630 !important; /* тот же серый, что и на мобиле */
-    border: 0 !important; /* рамку убираем – на мобиле её нет */
-    border-radius: 12px; /* совпадает с мобилой */
-    padding: 0; /* оставляем твой текущий layout с abs-иконкой */
-  }
-
-  /* сам input — прозрачный без рамки, чтобы просвечивал серый .fld */
-  #filters-panel #flt-q {
-    background: transparent !important;
-    border: 0 !important;
-    /* сохраняем твои размеры и внутренние отступы, чтобы иконка не наезжала */
-    height: 47px;
-    padding: 10px 12px 10px 44px;
-    color: #fff;
-  }
-
-  /* иконка остаётся белой, позиционирование как у тебя сейчас */
-  #filters-panel .fld .ico {
-    width: 24px;
-    height: 24px;
-    /* твои текущие координаты: */
-    left: 12px;
-    top: 12px;
-    position: absolute;
-    pointer-events: none;
-  }
-}
-
-/* === MOBILE + TABLET: один стиль для кнопок и поля поиска === */
+/* === MOBILE + TABLET ≤ 1439.98px: glass controls (без !important) === */
 @media (max-width: 1439.98px) {
-  /* Кнопка Filters, контейнер поиска, кнопка Search, контейнеры Sorting/Genre */
   .artists1 #filters-toggle,
   .artists1 #filters-panel .fld,
   .artists1 #filters-panel #flt-q-btn,
   .artists1 #filters-panel .dd {
-    background: rgba(255, 255, 255, 0.1) !important;
+    background: rgba(255, 255, 255, 0.1);
     box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
       inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
-      inset 0 0 0 1px rgba(255, 255, 255, 0.1) !important;
-    border: 0 !important;
-    color: var(--color-white) !important;
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 0;
+    color: var(--color-white);
   }
-
-  /* Текст и стрелочки на дропдаунах — белыми */
   .artists1 #filters-panel .dd__btn {
-    background: transparent !important; /* фон даёт .dd */
-    color: var(--color-white) !important;
+    background: transparent;
+    color: var(--color-white);
   }
   .artists1 #filters-panel .dd__btn::after {
-    border-right-color: var(--color-white) !important;
-    border-bottom-color: var(--color-white) !important;
+    border-right-color: var(--color-white);
+    border-bottom-color: var(--color-white);
   }
 
-  /* Иконка и текст в поле поиска */
-  .artists1 #filters-panel .fld .ico {
-    fill: var(--color-white) !important;
-    color: var(--color-white) !important;
-  }
   .artists1 #filters-panel #flt-q {
-    background: transparent !important; /* чтобы просвечивал фон .fld */
-    color: var(--color-white) !important;
+    background: transparent;
+    color: var(--color-white);
   }
   .artists1 #filters-panel #flt-q::placeholder {
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
-  .artists1 #filters-panel #flt-q::-webkit-input-placeholder {
-    color: rgba(255, 255, 255, 0.8) !important;
-  }
-  .artists1 #filters-panel #flt-q::-moz-placeholder {
-    color: rgba(255, 255, 255, 0.8) !important;
+    color: rgba(255, 255, 255, 0.8);
   }
 }
 
+/* === MOBILE < 768: Search button radius (без !important) === */
 @media (max-width: 767.98px) {
   .artists1 #filters-panel #flt-q-btn {
-    border-radius: 12px !important;
+    border-radius: 12px;
   }
 }
