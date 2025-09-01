@@ -68,7 +68,7 @@ createStars(formRating, parseInt(formRating.dataset.rating) || 0);
 const swiper = new Swiper('.swiper', {
   slidesPerView: 1,
   spaceBetween: 20,
-  loop: true,
+  loop: false,
         grabCursor: true,
         navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', },
   pagination: { el: '.swiper-pagination', clickable: true, },
@@ -87,6 +87,46 @@ dots.innerHTML = `
     <span class="swiper-dots" data-i="#{second}"></span>
   <span class="swiper-dots" data-i="#{third}"></span>`
 
+function activateDot(dotNumber) {
+  const dots = document.querySelectorAll(".swiper-dots");
+  dots.forEach(dot => dot.classList.remove('active'));
+  if (dots[dotNumber - 1]) {
+    dots[dotNumber - 1].classList.add('active');
+  }
+}
+  
+function getDotIndex(index) {
+  if (index === 0) {
+    return 1;
+  } else if (index === 9) {
+    return 3;
+  } else {
+    return 2;
+  }
+}
+
+activateDot(getDotIndex(swiper.realIndex));
+
+const dotElements = document.querySelectorAll('.swiper-dots');
+dotElements.forEach((dot, index) => {
+  dot.addEventListener('click', (e) => {
+    let slideIndex = 0;
+
+    if (index === 0) {
+      slideIndex = 0;
+    } else if (index === 1) {
+      slideIndex = 1;
+    } else if (index === 2) {
+      slideIndex = 9;
+    }
+    swiper.slideTo(slideIndex);
+  })
+})
+
+swiper.on('slideChange', (e) => {
+  const currentIndex = swiper.realIndex
+  activateDot(getDotIndex(currentIndex))
+});
 
 async function loadReviews() {
   const wrapper = document.querySelector(".swiper-wrapper");
