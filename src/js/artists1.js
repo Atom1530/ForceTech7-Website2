@@ -276,7 +276,6 @@ function closeModal(){
 }
 
 function fmtTime(ms){
-  // принимает ms как число или строку; возвращает mm:ss / 'N/A'
   const n = Number(ms);
   if (!isFinite(n) || n <= 0) return "N/A";
   const total = Math.floor(n/1000);
@@ -284,7 +283,6 @@ function fmtTime(ms){
   const s = String(total%60).padStart(2,"0");
   return `${m}:${s}`;
 }
-
 function years(details){
   const s = details?.intFormedYear || details?.yearStart || details?.formedYear;
   const e = details?.intDisbandedYear || details?.intDiedYear || details?.yearEnd || details?.disbandedYear;
@@ -292,18 +290,18 @@ function years(details){
   if (s) return `${s}–present`;
   return "information missing";
 }
-
 function trackRow(t){
   const title = t?.strTrack || t?.title || t?.name || "—";
   const dur   = fmtTime(t?.intDuration || t?.duration || t?.time);
   const link  = t?.movie || t?.youtube || t?.youtube_url || t?.url || t?.strMusicVid;
-  const yIcon = `<svg class="ico ico-yt"><use href="#icon-icon_youtube_footer"></use></svg>`;
-  return `<li class="tr"><span>${title}</span><span>${dur}</span><span>${link ? `<a href="${link}" target="_blank" rel="noopener">${yIcon}</a>` : `<span class="yt-ph"></span>`}</span></li>`;
+  const yIco  = `<svg class="ico am-yt"><use href="#icon-icon_youtube_footer"></use></svg>`;
+  return `<li class="tr"><span>${title}</span><span>${dur}</span><span>${link ? `<a href="${link}" target="_blank" rel="noopener">${yIco}</a>` : `<span class="yt-ph"></span>`}</span></li>`;
 }
 
 async function renderModal(id){
   const [a, albums] = await Promise.all([fetchArtist(id), fetchArtistAlbums(id)]);
   const d = a || {};
+
   const name    = d?.strArtist || d?.name || "Unknown artist";
   const img     = d?.strArtistThumb || d?.photo || d?.image || "https://via.placeholder.com/960x400?text=No+Image";
   const country = d?.strCountry || d?.country || "N/A";

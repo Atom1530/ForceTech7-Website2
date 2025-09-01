@@ -72,10 +72,20 @@ export async function fetchArtist(id) {
 }
 
 // albums
+// albums for modal — поддерживаем оба формата ответа API
 export async function fetchArtistAlbums(id) {
   try {
     const { data } = await api.get(`/artists/${id}/albums`);
-    return Array.isArray(data) ? data : [];
+    // формат А: массив альбомов
+    if (Array.isArray(data)) return data;
+
+    // формат B (как в рефе): объект с полем albumsList
+    if (Array.isArray(data?.albumsList)) return data.albumsList;
+
+    // запасной случай: вдруг поле называется иначе
+    if (Array.isArray(data?.albums)) return data.albums;
+
+    return [];
   } catch (err) {
     console.warn("[api] albums", err?.message || err);
     return [];

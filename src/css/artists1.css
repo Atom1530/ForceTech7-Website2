@@ -714,3 +714,220 @@ a:hover .ico-yt {
 .muted {
   color: #b8b9c0;
 }
+
+/* блокировка прокрутки под модалкой */
+.no-scroll {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
+
+/* размеры и фон как в рефе */
+.amodal__dialog {
+  background: #060307;
+  border-radius: 16px;
+  width: calc(100% - 48px);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 52px 8px;
+}
+@media (min-width: 768px) {
+  .amodal__dialog {
+    max-width: 702px;
+    padding: 64px 24px;
+  }
+}
+@media (min-width: 1440px) {
+  .amodal__dialog {
+    max-width: 1312px;
+    padding: 64px;
+  }
+}
+
+.amodal__title {
+  font: 700 20px/1.3 'Epilogue', system-ui;
+  color: #fff;
+  text-align: center;
+  margin: 0 0 16px;
+}
+@media (min-width: 768px) {
+  .amodal__title {
+    font-size: 32px;
+  }
+}
+
+.amodal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (min-width: 1440px) {
+  .amodal__content {
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+  }
+}
+
+.amodal__img {
+  width: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+}
+.amodal__info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.am-meta {
+  display: flex;
+  gap: 16px;
+}
+.am-meta__col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 150px;
+}
+.lbl {
+  font-weight: 600;
+  color: #fff;
+  line-height: 1.5;
+}
+.val {
+  color: #e8e8ec;
+}
+
+.am-bio .lbl {
+  margin-bottom: 8px;
+}
+.am-bio p {
+  margin: 0;
+  color: #e8e8ec;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: auto;
+}
+@media (min-width: 768px) {
+  .am-bio p {
+    -webkit-line-clamp: 12;
+    line-clamp: 12;
+  }
+}
+
+.am-tags {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.am-tags .tag {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  height: 32px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.amodal__albums-title {
+  margin: 16px 0;
+  font: 700 24px/1.3 'Epilogue', system-ui;
+}
+
+.amodal__albums {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media (min-width: 768px) {
+  .amodal__albums {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .amodal__albums .am-album {
+    width: calc((100% - 32px) / 2);
+  }
+}
+@media (min-width: 1440px) {
+  .amodal__albums .am-album {
+    width: calc((100% - 96px) / 4);
+  }
+}
+
+.am-album {
+  background: #1e1c1f;
+  border-radius: 16px;
+  padding: 14px 11px;
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+}
+.am-album__title {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0 0 12px;
+  color: #fff;
+}
+
+.tbl {
+  display: flex;
+  flex-direction: column;
+}
+.tbl .th {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  color: #fff;
+}
+.tr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #e8e8ec;
+}
+.tr:nth-child(2n) {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+.th span:nth-child(1),
+.tr span:nth-child(1) {
+  flex-basis: 60%;
+}
+.th span:nth-child(2),
+.tr span:nth-child(2) {
+  flex-basis: 20%;
+  text-align: left;
+}
+.th span:nth-child(3),
+.tr span:nth-child(3) {
+  flex-basis: 10%;
+  text-align: right;
+}
+
+.am-yt {
+  width: 24px;
+  height: 24px;
+  fill: #fff;
+  transition: fill 0.25s;
+}
+a:hover .am-yt {
+  fill: #764191;
+}
+.yt-ph {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
