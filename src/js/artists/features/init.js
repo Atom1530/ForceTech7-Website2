@@ -1,12 +1,20 @@
-// Склейка фич секции "Artists"
-import { initGrid } from './grid.js';         // твой модуль грида
-// при необходимости сюда же добавим initPlayer / initZoom и т.д.
+import { initGrid } from "./grid.js";
+import { createArtistModal } from "./modal.js";
+import { initRouter } from "./router.js";
+import { initPrefetch } from "./prefetch.js";
 
-let booted = false;
-export function initArtists() {
-  if (booted) return; // защита от двойного запуска
-  const root = document.querySelector('#artists-section');
+export function initArtists(root = document.querySelector("#artists-section")) {
   if (!root) return;
-  initGrid(root);     // ← запускаем грид и всё, что он внутри подключает
-  booted = true;
+
+  // URL-sync сначала (восстановит состояние до начальной загрузки)
+  initRouter(root);
+
+  // Модалка (возвращает open/close)
+  const modal = createArtistModal(root);
+
+  // Prefetch "Learn more" (ускоряет открытие модалки)
+  initPrefetch(root);
+
+  // Грид (передаём модалку для открытия)
+  initGrid(root, { openModal: modal.open });
 }
