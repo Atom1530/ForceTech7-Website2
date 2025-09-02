@@ -78,7 +78,9 @@ export function createArtistModal(rootEl = document) {
   const dialog     = modal.querySelector(".amodal__dialog");
 
   // мини-плеер
-  const player = createMiniPlayer(modal);
+  const player = createMiniPlayer(); 
+
+  
 
   // стрелка «вверх»
   let scrollTopBtn = null;

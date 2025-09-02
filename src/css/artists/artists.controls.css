@@ -86,3 +86,60 @@
     transition: none;
   }
 }
+
+/* База для всех кнопок секции Artists */
+.artists1 .btn {
+  -webkit-appearance: none;
+  appearance: none;
+  border: none;
+  cursor: pointer;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
+  height: 47px;
+  padding: 10px 24px;
+  border-radius: 12px;
+
+  font-family: var(
+    --font-sans,
+    'IBM Plex Sans',
+    system-ui,
+    -apple-system,
+    Segoe UI,
+    Roboto,
+    Arial,
+    sans-serif
+  );
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.5;
+
+  color: var(--color-white, #fff);
+  background: var(
+    --color-grey-900,
+    #111
+  ); /* дефолт, если не переопределим темой */
+
+  box-shadow: 0 1px 2px rgba(6, 3, 7, 0.05), inset 0 -2px 1px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(6, 3, 7, 0.15),
+    inset 0 32px 24px rgba(255, 255, 255, 0.05);
+  transition: background-color 0.2s ease, transform 0.12s ease;
+}
+
+.artists1 .btn:hover,
+.artists1 .btn:focus-visible {
+  transform: translateY(-1px);
+}
+
+/* Фиолетовая тема */
+.artists1 .btn--purple {
+  background: var(--color-affair, #764191);
+}
+
+.artists1 .btn--purple:hover,
+.artists1 .btn--purple:focus-visible {
+  background: color-mix(in oklab, var(--color-affair, #764191) 86%, black);
+}

@@ -1,18 +1,12 @@
 
 import { UISound } from "../lib/sound.js";
-import { fetchArtists, fetchGenres } from "./api.js";
+import { fetchArtists, fetchGenres, fetchArtistAlbums } from "./api.js";
 import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
+import { createMiniPlayer } from "./player.js";
 import { openZoom } from "./zoom.js";
 
 const SPRITE = "/img/sprite.svg";
-
-// Глобальный синглтон модалки на модуль
-let __modalApi = null;
-function getModalApi() {
-  if (!__modalApi) __modalApi = createArtistModal(); // root=document по умолчанию
-  return __modalApi;
-}
 
 export function initGrid(root = document.querySelector("#artists-section")) {
   if (!root) return;
@@ -38,8 +32,12 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   const pager       = root.querySelector("#artists-pager");
   const empty       = root.querySelector("#artists-empty");
 
-  // единый API модалки
-  const modalApi = getModalApi();
+  // модалка (API) + глобальный мини-плеер (для «радио»)
+  const modalApi = createArtistModal(document);
+  const radioPlayer = createMiniPlayer(); // singleton, монтируется в <body>
+
+  // текущее содержимое для «радио»
+  let lastList = [];
 
   // защита от гонок API
   let reqId = 0;
@@ -255,7 +253,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     if (page > totalPages && allowRetry) { ArtistState.setPage(totalPages); return loadArtists(false); }
     if (page < 1 && allowRetry)          { ArtistState.setPage(1);         return loadArtists(false); }
 
-    // локальная сортировка (если надо)
+    // локальная сортировка
     if (sort === "asc")  list = list.slice().sort((a, b) => byName(a).localeCompare(byName(b)));
     if (sort === "desc") list = list.slice().sort((a, b) => byName(b).localeCompare(byName(a)));
 
@@ -270,6 +268,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
     applyEmpty(false);
     swapGridContent(() => renderGrid(list));
+    lastList = list.slice(); // для «радио»
     renderPager(ArtistState.get().page, totalPages);
   }
 
@@ -355,7 +354,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     loadArtists();
   });
 
-  // ---------- модалка и зум ----------
+  // ---------- модалка + зум ----------
   grid.addEventListener("click", (e) => {
     // Learn More → модалка
     const btn = e.target.closest('[data-action="more"]');
@@ -363,7 +362,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       const id = btn.closest(".card")?.dataset?.id;
       if (!id) return;
       UISound.tap();
-      getModalApi().openFor(id);
+      modalApi.openFor(id);
       return;
     }
 
@@ -375,6 +374,33 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       openZoom(src, img.getAttribute("alt") || "");
     }
   });
+
+  // ---------- RADIO: случайные треки из видимых артистов ----------
+  async function startRadioFromVisible() {
+    try {
+      const ids = lastList.map(a => a?.id).filter(Boolean);
+      if (!ids.length) { window.__toast?.info?.("Сначала загрузите артистов."); return; }
+
+      const pick = ids.sort(() => Math.random() - 0.5).slice(0, 10);
+      const albumsArr = await Promise.all(pick.map(id => fetchArtistAlbums(id).catch(() => [])));
+
+      const urls = [];
+      for (const albums of albumsArr) {
+        for (const alb of (albums || [])) {
+          for (const t of (alb.tracks || [])) {
+            if (t.youtube) urls.push(t.youtube);
+          }
+        }
+      }
+      if (!urls.length) { window.__toast?.error?.("Не нашли треков с YouTube-ссылками в текущем списке."); return; }
+
+      radioPlayer.playQueue(urls, { shuffle: true, loop: true });
+    } catch (e) {
+      window.__toast?.error?.("Не удалось запустить радио.");
+    }
+  }
+  const radioBtn = root.querySelector("#radio-shuffle");
+  radioBtn?.addEventListener("click", () => { UISound.tap(); startRadioFromVisible(); });
 
   // ---------- init ----------
   syncPanelMode();
