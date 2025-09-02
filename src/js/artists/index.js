@@ -1,111 +1,51 @@
-
-import { initGrid } from "./features/grid.js";
+// src/js/artists/index.js
+import { initArtists } from "./features/init.js";
 import { createMiniPlayer } from "./features/player.js";
-import { UISound } from "./lib/sound.js";
 
-// --- анти-двойной запуск (если где-то ещё импортят этот же файл) ---
-if (window.__artists_boot) {
- 
-} else {
-  window.__artists_boot = true;
+const RADIO_POOL = Array.from(new Set([
+  "Zi_XLOBDo_Y","3JZ_D3ELwOQ","fRh_vgS2dFE","OPf0YbXqDm0","60ItHLz5WEA",
+  "2Vv-BfVoq4g","kXYiU_JCYtU","UceaB4D0jpo","RubBzkZzpUA","kJQP7kiw5Fk",
+  "CevxZvSJLk8","pRpeEdMmmQ0","IcrbM1l_BoI","YVkUvmDQ3HY","hT_nvWreIhg",
+  "09R8_2nJtjg","uelHwf8o7_U","JGwWNGJdvx8","YQHsXMglC9A","NmugSMBh_iI",
+  "LrUvu1mlWco","hLQl3WQQoQ0","RgKAFK5djSk","SlPhMPnQ58k","oRdxUFDoQe0",
+  "09z7j-LPz1E","Pkh8UtuejGw","tt2k8PGm-TI","lY2yjAdbvdQ",
+  "pXRviuL6vMY","nfs8NYg7yQM","nCkpzqqog4k","M7lc1UVf-VE"
+]));
 
-  // 1) Грид/модалка
-  initGrid();
+function ready(fn){
+  if(document.readyState!=="loading") fn();
+  else document.addEventListener("DOMContentLoaded", fn);
+}
+function pickStartBtn(){
+  // поддержим любые старые селекторы, но рекомендуем data-атрибут
+  return document.querySelector('[data-radio="start"]')
+      || document.querySelector('#rhythm-radio')
+      || document.querySelector('#random-radio')
+      || document.querySelector('#radio-start')
+      || document.querySelector('.js-radio-start');
+}
 
-  // 2) Мини-плеер (singleton)
+ready(() => {
+  try { initArtists(); } catch {}
   const player = createMiniPlayer();
 
-  // 3) Радио-очередь
-  //    
-  const FALLBACK_IDS = [
-    "dQw4w9WgXcQ",
-    "kXYiU_JCYtU",
-    "3JZ_D3ELwOQ",
-    "e-ORhEE9VVg",
-    "hTWKbfoikeg",
-  ];
-
-  // --- утилита: получить массив id из data-атрибутов или взять запасной ---
-  function getRadioIds(btnEl) {
-    // Вариант 1: <button id="random-radio" data-yt="id1,id2,id3">
-    const raw = btnEl?.getAttribute?.("data-yt");
-    if (raw && raw.trim()) {
-      return raw
-        .split(/[,\s]+/)
-        .map((s) => s.trim())
-        .filter(Boolean);
-    }
-
-    // Вариант 2: <script type="application/json" id="radio-data">["id1","id2"]</script>
-    const jsonEl =
-      document.querySelector("#radio-data") ||
-      document.querySelector('[data-radio-json="true"]');
-    if (jsonEl) {
-      try {
-        const arr = JSON.parse(jsonEl.textContent || "[]");
-        if (Array.isArray(arr) && arr.length) return arr;
-      } catch {}
-    }
-
-    // Фолбэк: фиксированный набор
-    return FALLBACK_IDS;
+  const startBtn = pickStartBtn();
+  if (startBtn) {
+    startBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      player.openQueue(RADIO_POOL, { shuffle: true, loop: true });
+    });
   }
 
-  // --- навешиваем обработчики на разные возможные селекторы кнопок ---
-  const radioBtn =
-    document.querySelector("#random-radio") ||
-    document.querySelector("#rhythm-radio") ||
-    document.querySelector('[data-action="radio"]') ||
-    document.querySelector("#radio-shuffle");
-
-  const nextBtn =
-    document.querySelector("#radio-next") ||
-    document.querySelector(".radio-next") ||
-    document.querySelector('[data-action="radio-next"]');
-
-  const prevBtn =
-    document.querySelector("#radio-prev") ||
-    document.querySelector(".radio-prev") ||
-    document.querySelector('[data-action="radio-prev"]');
-
-  const stopBtn =
-    document.querySelector("#radio-stop") ||
-    document.querySelector("#radio-reset") ||
-    document.querySelector('[data-action="radio-stop"]');
-
-  // Запуск радио (очередь + перемешка + зацикливание)
-  function startRadio(btnEl) {
-    UISound?.tap?.();
-    const ids = getRadioIds(btnEl);
-    if (!ids || !ids.length) return;
-    // Важно: именно openQueue, а не open — чтобы Next/Prev работали по очереди.
-    player.openQueue(ids, { shuffle: true, loop: true, startIndex: 0 });
-  }
-
-  radioBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    startRadio(radioBtn);
+  // опционально: горячие клавиши
+  document.addEventListener("keydown", (e) => {
+    const tag = (e.target && e.target.tagName || "").toLowerCase();
+    if (tag === "input" || tag === "textarea" || tag === "select" || e.isComposing) return;
+    if (e.key === "r" || e.key === "R") player.openQueue(RADIO_POOL, { shuffle:true, loop:true });
+    if (e.key === "ArrowRight") player.next();
+    if (e.key === "ArrowLeft")  player.prev();
   });
 
-  // Внешние кнопки управления 
-  nextBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    UISound?.tap?.();
-    player.next();
-  });
-
-  prevBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    UISound?.tap?.();
-    player.prev();
-  });
-
-  stopBtn?.addEventListener("click", (e) => {
-    e.preventDefault();
-    UISound?.tap?.();
-    player.close();
-  });
-
- 
-  window.__artistMiniPlayer = player;
-}
+  // для отладки: window.__player.next(), prev(), openQueue([...])
+  window.__player = player;
+});

@@ -167,6 +167,7 @@ export function createMiniPlayer() {
             } else if (e.data === YT.PlayerState.ENDED) {
               uiPlayIcon(false);
               clearTimer();
+              window.dispatchEvent(new CustomEvent("amplayer:ended", { detail: { id: curId } }));
               autoNext();
             }
           }
