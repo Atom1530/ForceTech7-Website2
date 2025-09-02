@@ -1,5 +1,3 @@
-// src/js/artists/index.js
-// Entry для секции Artists: грид + радио-кнопки + мини-плеер.
 
 import { initGrid } from "./features/grid.js";
 import { createMiniPlayer } from "./features/player.js";
@@ -7,7 +5,7 @@ import { UISound } from "./lib/sound.js";
 
 // --- анти-двойной запуск (если где-то ещё импортят этот же файл) ---
 if (window.__artists_boot) {
-  // уже инициализировано — выходим
+ 
 } else {
   window.__artists_boot = true;
 
@@ -18,7 +16,7 @@ if (window.__artists_boot) {
   const player = createMiniPlayer();
 
   // 3) Радио-очередь
-  //    ⚠️ Подставь свои ID/ссылки — парсер в плеере сам вытащит id из URL.
+  //    
   const FALLBACK_IDS = [
     "dQw4w9WgXcQ",
     "kXYiU_JCYtU",
@@ -89,7 +87,7 @@ if (window.__artists_boot) {
     startRadio(radioBtn);
   });
 
-  // Внешние кнопки управления (если есть в верстке)
+  // Внешние кнопки управления 
   nextBtn?.addEventListener("click", (e) => {
     e.preventDefault();
     UISound?.tap?.();
@@ -108,6 +106,6 @@ if (window.__artists_boot) {
     player.close();
   });
 
-  // На всякий случай выкинем player наружу — удобно дебажить из консоли
+ 
   window.__artistMiniPlayer = player;
 }

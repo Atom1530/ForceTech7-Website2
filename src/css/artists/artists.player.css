@@ -183,10 +183,10 @@
 
 .am-player__progresswrap {
   min-width: 0;
-} /* центральная колонка может сжиматься */
+}
 .am-player__right {
   min-width: 0;
-} /* правая колонка тоже может сжиматься */
+}
 
 /* Ссылка YouTube не должна расталкивать ползунок громкости */
 .am-player__yt {
@@ -216,7 +216,6 @@
   }
 }
 
-/* Кнопки prev/next визуально такие же, как play/mute */
 .am-player__skip,
 .am-player__play,
 .am-player__mute {

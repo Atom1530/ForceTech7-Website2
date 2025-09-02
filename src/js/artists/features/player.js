@@ -1,4 +1,4 @@
-// src/js/artists/features/player.js
+
 // Мини-плеер (singleton). Поддержка очереди, next/prev, автоследования.
 
 let _instance = null;
