@@ -1,7 +1,7 @@
-// src/js/artists/features/state.js
+
 // Единое хранилище состояния секции Artists + подписки.
-// Совместимо с твоим прежним ArtistState (интерфейс сохранён),
-// но добавлены getState/setState/subscribe и resetFilters.
+
+
 
 const _state = {
   page: 1,
@@ -29,7 +29,7 @@ export function subscribe(fn) {
 export function getState() { return snapshot(); }
 
 /** Пакетное обновление: setState({ page, genre, ... })
- *  Если меняем genre/sort/q — страница сбрасывается на 1 (как раньше).
+ *  Если меняем genre/sort/q — страница сбрасывается на 1 
  */
 export function setState(patch = {}) {
   const resetPage = ("genre" in patch) || ("sort" in patch) || ("q" in patch);

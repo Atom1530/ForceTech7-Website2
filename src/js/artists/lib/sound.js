@@ -1,4 +1,4 @@
-// src/js/artists/lib/sound.js
+
 // Мягкий «клац» (tap) и чуть иной звук для пагинации (page)
 let ctx, master, comp, postLP;
 let inited = false;

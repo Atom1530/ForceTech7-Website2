@@ -1,4 +1,4 @@
-// src/js/artists/features/player.js
+
 // Singleton YouTube мини-плеер: без дублей, устойчив к HMR (Vite).
 let YT_READY_PROMISE = null;
 function loadYT() {

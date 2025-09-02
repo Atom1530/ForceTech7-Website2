@@ -1,0 +1,117 @@
+<div id="artists"></div>
+
+<section id="artists-section" class="artists1 container">
+  <div class="artists1__head">
+    <p class="eyebrow">Artists</p>
+    <h2 class="title">Explore Your New Favorite Artists</h2>
+  </div>
+
+  <div class="artists1__layout">
+    <aside class="filters" id="filters">
+      <div class="filters__bar">
+        <span class="filters__label">Filters</span>
+
+        <button id="filters-reset" type="button" class="filters__reset">
+          Reset
+        </button>
+
+        <button
+          id="filters-toggle"
+          type="button"
+          class="filters__toggle"
+          aria-controls="filters-panel"
+          aria-expanded="false"
+        >
+          <span>Search and Filters</span>
+        </button>
+      </div>
+
+      <div id="filters-panel" class="filters__panel" aria-hidden="true">
+        <label class="fld fld-search">
+          <svg class="ico" aria-hidden="true" width="24" height="24">
+            <use href="/img/sprite.svg#icon-search"></use>
+          </svg>
+          <input id="flt-q" type="search" placeholder="Search" />
+        </label>
+
+        <div class="dd" data-dd="sort">
+          <button
+            class="dd__btn"
+            id="dd-sort-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="dd-sort-list"
+          >
+            <span>Sorting</span>
+          </button>
+          <ul class="dd__list" id="dd-sort-list" role="listbox">
+            <li data-val="">Default</li>
+            <li data-val="asc">A–Z</li>
+            <li data-val="desc">Z–A</li>
+          </ul>
+        </div>
+
+        <div class="dd" data-dd="genre">
+          <button
+            class="dd__btn"
+            id="dd-genre-btn"
+            type="button"
+            aria-expanded="false"
+            aria-controls="dd-genre-list"
+          >
+            <span>Genre</span>
+          </button>
+          <ul class="dd__list" id="dd-genre-list" role="listbox"></ul>
+        </div>
+
+        <button
+          id="filters-reset-sm"
+          class="filters__reset filters__reset--sm"
+          type="button"
+        >
+          Reset
+        </button>
+      </div>
+    </aside>
+
+    <div class="artists1__content">
+      <div id="artists-empty" class="empty" hidden>
+        <div class="empty__card">
+          <div class="empty__icon" aria-hidden="true">!</div>
+          <h3 class="empty__title">Silence on the stage…</h3>
+          <p class="empty__text">
+            Looks like no artists match your filters.<br class="empty__br" />
+            Try changing them or hit “Reset Filters” to bring back the beat.
+          </p>
+
+          <button class="empty__btn" id="empty-reset" type="button">
+            Reset filters
+          </button>
+        </div>
+      </div>
+
+      <div id="artists-loader" class="loader" hidden></div>
+
+      <ul id="artists-grid" class="grid"></ul>
+
+      <nav id="artists-pager" class="pager" aria-label="Pagination"></nav>
+    </div>
+  </div>
+
+  <div id="artist-modal" class="amodal" hidden>
+    <div class="amodal__backdrop"></div>
+    <div class="amodal__dialog" role="dialog" aria-modal="true">
+      <button
+        class="amodal__close"
+        id="am-close"
+        type="button"
+        aria-label="Close"
+      >
+        ×
+      </button>
+      <div class="amodal__body" id="am-body">
+        <div class="amodal__loader loader"></div>
+      </div>
+    </div>
+  </div>
+</section>

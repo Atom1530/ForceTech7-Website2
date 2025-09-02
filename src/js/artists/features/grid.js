@@ -1,4 +1,4 @@
-// src/js/artists/features/grid.js
+
 import { UISound } from "../lib/sound.js";
 import { fetchArtists, fetchGenres } from "./api.js";
 import { ArtistState } from "./state.js";

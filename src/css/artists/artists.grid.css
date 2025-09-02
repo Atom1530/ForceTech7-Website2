@@ -24,36 +24,116 @@
   }
 }
 
-/* пустое состояние */
-.artists1 .empty {
-  margin-top: 16px;
+/* Коробка пустого состояния внутри контента секции */
+#artists-empty.empty {
+  display: block;
+  margin: 0;
 }
-.artists1 .empty__card {
-  background: #2c1f3b;
+
+.empty__card {
+  width: 288px;
+  min-height: 417px;
+  box-sizing: border-box;
+
+  background: var(--color-affair-950, #25152f);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--color-white, #fff);
   border-radius: 16px;
-  padding: 24px;
-  color: #e8e8ec;
-}
-.artists1 .empty__icon {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  border: 2px solid #c7a3ff;
+  padding: 16px;
   display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 24px;
+}
+
+.empty__icon {
+  --icon-size: 40px;
+
+  width: var(--icon-size);
+  height: var(--icon-size);
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: transparent;
+  border: 4px solid var(--color-white, #fff);
+
+  color: var(--color-white, #fff);
+  font: 700 22px/1 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto,
+    Arial, sans-serif;
+  transform: translateY(-1px);
+}
+
+/* Заголовок */
+.empty__title {
+  margin: 0;
+  font-family: 'Epilogue', system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+  font-weight: 700;
+  font-size: 32px;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+/* Текст */
+.empty__text {
+  margin: 0;
+  font: 400 20px/1.5 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto,
+    Arial, sans-serif;
+  opacity: 0.95;
+}
+
+.empty__btn {
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 12px;
-}
-.artists1 .empty__title {
-  font: 700 32px/1.2 'Epilogue';
-  color: var(--color-white);
-  margin: 0 0 12px;
-}
-.artists1 .empty__btn {
-  background: #6d3bd1;
-  border: 0;
-  color: var(--color-white);
+  height: 47px;
+  padding: 10px 24px;
+  width: 100%;
   border-radius: 12px;
-  padding: 10px 18px;
+  border: none;
   cursor: pointer;
+
+  font: 500 18px/1.5 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto,
+    Arial, sans-serif;
+  color: var(--color-white, #fff);
+  background: var(--color-affair, #764191);
+  box-shadow: 0 1px 2px rgba(6, 3, 7, 0.05), inset 0 -2px 1px rgba(0, 0, 0, 0.2),
+    inset 0 0 0 1px rgba(6, 3, 7, 0.15),
+    inset 0 32px 24px rgba(255, 255, 255, 0.05);
+}
+.empty__btn:hover,
+.empty__btn:focus-visible {
+  background: color-mix(in oklab, var(--color-affair, #764191) 86%, black);
+}
+
+/* ---------- ≥768 (tablet) ---------- */
+@media (min-width: 768px) {
+  .empty__card {
+    width: 704px;
+    min-height: 341px;
+    padding: 32px;
+    gap: 24px;
+  }
+  .empty__title {
+    font-size: 48px;
+    .empty__btn {
+      width: 148px;
+    }
+  }
+
+  .empty__btn {
+    width: 148px;
+  }
+}
+/* ---------- ≥1440 (desktop) ---------- */
+@media (min-width: 1440px) {
+  .empty__card {
+    width: 976px;
+    min-height: 341px;
+    padding: 32px;
+  }
+
+  .empty__title {
+    font-size: 48px;
+  }
 }

@@ -1,4 +1,4 @@
-// src/js/artists/lib/toast.js
+
 let box = null;
 
 function ensureBox() {

@@ -1,5 +1,5 @@
-// src/js/artists/index.js
-import "../artists/lib/toast.js";                 // один раз на страницу
+
+import "../artists/lib/toast.js";                 
 import { UISound } from "../artists/lib/sound.js";
 import { initArtists } from "./features/init.js";
 

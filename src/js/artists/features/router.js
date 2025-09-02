@@ -21,8 +21,8 @@ function buildQuery(s) {
   return p.toString();
 }
 
-export function initRouter(/* root не нужен, но оставим сигнатуру единообразной */) {
-  // 1) Применяем состояние из URL один раз при инициализации
+export function initRouter() {
+  
   const urlState = parseQuery();
   const cur = getState();
   const patch = {};
@@ -35,7 +35,7 @@ export function initRouter(/* root не нужен, но оставим сигн
   }
   if (changed) setState(patch);
 
-  // 2) Подписываемся на изменения state и обновляем URL
+  
   let lastQS = null;
   subscribe((s) => {
     const qs = buildQuery(s);

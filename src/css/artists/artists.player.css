@@ -3,9 +3,9 @@
   position: fixed;
   left: 50%;
   right: auto;
-  bottom: 128px; /* отступ над стрелкой "вверх" */
+  bottom: 128px;
   width: min(720px, 92vw);
-  z-index: 9999; /* выше модалки и кнопок */
+  z-index: 9999;
   transform: translate(-50%, 12px);
   opacity: 0;
   pointer-events: none;
@@ -82,7 +82,7 @@
 .am-player__right {
   display: flex;
   gap: 10px;
-  align-items: center; /* кнопки/текст и слайдер громкости выровнены по центру */
+  align-items: center;
 }
 
 .am-player__play,
@@ -108,7 +108,6 @@
   display: block;
 }
 
-/* ── ЕДИНЫЕ стили для обоих слайдеров, чтобы они были на одной высоте ── */
 .am-player__progress,
 .am-player__slider {
   width: 100%;

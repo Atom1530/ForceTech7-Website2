@@ -11,6 +11,7 @@
 /* модалка, плеер, скелетоны, анимации, фильтры, пагер */
 @import url('./artists.modal.css');
 @import url('./artists.player.css');
+@import url('./artist.zoom.css');
 @import url('./artists.skeleton.css');
 @import url('./artists.anim.css');
 @import url('./artists.filters.css');
