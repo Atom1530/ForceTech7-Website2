@@ -14,6 +14,9 @@ const openBtn = document.querySelector(".feedback-btn")
 const closeBtn = document.querySelector(".close-icon");
 const form = document.querySelector("#feedback-form");
 const container = document.querySelector(".feedback-section");
+const inputName = document.querySelector(".form-input-name");
+const inputMessage = document.querySelector(".form-input-message");
+const STORAGE_KEY = "myFeedback";
 
 
 // modal
@@ -21,13 +24,13 @@ openBtn.addEventListener("click", (e) => {
     overlay.classList.remove("hidden");
   container.classList.add("hidden");
   document.body.classList.add("no-scroll");
+  dataFromLocalStorage();
 })
 
 closeBtn.addEventListener("click", (e) => {
     overlay.classList.add("hidden");
   container.classList.remove("hidden");
   document.body.classList.remove("no-scroll");
-  form.reset();
   createStars(document.getElementById("customer-rating", 0));
 });
 
@@ -36,7 +39,6 @@ overlay.addEventListener("click", (e) => {
     overlay.classList.add("hidden")
     container.classList.remove("hidden");
     document.body.classList.remove("no-scroll");
-      form.reset();
   createStars(document.getElementById("customer-rating", 0));
   }
 });
@@ -45,7 +47,6 @@ document.addEventListener("keydown", (e) => {
     overlay.classList.add("hidden")
     container.classList.remove("hidden")
     document.body.classList.remove("no-scroll");
-      form.reset();
   createStars(document.getElementById("customer-rating", 0));
   }
 })
@@ -62,6 +63,7 @@ function createStars(container, rating) {
       star.addEventListener("click", (e) => {
         container.dataset.rating = i;
         createStars(container, i);
+        saveToLocalStorage();
       })
     }
   }
@@ -164,6 +166,41 @@ swiper.update()
   }
 }
 
+// data to localStorage
+function saveToLocalStorage() {
+  const params = {
+    name: inputName.value.trim(),
+    message: inputMessage.value.trim(),
+    rating: Math.round(formRating.dataset.rating) || 0,
+  };
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
+}
+
+// data from localStorage
+function dataFromLocalStorage() {
+  const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
+  if (!savedData) {
+    return;
+  }
+  if (savedData.name) {
+    inputName.value = savedData.name;
+  }
+  if (savedData.message) {
+    inputMessage.value = savedData.message;
+  }
+  if (savedData.rating) {
+    formRating.dataset.rating = savedData.rating;
+  }
+  createStars(formRating, savedData.rating);
+}
+
+//reset localStorage
+function resetLocalStorage() {
+  localStorage.removeItem(STORAGE_KEY);
+  form.reset();
+  formRating.dataset.rating = 0;
+  createStars(formRating, 0);
+}
 
 // data to API
 form.addEventListener("submit", async (e) => {
@@ -205,9 +242,7 @@ form.addEventListener("submit", async (e) => {
         message: '${response.status}'});
     } 
 
-    form.reset();
-    formRating.dataset.rating = 0;
-    createStars(formRating, 0);
+    resetLocalStorage();
     overlay.classList.add("hidden");
     container.classList.remove("hidden");
     document.body.classList.remove("no-scroll");
