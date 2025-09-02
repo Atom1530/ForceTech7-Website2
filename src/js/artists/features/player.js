@@ -1,5 +1,7 @@
+// src/js/artists/features/player.js
+// Мини-плеер (singleton). Очередь, next/prev, автопереход, фиксы автоплея.
 
-// Мини-плеер (singleton). Поддержка очереди, next/prev, автоследования.
+import { UISound } from "../lib/sound.js";
 
 let _instance = null;
 
@@ -102,10 +104,9 @@ export function createMiniPlayer() {
   let userSeeking = false;
 
   // очередь
-  let queue = [];     // массив id
-  let qi = -1;        // текущий индекс
-  let loop = false;   // по желанию
-  // (shuffle применяем один раз при установке очереди)
+  let queue = [];
+  let qi = -1;
+  let loop = false;
 
   if (isIOS) {
     vol.disabled = true;
@@ -113,7 +114,15 @@ export function createMiniPlayer() {
   }
 
   // ---------- UI ----------
-  function uiShow(on) { dock.classList.toggle("am-player--active", !!on); }
+  function uiShow(on) {
+    if (on) {
+      dock.classList.add("am-player--active");
+      dock.style.pointerEvents = "auto";
+    } else {
+      dock.classList.remove("am-player--active");
+      dock.style.pointerEvents = "";
+    }
+  }
   function uiPlayIcon(isPlaying) { btnPlay.textContent = isPlaying ? "⏸" : "▶"; }
   function uiMuteIcon(isMuted) { btnMute.textContent = isMuted ? "🔇" : "🔈"; }
   function uiSetTime(cur, dur) {
@@ -137,7 +146,7 @@ export function createMiniPlayer() {
   }
 
   // ---------- YT ----------
-  function ensureYT(id) {
+  function ensureYT(id, userGesture = false) {
     return loadYTAPI().then(() => {
       if (yt) { try { yt.destroy(); } catch {} yt = null; }
       host.innerHTML = `<div id="am-player-yt"></div>`;
@@ -145,15 +154,21 @@ export function createMiniPlayer() {
         host: "https://www.youtube-nocookie.com",
         videoId: id,
         playerVars: {
-          autoplay: 1, rel: 0, modestbranding: 1, controls: 1, enablejsapi: 1, origin: location.origin
+          autoplay: userGesture ? 1 : 0,
+          playsinline: 1,
+          rel: 0,
+          modestbranding: 1,
+          controls: 1,
+          enablejsapi: 1,
+          origin: location.origin
         },
         events: {
           onReady: () => {
             ready = true;
             duration = yt.getDuration() || 0;
             uiSetTime(0, duration);
-            if (!isIOS && typeof yt.setVolume === "function") yt.setVolume(volVal);
-            if (muted && yt.mute) yt.mute();
+            try { if (!isIOS && typeof yt.setVolume === "function") yt.setVolume(volVal); } catch {}
+            if (userGesture) { try { yt.unMute?.(); yt.playVideo?.(); } catch {} }
             uiPlayIcon(true);
             startTimer();
           },
@@ -167,7 +182,6 @@ export function createMiniPlayer() {
             } else if (e.data === YT.PlayerState.ENDED) {
               uiPlayIcon(false);
               clearTimer();
-              window.dispatchEvent(new CustomEvent("amplayer:ended", { detail: { id: curId } }));
               autoNext();
             }
           }
@@ -177,23 +191,24 @@ export function createMiniPlayer() {
   }
 
   // ---------- queue helpers ----------
-  function playByIndex(idx) {
+  function playByIndex(idx, userGesture = false) {
     if (!queue.length) return;
     qi = clamp(idx, 0, queue.length - 1);
     const id = queue[qi];
     aYT.href = `https://www.youtube.com/watch?v=${id}`;
     uiShow(true);
     ready = false; duration = 0; clearTimer();
-    return ensureYT(id);
+    return ensureYT(id, userGesture);
   }
   function autoNext() {
     if (!queue.length) return;
-    if (qi < queue.length - 1) playByIndex(qi + 1);
-    else if (loop) playByIndex(0);
+    if (qi < queue.length - 1) playByIndex(qi + 1, false);
+    else if (loop) playByIndex(0, false);
   }
 
-  // ---------- UI events ----------
+  // ---------- UI events (добавлены UISound.tap) ----------
   btnClose.addEventListener("click", () => {
+    UISound?.tap?.();
     try { yt?.stopVideo?.(); yt?.destroy?.(); } catch {}
     yt = null; ready = false; duration = 0; clearTimer();
     uiShow(false);
@@ -201,6 +216,7 @@ export function createMiniPlayer() {
   });
 
   btnPlay.addEventListener("click", () => {
+    UISound?.tap?.();
     if (!ready || !yt) return;
     const s = yt.getPlayerState ? yt.getPlayerState() : -1;
     if (s === YT.PlayerState.PLAYING) { yt.pauseVideo?.(); uiPlayIcon(false); }
@@ -208,37 +224,45 @@ export function createMiniPlayer() {
   });
 
   btnPrev.addEventListener("click", () => {
+    UISound?.tap?.();
     if (!queue.length) return;
-    playByIndex(qi > 0 ? qi - 1 : (loop ? queue.length - 1 : 0));
+    playByIndex(qi > 0 ? qi - 1 : (loop ? queue.length - 1 : 0), true);
   });
 
   btnNext.addEventListener("click", () => {
+    UISound?.tap?.();
     if (!queue.length) return;
-    playByIndex(qi < queue.length - 1 ? qi + 1 : (loop ? 0 : qi));
+    playByIndex(qi < queue.length - 1 ? qi + 1 : (loop ? 0 : qi), true);
   });
 
   btnMute.addEventListener("click", () => {
+    UISound?.tap?.();
     if (!yt) return;
-    muted = !muted;
-    if (muted) yt.mute?.(); else yt.unMute?.();
-    uiMuteIcon(muted);
+    const willMute = !yt.isMuted?.();
+    if (willMute) yt.mute?.(); else yt.unMute?.();
+    uiMuteIcon(willMute);
   });
 
   vol.addEventListener("input", () => {
+    // без звука, чтобы не раздражать при перетаскивании
     const v = Number(vol.value) || 0;
     if (!isIOS) yt?.setVolume?.(v);
     volVal = v;
-    if (v === 0 && !muted) { muted = true; yt?.mute?.(); uiMuteIcon(true); }
-    else if (v > 0 && muted) { muted = false; yt?.unMute?.(); uiMuteIcon(false); }
+    const nowMuted = v === 0;
+    if (nowMuted && !yt?.isMuted?.()) yt?.mute?.();
+    if (!nowMuted && yt?.isMuted?.()) yt?.unMute?.();
+    uiMuteIcon(yt?.isMuted?.() ?? false);
   });
 
   prog.addEventListener("input", () => {
+    // тихо
     userSeeking = true;
     const v = Number(prog.value) || 0;
     const sec = duration > 0 ? (v / 1000) * duration : 0;
     tCur.textContent = fmtTimeSec(sec);
   });
   prog.addEventListener("change", () => {
+    UISound?.tap?.();
     userSeeking = false;
     if (!yt || !duration) return;
     const v = Number(prog.value) || 0;
@@ -253,27 +277,24 @@ export function createMiniPlayer() {
     queue = [id]; qi = 0;
     aYT.href = `https://www.youtube.com/watch?v=${id}`;
     uiShow(true);
-    await ensureYT(id);
+    await ensureYT(id, true);
   }
 
   async function openQueue(list, opts = {}) {
-    const ids = (list || [])
-      .map(getYouTubeId)
-      .filter(Boolean);
+    const ids = (list || []).map(getYouTubeId).filter(Boolean);
     if (!ids.length) return;
     loop = !!opts.loop;
-    const arr = opts.shuffle ? shuffleArr(ids) : ids.slice();
-    queue = arr;
+    queue = opts.shuffle ? shuffleArr(ids) : ids.slice();
     const start = clamp(Number(opts.startIndex ?? 0) || 0, 0, queue.length - 1);
-    await playByIndex(start);
+    await playByIndex(start, true);
   }
 
-  function next() { if (queue.length) playByIndex(qi < queue.length - 1 ? qi + 1 : (loop ? 0 : qi)); }
-  function prev() { if (queue.length) playByIndex(qi > 0 ? qi - 1 : (loop ? queue.length - 1 : 0)); }
+  function next() { if (queue.length) playByIndex(qi < queue.length - 1 ? qi + 1 : (loop ? 0 : qi), true); }
+  function prev() { if (queue.length) playByIndex(qi > 0 ? qi - 1 : (loop ? queue.length - 1 : 0), true); }
   function isActive() { return dock.classList.contains("am-player--active"); }
-  function close() { btnClose.click(); }
+  function close() { const ev = new Event("click"); btnClose.dispatchEvent(ev); }
+  function ensureAudible() { try { yt?.unMute?.(); yt?.playVideo?.(); } catch {} }
 
-  _instance = { open, openQueue, next, prev, isActive, close };
+  _instance = { open, openQueue, next, prev, isActive, close, ensureAudible };
   return _instance;
 }
-
