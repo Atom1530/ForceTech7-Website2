@@ -1,0 +1,26 @@
+/* 1) База/токены/общие вспомогалки секции */
+@import url('./artists.base.css');
+
+/* 2) Кейфреймы и анимации (используются далее) */
+@import url('./artists.anim.css');
+
+/* 3) Скелетоны и fade-in изображений */
+@import url('./artists.skeleton.css');
+
+/* 4) Фильтры (панель, дропдауны, адаптив) */
+@import url('./artists.filters.css');
+
+/* 5) Грид контейнер (без карточки) */
+@import url('./artists.grid.css');
+
+/* 6) Карточки артистов */
+@import url('./artists.card.css');
+
+/* 7) Пагинация */
+@import url('./artists.pager.css');
+
+/* 8) Модалка (био/альбомы/таблица) */
+@import url('./artists.modal.css');
+
+/* 9) Мини-плеер (YouTube + громкость) */
+@import url('./artists.player.css');

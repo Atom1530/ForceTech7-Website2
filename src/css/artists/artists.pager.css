@@ -1,0 +1,27 @@
+.artists1 .pager {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 32px 0 64px;
+}
+.artists1 .pager button {
+  min-width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  color: #e8e8ec;
+  cursor: pointer;
+}
+.artists1 .pager button.active {
+  background: #3c2a58;
+  border-color: #3c2a58;
+}
+.artists1 .pager button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.artists1 .pager .dots {
+  border: 0;
+  pointer-events: none;
+}

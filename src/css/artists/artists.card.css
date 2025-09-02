@@ -1,0 +1,99 @@
+.artists1 .card {
+  color: #e8e8ec;
+  max-width: 100%;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  will-change: transform;
+}
+.artists1 .card__media img {
+  width: 100%;
+  display: block;
+  border-radius: 16px;
+  object-fit: cover;
+  height: 177px;
+  object-position: center top;
+}
+
+.artists1 .card__tags {
+  display: flex;
+  gap: 16px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+.artists1 .tag {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  font: 600 16px/1 'IBM Plex Sans';
+}
+
+.artists1 .card__title {
+  color: var(--color-white);
+  font: 700 32px/1.3 'Epilogue', system-ui;
+  letter-spacing: -0.01em;
+  margin: 0 0 8px;
+}
+.artists1 .card__text {
+  color: var(--color-white);
+  font: 400 18px/1.5 'IBM Plex Sans';
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.artists1 .card__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 0;
+  color: var(--color-white);
+  cursor: pointer;
+  font: 500 18px/1.5 'IBM Plex Sans';
+  margin-top: 0;
+  border-radius: 12px;
+}
+.artists1 .card__link .ico {
+  width: 24px;
+  height: 24px;
+  fill: var(--color-white);
+  margin-left: 6px;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+
+/* hover-elevation и лёгкий сдвиг стрелки */
+@media (hover: hover) {
+  .artists1 .card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  }
+  .artists1 .card__link:hover .ico,
+  .artists1 .card__link:focus .ico {
+    transform: translateX(2px);
+    fill: var(--color-affair);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .artists1 .card {
+    transition: none;
+  }
+  .artists1 .card__link .ico {
+    transition: none;
+  }
+}
+
+/* высоты медиа по брейкпоинтам */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  .artists1 .grid .card__media img {
+    height: 432px;
+  }
+}
+@media (min-width: 1440px) {
+  .artists1 .grid .card__media img {
+    height: 393px;
+  }
+}

@@ -1,33 +1,94 @@
-// modal.js — модалка артиста: открытие/закрытие, разметка, мини-плеер, zoom, ScrollTop
+// src/js/artists/features/modal.js
+// Модалка артиста: ищет разметку в root или document, при отсутствии — создаёт каркас.
+// Интеграция: мини-плеер + zoom + стрелка «вверх»
 
 import { lockScroll, unlockScroll } from "../lib/scroll-lock.js";
 import { UISound } from "../lib/sound.js";
 import { fetchArtist, fetchArtistAlbums } from "./api.js";
-import { getPrefetched } from "./prefetch.js";
+import { createMiniPlayer } from "./player.js";
 import { openZoom } from "./zoom.js";
-import { createMiniPlayer, destroyMiniPlayer } from "./player.js";
 
 const SPRITE = "/img/sprite.svg";
 
-export function createArtistModal(root) {
-  const modal    = root.querySelector("#artist-modal");
-  const modalEl  = modal?.querySelector(".amodal__dialog");
-  const bodyEl   = modal?.querySelector("#am-body");
-  const closeBtn = modal?.querySelector("#am-close");
-  if (!modal || !modalEl || !bodyEl || !closeBtn) {
-    throw new Error("modal markup incomplete");
-  }
+/* ---------- утилиты ---------- */
+function fmtTime(val) {
+  const ms = Number(val);
+  if (!Number.isFinite(ms)) return "—";
+  const total = Math.round(ms / 1000);
+  const m = Math.floor(total / 60);
+  const s = String(total % 60).padStart(2, "0");
+  return `${m}:${s}`;
+}
+const years = (d) => {
+  const s = d?.intFormedYear || d?.yearStart || d?.formedYear;
+  const e = d?.intDisbandedYear || d?.intDiedYear || d?.yearEnd || d?.disbandedYear;
+  if (s && e) return `${s}–${e}`;
+  if (s) return `${s}–present`;
+  return "information missing";
+};
+const trackRow = (t) => {
+  const title = t?.strTrack || t?.title || t?.name || "—";
+  const dur   = fmtTime(t?.intDuration ?? t?.duration ?? t?.time);
+  const link  = t?.movie ?? t?.youtube ?? t?.youtube_url ?? t?.url ?? t?.strMusicVid;
+  return `
+    <li class="tr">
+      <span>${title}</span>
+      <span>${dur}</span>
+      <span>${
+        link
+          ? `<a class="yt" href="${link}" target="_blank" rel="noopener noreferrer" aria-label="Watch on YouTube">
+               <svg class="ico am-yt" aria-hidden="true"><use href="${SPRITE}#icon-icon_youtube_footer"></use></svg>
+             </a>`
+          : `<span class="yt-ph"></span>`
+      }</span>
+    </li>`;
+};
 
-  // Кнопка «вверх» в модалке
+/* ---------- создание каркаса (если partial не подключён) ---------- */
+function ensureModalShell(doc = document) {
+  let modal = doc.querySelector("#artist-modal");
+  if (modal) return modal;
+
+  modal = doc.createElement("div");
+  modal.id = "artist-modal";
+  modal.className = "amodal";
+  modal.setAttribute("hidden", "");
+  modal.innerHTML = `
+    <div class="amodal__backdrop"></div>
+    <div class="amodal__dialog" role="dialog" aria-modal="true" aria-label="Artist details">
+      <button id="am-close" class="amodal__close" type="button" aria-label="Close">×</button>
+      <div id="am-body" class="amodal__body">
+        <div class="amodal__loader loader"></div>
+      </div>
+    </div>`;
+  doc.body.appendChild(modal);
+  return modal;
+}
+
+/* ---------- основной модуль ---------- */
+export function createArtistModal(rootEl = document) {
+  // 1) ищем в rootEl, 2) в document, 3) если нет — создаём каркас
+  let modal =
+    (rootEl && rootEl.querySelector ? rootEl.querySelector("#artist-modal") : null) ||
+    document.querySelector("#artist-modal") ||
+    ensureModalShell(document);
+
+  const modalBody  = modal.querySelector("#am-body");
+  const modalClose = modal.querySelector("#am-close");
+  const dialog     = modal.querySelector(".amodal__dialog");
+
+  // мини-плеер
+  const player = createMiniPlayer(modal);
+
+  // стрелка «вверх»
   let scrollTopBtn = null;
-  let onScroll = null;
-  function ensureScrollTopBtn() {
+  function ensureScrollTop() {
     if (scrollTopBtn) return;
-    const b = document.createElement("button");
-    b.type = "button";
-    b.setAttribute("aria-label", "Scroll to top");
-    b.textContent = "↑";
-    Object.assign(b.style, {
+    scrollTopBtn = document.createElement("button");
+    scrollTopBtn.type = "button";
+    scrollTopBtn.setAttribute("aria-label", "Scroll to top");
+    scrollTopBtn.textContent = "↑";
+    Object.assign(scrollTopBtn.style, {
       position: "fixed",
       right: "24px",
       bottom: "24px",
@@ -46,52 +107,58 @@ export function createArtistModal(root) {
       boxShadow: "0 8px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,0.1)",
       zIndex: "5",
     });
-    b.addEventListener("click", () => {
-      UISound.tap();
-      modalEl.scrollTo({ top: 0, behavior: "smooth" });
+    scrollTopBtn.addEventListener("click", () => {
+      UISound?.tap?.();
+      dialog.scrollTo({ top: 0, behavior: "smooth" });
     });
-    modal.appendChild(b);
-    scrollTopBtn = b;
+    modal.appendChild(scrollTopBtn);
+
+    dialog.addEventListener("scroll", () => {
+      scrollTopBtn.style.display = (dialog.scrollTop || 0) > 220 ? "flex" : "none";
+    });
   }
 
-  function fmtTime(val) {
-    let ms = Number(val);
-    if (!isFinite(ms)) return "—";
-    const totalSec = Math.round(ms / 1000);
-    const m = Math.floor(totalSec / 60);
-    const s = String(totalSec % 60).padStart(2, "0");
-    return `${m}:${s}`;
+  function open() {
+    modal.removeAttribute("hidden");
+    lockScroll();
+    ensureScrollTop();
+    modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
+    document.addEventListener("keydown", onEsc);
   }
-  function years(d){
-    const s = d?.intFormedYear || d?.yearStart || d?.formedYear;
-    const e = d?.intDisbandedYear || d?.intDiedYear || d?.yearEnd || d?.disbandedYear;
-    if (s && e) return `${s}–${e}`;
-    if (s) return `${s}–present`;
-    return "information missing";
+  function close() {
+    if (player.isActive()) player.close();
+    modal.setAttribute("hidden", "");
+    unlockScroll();
+    modalBody.innerHTML = "";
+    document.removeEventListener("keydown", onEsc);
+    if (scrollTopBtn) scrollTopBtn.style.display = "none";
   }
-  function trackRow(t) {
-    const title = t?.strTrack || t?.title || t?.name || "—";
-    const dur   = fmtTime(t?.intDuration ?? t?.duration ?? t?.time);
-    const link  = t?.movie ?? t?.youtube ?? t?.youtube_url ?? t?.url ?? t?.strMusicVid;
-    const yIco  = `<svg class="ico am-yt" aria-hidden="true"><use href="${SPRITE}#icon-icon_youtube_footer"></use></svg>`;
-    return `
-      <li class="tr">
-        <span>${title}</span>
-        <span>${dur}</span>
-        <span>${link ? `<a class="yt" href="${link}" target="_blank" rel="noopener noreferrer" aria-label="Watch on YouTube">${yIco}</a>` : `<span class="yt-ph"></span>`}</span>
-      </li>`;
-  }
+  const onEsc = (e) => { if (e.key === "Escape") { UISound?.tap?.(); close(); } };
 
-  async function render(id){
-    // берём из кэша, если успели префетчить
-    const cached = getPrefetched(id);
-    let artist, albums;
-    if (cached) {
-      artist = cached.artist;
-      albums = cached.albums || [];
-    } else {
-      [artist, albums] = await Promise.all([fetchArtist(id), fetchArtistAlbums(id)]);
+  modalClose.addEventListener("click", () => { UISound?.tap?.(); close(); });
+  modal.addEventListener("click", (e) => {
+    if (e.target.classList.contains("amodal__backdrop")) {
+      UISound?.tap?.(); close();
     }
+  });
+
+  // делегирование кликов: YouTube + zoom
+  modal.addEventListener("click", (e) => {
+    const a = e.target.closest("a.yt");
+    if (a) { e.preventDefault(); UISound?.tap?.(); player.open(a.href); return; }
+    const zoomImg = e.target.closest(".amodal__img");
+    if (zoomImg) {
+      UISound?.tap?.();
+      const src = zoomImg.currentSrc || zoomImg.getAttribute("src") || zoomImg.getAttribute("data-src") || "";
+      openZoom(src, zoomImg.getAttribute("alt") || "");
+    }
+  });
+
+  async function render(id) {
+    const [artist, albums] = await Promise.all([
+      fetchArtist(id).catch(() => ({})),
+      fetchArtistAlbums(id).catch(() => ([])),
+    ]);
 
     const d = artist || {};
     const name    = d?.strArtist || d?.name || "Unknown artist";
@@ -102,7 +169,8 @@ export function createArtistModal(root) {
     const bio     = d?.strBiographyEN || d?.about || "";
     const genres  = Array.isArray(d?.genres) ? d.genres : (d?.genre ? [d.genre] : []);
 
-    const albumsMarkup = (albums||[]).map(alb=>{
+    const albumsArr = Array.isArray(albums) ? albums : [];
+    const albumsMarkup = albumsArr.map(alb => {
       const title  = alb?.strAlbum || alb?.title || alb?.name || "Album";
       const tracks = Array.isArray(alb?.tracks) ? alb.tracks :
                      (Array.isArray(alb?.songs) ? alb.songs : []);
@@ -116,7 +184,7 @@ export function createArtistModal(root) {
         </div>`;
     }).join("");
 
-    bodyEl.innerHTML = `
+    modalBody.innerHTML = `
       <h3 class="amodal__title">${name}</h3>
       <div class="amodal__content">
         <img class="amodal__img" src="${img}" alt="${name}" loading="lazy">
@@ -141,73 +209,11 @@ export function createArtistModal(root) {
       </div>`;
   }
 
-  function open(id) {
-    modal.removeAttribute("hidden");
-    lockScroll();
-    bodyEl.innerHTML = `<div class="amodal__loader loader"></div>`;
-    addEsc();
-    ensureScrollTopBtn();
-    onScroll = () => {
-      const t = modalEl.scrollTop || 0;
-      if (scrollTopBtn) scrollTopBtn.style.display = t > 220 ? "flex" : "none";
-    };
-    modalEl.addEventListener("scroll", onScroll);
-    onScroll();
-
-    // мини-плеер и zoom
-    createMiniPlayer(modal);
-    modal.addEventListener("click", onModalClick);
-    render(id);
+  async function openFor(id) {
+    UISound?.tap?.();
+    open();
+    await render(id);
   }
 
-  function close() {
-    modal.setAttribute("hidden", "");
-    unlockScroll();
-    bodyEl.innerHTML = "";
-    removeEsc();
-    if (onScroll) {
-      modalEl.removeEventListener("scroll", onScroll);
-      onScroll = null;
-    }
-    if (scrollTopBtn) scrollTopBtn.style.display = "none";
-    destroyMiniPlayer(); // чистим видеоплеер
-    modal.removeEventListener("click", onModalClick);
-  }
-
-  function onModalClick(e) {
-    // YouTube inline (мини-плеер)
-    const y = e.target.closest("a.yt");
-    if (y) {
-      e.preventDefault();
-      UISound.tap();
-      // обработка происходит внутри player.js (подписан на клики)
-      return;
-    }
-    // Зум картинок
-    const img = e.target.closest(".amodal__img");
-    if (img) {
-      UISound.tap();
-      const src = img.currentSrc || img.getAttribute("src") || "";
-      openZoom(src, img.alt || "");
-      return;
-    }
-    // Клик по фону — закрыть
-    if (e.target.classList.contains("amodal__backdrop")) {
-      UISound.tap();
-      close();
-    }
-  }
-
-  const onEsc = (e) => {
-    if (e.key === "Escape" && !modal.hasAttribute("hidden")) {
-      UISound.tap();
-      close();
-    }
-  };
-  function addEsc(){ document.addEventListener("keydown", onEsc); }
-  function removeEsc(){ document.removeEventListener("keydown", onEsc); }
-
-  closeBtn.addEventListener("click", () => { UISound.tap(); close(); });
-
-  return { open, close };
+  return { openFor, close };
 }

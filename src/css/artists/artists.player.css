@@ -1,0 +1,176 @@
+/* Контейнер плеера — по центру экрана */
+.am-player {
+  position: fixed;
+  left: 50%;
+  right: auto;
+  bottom: 128px; /* отступ над стрелкой "вверх" */
+  width: min(720px, 92vw);
+  z-index: 9999; /* выше модалки и кнопок */
+  transform: translate(-50%, 12px);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 160ms ease, opacity 160ms ease;
+}
+.am-player--active {
+  transform: translate(-50%, 0);
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.am-player__inner {
+  background: #111;
+  color: #fff;
+  border-radius: 14px;
+  overflow: hidden;
+  box-shadow: 0 16px 42px rgba(0, 0, 0, 0.5);
+  position: relative;
+}
+
+/* Видео-кадр */
+.am-player__frame {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  position: relative;
+}
+.am-player__host,
+.am-player__frame > div,
+.am-player__frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
+/* Крестик — в правом верхнем углу карточки плеера */
+.am-player__close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  z-index: 4;
+  cursor: pointer;
+  border: none;
+  background: #764191;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  line-height: 32px;
+  text-align: center;
+}
+
+/* Панель — поверх кадра */
+.am-player__bar {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 10px;
+  align-items: center; /* ВСЕ элементы на одной линии по вертикали */
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(4px);
+  padding: 8px 10px;
+  border-radius: 10px;
+}
+
+.am-player__left,
+.am-player__right {
+  display: flex;
+  gap: 10px;
+  align-items: center; /* кнопки/текст и слайдер громкости выровнены по центру */
+}
+
+.am-player__play,
+.am-player__mute {
+  cursor: pointer;
+  border: none;
+  background: #764191;
+  color: #fff;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  line-height: 32px;
+  text-align: center;
+}
+.am-player__time {
+  color: #fff;
+  font: 500 13px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial,
+    sans-serif;
+}
+
+/* Обёртка прогресса — не даём схлопываться */
+.am-player__progresswrap {
+  display: block;
+}
+
+/* ── ЕДИНЫЕ стили для обоих слайдеров, чтобы они были на одной высоте ── */
+.am-player__progress,
+.am-player__slider {
+  width: 100%;
+  max-width: 440px; /* прогресс — растягивается в центр-колонке */
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px; /* одинаковая высота трека */
+  background: rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+  outline: none;
+  margin: 0; /* убираем отступы разных браузеров */
+  vertical-align: middle;
+}
+
+/* thumb */
+.am-player__progress::-webkit-slider-thumb,
+.am-player__slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  border: 0;
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+.am-player__progress::-moz-range-thumb,
+.am-player__slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #fff;
+  border: 0;
+  cursor: pointer;
+}
+
+/* track (Firefox) */
+.am-player__progress::-moz-range-track,
+.am-player__slider::-moz-range-track {
+  height: 6px;
+  background: rgba(255, 255, 255, 0.35);
+  border: none;
+  border-radius: 999px;
+}
+
+/* Селекторы ширины для правого блока */
+.am-player__right .am-player__slider {
+  width: 120px; /* громкость — компактнее, но с тем же треком */
+}
+.am-player__yt {
+  color: #fff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+/* Респонсив (по желанию) */
+@media (max-width: 480px) {
+  .am-player {
+    bottom: 110px;
+  }
+  .am-player__right .am-player__slider {
+    width: 96px;
+  }
+}
