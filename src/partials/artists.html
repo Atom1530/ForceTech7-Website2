@@ -16,6 +16,15 @@
         </button>
 
         <button
+          id="view-toggle"
+          class="filters__view"
+          type="button"
+          aria-pressed="false"
+        >
+          List view
+        </button>
+
+        <button
           id="filters-toggle"
           type="button"
           class="filters__toggle"
@@ -65,15 +74,16 @@
         </div>
 
         <button id="random-radio" type="button" class="btn btn--purple">
-          Mix Radio/Next
-        </button>
-
-        <button
-          id="filters-reset-sm"
-          class="filters__reset filters__reset--sm"
-          type="button"
-        >
-          Reset
+          <span>Mix Radio</span>
+          <svg class="ico" aria-hidden="true" width="24" height="24">
+            <use href="/img/sprite.svg#icon-icon_youtube_footer"></use>
+          </svg>
+          <span>/ Next</span>
+          <svg class="ico" aria-hidden="true" width="24" height="24">
+            <use
+              href="/img/sprite.svg#icon-icon_right_button_feedback_sec"
+            ></use>
+          </svg>
         </button>
       </div>
     </aside>

@@ -135,11 +135,85 @@
 }
 
 /* Фиолетовая тема */
-.artists1 .btn--purple {
-  background: var(--color-affair, #764191);
+/* применяем стиль .dd__btn и к кнопке радио */
+.filters .dd__btn,
+#random-radio {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 48px;
+  padding: 12px 16px;
+  background: #141014;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  color: #fff;
+  font: 500 16px/1.5 'IBM Plex Sans', sans-serif;
+}
+/* если у тебя у .dd__btn другие точные значения — используй их здесь */
+
+/* DESKTOP раскладка панели (если ещё не вставлял — оставляй) */
+@media (min-width: 1440px) {
+  .artists1 .filters__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* Filters | Reset | List view */
+    align-items: baseline;
+    column-gap: 16px;
+  }
+  .artists1 .filters__label {
+    grid-column: 1;
+    justify-self: start;
+  }
+  .artists1 .filters__reset {
+    grid-column: 2;
+    justify-self: center;
+  }
+  .artists1 .filters__view {
+    grid-column: 3;
+    justify-self: end;
+  }
 }
 
-.artists1 .btn--purple:hover,
-.artists1 .btn--purple:focus-visible {
-  background: color-mix(in oklab, var(--color-affair, #764191) 86%, black);
+/* сам вид текст-кнопок (как раньше) + выравнивание текста «List view» вправо */
+.artists1 .filters__reset,
+.artists1 .filters__view {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+  color: var(--color-white, #fff);
+}
+
+/* фикс ширины — чтобы Reset НЕ дёргался при смене List↔Grid.
+   + text-align:right, чтобы надпись реально была у правого края. */
+.artists1 .filters__view {
+  display: inline-block; /* важно для text-align */
+  text-align: right; /* сам текст у правого края */
+  position: relative;
+  white-space: nowrap;
+}
+.artists1 .filters__view::after {
+  content: 'Grid view'; /* самая длинная подпись */
+  visibility: hidden;
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* мобильный — «List view» скрываем, Reset жирный */
+@media (max-width: 767.98px) {
+  .artists1 .filters__view {
+    display: none;
+  }
+  .artists1 .filters__reset {
+    font-weight: 700;
+  }
 }

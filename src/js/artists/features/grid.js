@@ -1,9 +1,8 @@
-
+// src/js/artists/features/grid.js
 import { UISound } from "../lib/sound.js";
-import { fetchArtists, fetchGenres, fetchArtistAlbums } from "./api.js";
+import { fetchArtists, fetchGenres } from "./api.js";
 import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
-import { createMiniPlayer } from "./player.js";
 import { openZoom } from "./zoom.js";
 
 const SPRITE = "/img/sprite.svg";
@@ -16,9 +15,10 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   const toggleBtn   = root.querySelector("#filters-toggle");
   const resetBtn    = root.querySelector("#filters-reset");
   const resetBtnSm  = root.querySelector("#filters-reset-sm");
+  const viewToggle  = root.querySelector("#view-toggle"); // List/Grid view
 
   const searchInput = root.querySelector("#flt-q");
-  const searchBtn   = root.querySelector("#flt-q-btn");
+  const searchBtn   = root.querySelector("#flt-q-btn");   // может отсутствовать
 
   const ddSort      = root.querySelector('.dd[data-dd="sort"]');
   const ddSortBtn   = root.querySelector("#dd-sort-btn");
@@ -32,12 +32,8 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   const pager       = root.querySelector("#artists-pager");
   const empty       = root.querySelector("#artists-empty");
 
-  // модалка (API) + глобальный мини-плеер (для «радио»)
+  // модалка: создаём/находим разово → получаем API
   const modalApi = createArtistModal(document);
-  const radioPlayer = createMiniPlayer(); // singleton, монтируется в <body>
-
-  // текущее содержимое для «радио»
-  let lastList = [];
 
   // защита от гонок API
   let reqId = 0;
@@ -103,7 +99,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     });
   }
 
-  // удержание высоты на время смены контента
+  // удержание высоты
   let gridCleanupTimer = null;
   function lockGridHeight(h) {
     const hh = h ?? grid.getBoundingClientRect().height;
@@ -224,7 +220,6 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
     const { page, limit, genre, sort, q } = ArtistState.get();
 
-    // фиксируем высоту → скелетоны → скрываем пейджер
     lockGridHeight(grid.getBoundingClientRect().height);
     renderSkeleton(limit);
     hide(pager);
@@ -253,7 +248,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     if (page > totalPages && allowRetry) { ArtistState.setPage(totalPages); return loadArtists(false); }
     if (page < 1 && allowRetry)          { ArtistState.setPage(1);         return loadArtists(false); }
 
-    // локальная сортировка
+    // локальная сортировка (если надо)
     if (sort === "asc")  list = list.slice().sort((a, b) => byName(a).localeCompare(byName(b)));
     if (sort === "desc") list = list.slice().sort((a, b) => byName(b).localeCompare(byName(a)));
 
@@ -268,7 +263,6 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
     applyEmpty(false);
     swapGridContent(() => renderGrid(list));
-    lastList = list.slice(); // для «радио»
     renderPager(ArtistState.get().page, totalPages);
   }
 
@@ -323,7 +317,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
   function doSearch() {
     UISound.tap();
-    ArtistState.setQuery(searchInput.value.trim());
+    ArtistState.setQuery(searchInput?.value.trim() || "");
     loadArtists();
   }
   searchBtn?.addEventListener("click", doSearch);
@@ -354,7 +348,18 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     loadArtists();
   });
 
-  // ---------- модалка + зум ----------
+  // ---------- List/Grid view ----------
+  const sectionRoot = root.closest(".artists1") || root;
+  viewToggle?.addEventListener("click", () => {
+    UISound.tap();
+    const listOn = !sectionRoot.classList.contains("view-list");
+    sectionRoot.classList.toggle("view-list", listOn);
+    sectionRoot.classList.toggle("view-grid", !listOn);
+    viewToggle.setAttribute("aria-pressed", String(listOn));
+    viewToggle.textContent = listOn ? "Grid view" : "List view";
+  });
+
+  // ---------- модалка и зум ----------
   grid.addEventListener("click", (e) => {
     // Learn More → модалка
     const btn = e.target.closest('[data-action="more"]');
@@ -375,36 +380,8 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     }
   });
 
-  // ---------- RADIO: случайные треки из видимых артистов ----------
-  async function startRadioFromVisible() {
-    try {
-      const ids = lastList.map(a => a?.id).filter(Boolean);
-      if (!ids.length) { window.__toast?.info?.("Сначала загрузите артистов."); return; }
-
-      const pick = ids.sort(() => Math.random() - 0.5).slice(0, 10);
-      const albumsArr = await Promise.all(pick.map(id => fetchArtistAlbums(id).catch(() => [])));
-
-      const urls = [];
-      for (const albums of albumsArr) {
-        for (const alb of (albums || [])) {
-          for (const t of (alb.tracks || [])) {
-            if (t.youtube) urls.push(t.youtube);
-          }
-        }
-      }
-      if (!urls.length) { window.__toast?.error?.("Не нашли треков с YouTube-ссылками в текущем списке."); return; }
-
-      radioPlayer.playQueue(urls, { shuffle: true, loop: true });
-    } catch (e) {
-      window.__toast?.error?.("Не удалось запустить радио.");
-    }
-  }
-  const radioBtn = root.querySelector("#radio-shuffle");
-  radioBtn?.addEventListener("click", () => { UISound.tap(); startRadioFromVisible(); });
-
   // ---------- init ----------
   syncPanelMode();
   loadGenres();
   loadArtists();
 }
-

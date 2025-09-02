@@ -137,3 +137,129 @@
     font-size: 48px;
   }
 }
+
+/* режимы на корне секции */
+.artists1.view-grid .grid {
+  /* остаётся твоё текущее поведение */
+}
+.artists1.view-list .grid {
+  display: grid;
+  grid-template-columns: 1fr; /* строго одна строка на всю ширину */
+  gap: 32px; /* вертикальный шаг в tablet/desktop */
+}
+@media (max-width: 767.98px) {
+  .artists1.view-list .grid {
+    gap: 64px;
+  } /* мобильный вертикальный шаг */
+}
+
+/* Построчная карточка: медиа слева, текст в центре, действие справа */
+.artists1.view-list .grid .card {
+  display: grid;
+  grid-template-columns: 208px 1fr auto; /* media | content | button */
+  grid-template-areas:
+    'media title  action'
+    'media tags   action'
+    'media text   action';
+  align-items: start;
+  column-gap: 24px;
+  row-gap: 8px;
+  max-width: 976px; /* чтобы держать строку, как в фигме */
+  margin: 0 auto;
+}
+
+/* медиа слева, фиксированная ширина/соотношение */
+.artists1.view-list .card__media {
+  grid-area: media;
+}
+.artists1.view-list .card__media img {
+  display: block;
+  width: 208px;
+  height: 117px; /* 16:9 от ~208 */
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* контент */
+.artists1.view-list .card__title {
+  grid-area: title;
+  margin: 0 0 4px;
+}
+.artists1.view-list .card__tags {
+  grid-area: tags;
+  margin: 0 0 8px;
+}
+.artists1.view-list .card__text {
+  grid-area: text;
+  margin: 0;
+}
+
+/* действие (кнопка) справа, вертикально по центру */
+.artists1.view-list .card__link {
+  grid-area: action;
+  align-self: center;
+  justify-self: end;
+  /* можно задать фикс. ширину, если надо: width: 148px; */
+}
+
+/* Мобильный: складываем вертикально, как обычную карточку */
+@media (max-width: 767.98px) {
+  .artists1.view-list .grid .card {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      'media'
+      'title'
+      'tags'
+      'text'
+      'action';
+    row-gap: 12px;
+  }
+  .artists1.view-list .card__media img {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 16 / 9;
+  }
+  .artists1.view-list .card__link {
+    justify-self: start; /* по рефу — слева */
+  }
+}
+
+/* Панель заголовка фильтров – desktop layout */
+@media (min-width: 1440px) {
+  .artists1 .filters__bar {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr; /* left | center | right */
+    align-items: baseline;
+    column-gap: 16px;
+  }
+
+  .artists1 .filters__label {
+    /* "Filters" */
+    grid-column: 1;
+    justify-self: start;
+  }
+
+  .artists1 .filters__reset {
+    /* "Reset" */
+    grid-column: 2;
+    justify-self: center; /* строго по центру панели */
+  }
+
+  .artists1 .filters__view {
+    /* "List view"/"Grid view" */
+    grid-column: 3;
+    justify-self: end; /* прижата вправо */
+  }
+}
+
+/* Чтоб Reset/ListView не «прыгали» по ширине при смене текста */
+.artists1 .filters__view {
+  position: relative;
+}
+.artists1 .filters__view::after {
+  content: 'Grid view'; /* самая длинная подпись */
+  visibility: hidden;
+  pointer-events: none;
+  white-space: nowrap;
+}
