@@ -225,7 +225,7 @@
   }
 }
 
-/* Панель заголовка фильтров – desktop layout */
+/* Desktop: Filters | Reset | List view (правда по краям, Reset по центру) */
 @media (min-width: 1440px) {
   .artists1 .filters__bar {
     display: grid;
@@ -233,33 +233,79 @@
     align-items: baseline;
     column-gap: 16px;
   }
-
   .artists1 .filters__label {
-    /* "Filters" */
     grid-column: 1;
     justify-self: start;
   }
-
   .artists1 .filters__reset {
-    /* "Reset" */
     grid-column: 2;
-    justify-self: center; /* строго по центру панели */
+    justify-self: center;
   }
-
   .artists1 .filters__view {
-    /* "List view"/"Grid view" */
     grid-column: 3;
-    justify-self: end; /* прижата вправо */
+    place-items: center;
+    justify-self: center;
+    text-align: center;
+    min-width: 9ch;
+    margin: 0;
   }
 }
 
-/* Чтоб Reset/ListView не «прыгали» по ширине при смене текста */
-.artists1 .filters__view {
+/* Глушим старый хак с псевдо-элементом, если остался выше */
+.artists1 .filters__view::after {
+  content: none !important;
+  display: none !important;
+}
+
+/* чтобы списки не обрезались внутри панели */
+.artists1 .filters {
+  overflow: visible;
+}
+
+/* База */
+.artists1 .dd {
   position: relative;
 }
-.artists1 .filters__view::after {
-  content: 'Grid view'; /* самая длинная подпись */
-  visibility: hidden;
-  pointer-events: none;
-  white-space: nowrap;
+.artists1 .dd__list {
+  display: none;
+  margin-top: 8px;
+  background: #141014;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 8px 0;
+  list-style: none;
+}
+
+/* Desktop: плавающие поверх (как обычно), не двигают layout */
+@media (min-width: 1440px) {
+  .artists1 .dd {
+    position: relative;
+  }
+  .artists1 .dd__list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    max-height: 50vh;
+    overflow: auto;
+  }
+  .artists1 .dd.open .dd__list {
+    display: block;
+  }
+}
+
+/* Tablet/Mobile: списки частью потока, сдвигают элементы ниже */
+@media (max-width: 1439.98px) {
+  .artists1 .dd {
+    position: static;
+  }
+  .artists1 .dd__list {
+    position: static; /* КЛЮЧЕВОЕ: больше не absolute */
+    display: none;
+    margin-top: 12px;
+  }
+  .artists1 .dd.open .dd__list {
+    display: block;
+  }
 }
