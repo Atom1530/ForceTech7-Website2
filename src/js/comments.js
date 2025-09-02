@@ -27,6 +27,8 @@ closeBtn.addEventListener("click", (e) => {
     overlay.classList.add("hidden");
   container.classList.remove("hidden");
   document.body.classList.remove("no-scroll");
+  form.reset();
+  createStars(document.getElementById("customer-rating", 0));
 });
 
 overlay.addEventListener("click", (e) => {
@@ -34,6 +36,8 @@ overlay.addEventListener("click", (e) => {
     overlay.classList.add("hidden")
     container.classList.remove("hidden");
     document.body.classList.remove("no-scroll");
+      form.reset();
+  createStars(document.getElementById("customer-rating", 0));
   }
 });
 document.addEventListener("keydown", (e) => {
@@ -41,6 +45,8 @@ document.addEventListener("keydown", (e) => {
     overlay.classList.add("hidden")
     container.classList.remove("hidden")
     document.body.classList.remove("no-scroll");
+      form.reset();
+  createStars(document.getElementById("customer-rating", 0));
   }
 })
 
@@ -83,9 +89,9 @@ document.querySelector('.swiper-button-next').addEventListener('click', () => {
 //dots
 const dots = document.querySelector('.swiper-pagination');
 dots.innerHTML = `
-  <span class="swiper-dots" data-i="#{first}"></span>
-    <span class="swiper-dots" data-i="#{second}"></span>
-  <span class="swiper-dots" data-i="#{third}"></span>`
+  <span class="swiper-dots"></span>
+    <span class="swiper-dots"></span>
+  <span class="swiper-dots"></span>`
 
 function activateDot(dotNumber) {
   const dots = document.querySelectorAll(".swiper-dots");

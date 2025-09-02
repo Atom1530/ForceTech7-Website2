@@ -130,6 +130,7 @@
 }
 
 .rating .star {
+  cursor: pointer;
   display: flex !important;
   justify-content: flex-start !important;
   gap: 6px;
