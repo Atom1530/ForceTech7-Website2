@@ -254,3 +254,33 @@ a:focus .am-yt {
   width: 24px;
   height: 24px;
 }
+
+#artist-modal .amodal__dialog {
+  padding-right: clamp(20px, 2.2vw, 32px);
+  scrollbar-gutter: stable both-edges;
+}
+
+#artist-modal .amodal__close {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+#artist-modal .amodal__close::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+@media (max-width: 767.98px) {
+  #artist-modal .amodal__dialog {
+    padding-right: 20px;
+  }
+  #artist-modal .amodal__close {
+    top: 16px;
+    right: 20px;
+  }
+}
