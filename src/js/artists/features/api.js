@@ -4,7 +4,7 @@ import {
   fetchGenres  as _fetchGenres,
   fetchArtist  as _fetchArtist,
   fetchArtistAlbums as _fetchArtistAlbums,
-} from "../../api1.js";
+} from "../../api.js";
 
 // ---------- helpers ----------
 const normId = (o) => o?.idArtist || o?.id || o?._id || o?.artistId || "";

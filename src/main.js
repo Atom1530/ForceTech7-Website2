@@ -1,7 +1,5 @@
-import './js/api.js'
-// import './js/artists.js'
-import './js/artists1.js'
-import './js/comments.js'
-import './js/footer.js'
-import './js/header.js'
-import './js/hero.js'
+import './js/api.js';                 
+import './js/artists/index.js';       
+import './js/footer.js';
+import './js/header.js';
+import './js/hero.js';
