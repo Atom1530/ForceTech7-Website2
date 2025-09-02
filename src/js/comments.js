@@ -66,14 +66,25 @@ function createStars(container, rating) {
         saveToLocalStorage();
       })
       star.addEventListener('mouseenter', (e) => {
-        container.dataset.rating = i;
-        createStars(container, i);
-      });
+        hoveredStar(container, i)
+      })
       star.addEventListener('mouseleave', (e) => {
-        createStars(container, 0);
+        const savedRating = parseInt(formRating.dataset.rating) || 0;
+        createStars(container, savedRating);
       })
     }
   }
+}
+
+function hoveredStar(container, upTo) {
+  const stars = container.querySelectorAll(".star");
+  stars.forEach((star, index) => {
+    if (index < upTo) {
+      star.classList.add("filled");
+    } else {
+      star.classList.remove("filled")
+    }
+  });
 }
 
 // data from API
