@@ -1,0 +1,88 @@
+/* ----- Artists: interactive controls (Sort/Genre/Reset/Learn More) ----- */
+
+#artists-section #dd-sort-btn,
+#artists-section [data-dd='sort'] .dd__btn,
+#artists-section #dd-genre-btn,
+#artists-section [data-dd='genre'] .dd__btn,
+#artists-section #filters-reset,
+#artists-section #filters-reset-sm,
+#artists-section .card__link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform-origin: center;
+  will-change: transform;
+  transition: transform 140ms ease, box-shadow 140ms ease,
+    background-color 140ms ease, color 140ms ease;
+}
+
+/* Hover */
+@media (hover: hover) and (pointer: fine) {
+  #artists-section #dd-sort-btn:hover,
+  #artists-section [data-dd='sort'] .dd__btn:hover,
+  #artists-section #dd-genre-btn:hover,
+  #artists-section [data-dd='genre'] .dd__btn:hover,
+  #artists-section #filters-reset:hover,
+  #artists-section #filters-reset-sm:hover,
+  #artists-section .card__link:hover {
+    transform: scale(1.06);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+}
+
+/* Focus (клавиатура) */
+#artists-section #dd-sort-btn:focus-visible,
+#artists-section [data-dd='sort'] .dd__btn:focus-visible,
+#artists-section #dd-genre-btn:focus-visible,
+#artists-section [data-dd='genre'] .dd__btn:focus-visible,
+#artists-section #filters-reset:focus-visible,
+#artists-section #filters-reset-sm:focus-visible,
+#artists-section .card__link:focus-visible {
+  outline: none;
+  transform: scale(1.06);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18),
+    0 0 0 3px color-mix(in oklab, var(--color-affair, #764191), white 25%);
+}
+
+/* Active */
+#artists-section #dd-sort-btn:active,
+#artists-section [data-dd='sort'] .dd__btn:active,
+#artists-section #dd-genre-btn:active,
+#artists-section [data-dd='genre'] .dd__btn:active,
+#artists-section #filters-reset:active,
+#artists-section #filters-reset-sm:active,
+#artists-section .card__link:active {
+  transform: scale(0.98);
+}
+
+/* Disabled */
+#artists-section #dd-sort-btn:disabled,
+#artists-section [data-dd='sort'] .dd__btn:disabled,
+#artists-section #dd-genre-btn:disabled,
+#artists-section [data-dd='genre'] .dd__btn:disabled,
+#artists-section #filters-reset:disabled,
+#artists-section #filters-reset-sm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* НЕ красим Learn More: всё берём из базовых */
+#artists-section .card__link {
+  background: inherit;
+  color: inherit;
+  border: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  #artists-section #dd-sort-btn,
+  #artists-section [data-dd='sort'] .dd__btn,
+  #artists-section #dd-genre-btn,
+  #artists-section [data-dd='genre'] .dd__btn,
+  #artists-section #filters-reset,
+  #artists-section #filters-reset-sm,
+  #artists-section .card__link {
+    transition: none;
+  }
+}

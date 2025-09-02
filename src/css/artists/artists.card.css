@@ -97,3 +97,34 @@
     height: 393px;
   }
 }
+
+/* ====== Artists grid spacing ====== */
+
+#artists-section #artists-grid {
+  --cards-gap-x: var(--space-32, 32px);
+  --cards-gap-y: var(--space-32, 32px);
+  gap: var(--cards-gap-y) var(--cards-gap-x);
+}
+
+/* tablet */
+@media (max-width: 1439.98px) and (min-width: 768px) {
+  #artists-section #artists-grid {
+    --cards-gap-x: var(--space-32, 32px);
+    --cards-gap-y: var(--space-32, 32px);
+  }
+}
+
+/* mobile: вертикально 64px */
+@media (max-width: 767.98px) {
+  #artists-section #artists-grid {
+    --cards-gap-x: var(--space-32, 32px);
+    --cards-gap-y: var(--space-64, 64px);
+  }
+}
+
+#artists-section .card {
+  margin: 0;
+}
+#artists-section .card + .card {
+  margin-top: 0;
+}

@@ -1,4 +1,0 @@
-/* @import url('./artists.css'); */
-@import url('./artists1.css');
-/* bridge to modular Artists CSS */
-@import url('./artists/index.css');
