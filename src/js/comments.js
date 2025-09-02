@@ -65,6 +65,13 @@ function createStars(container, rating) {
         createStars(container, i);
         saveToLocalStorage();
       })
+      star.addEventListener('mouseenter', (e) => {
+        container.dataset.rating = i;
+        createStars(container, i);
+      });
+      star.addEventListener('mouseleave', (e) => {
+        createStars(container, 0);
+      })
     }
   }
 }
