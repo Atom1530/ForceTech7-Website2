@@ -60,14 +60,15 @@ section[id] {
   transition: color 0.2s ease;
 }
 .header-nav-link:hover,
-.header-nav-link:focus,
-.header-nav-link:active,
 .header-nav-link.active {
   color: var(--color-affair);
 }
-.mobile-menu-nav-link.active {
-  color: var(--color-affair);
+
+.header-nav-link:focus,
+.header-nav-link:active {
+  color: inherit;
 }
+
 /* ---------- BURGER MENU ---------- */
 .burger-menu-btn {
   background: transparent;
@@ -248,4 +249,20 @@ button:focus-visible {
   clip: rect(0 0 0 0);
   white-space: nowrap;
   border: 0;
+}
+/* ДЕСKTOP: подсветка только у .active */
+@media (min-width: 768px) {
+
+  .header-nav-link.active,
+  .header-nav-link.active:hover,
+  .header-nav-link.active:focus {
+    color: var(--color-affair);
+  }
+
+  /* не красим неактивные по hover/focus/active */
+  .header-nav-link:not(.active):hover,
+  .header-nav-link:not(.active):focus,
+  .header-nav-link:not(.active):active {
+    color: inherit;
+  }
 }

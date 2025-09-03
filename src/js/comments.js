@@ -6,10 +6,10 @@ import 'swiper/css/pagination';
 import iziToast from 'izitoast';
 import 'izitoast/dist/css/iziToast.min.css';
 
-// --- DOM
+
 const overlay = document.querySelector('.overlay');
 const openBtn = document.querySelector('.feedback-btn');
-const closeBtn = document.querySelector('.close-btn, .close-icon'); // поддержим и кнопку, и svg
+const closeBtn = document.querySelector('.close-btn, .close-icon'); 
 const form = document.querySelector('#feedback-form');
 const container = document.querySelector('.feedback-section');
 const inputName = document.querySelector('.form-input-name');
@@ -283,9 +283,10 @@ form?.addEventListener('submit', async e => {
     });
 
     if (!response.ok) {
-      return iziToast.error({ title: 'Error:', message: `HTTP ${response.status}` });
+      return iziToast.error({ title: 'Error:', message: `HTTP ${response.status}` },);
     }
 
+    iziToast.success({ message: "Comment posted, Thank you!" ,position: 'center'});
     resetLocalStorage();
     overlay.classList.add('hidden');
     container.classList.remove('hidden');

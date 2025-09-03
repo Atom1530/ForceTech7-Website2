@@ -16,40 +16,62 @@ function openMenu() {
 }
 
 function closeMenu() {
-  if (!refs.menu) return;
-  refs.menu.classList.remove('show');
-  setTimeout(() => {
-    refs.menu.hidden = true;
-  }, 400);
-  document.body.style.overflow = '';
-  refs.openBtn?.setAttribute('aria-expanded', 'false');
+  return new Promise(resolve => {
+    if (!refs.menu) return resolve();
+    refs.menu.classList.remove('show');
+    setTimeout(() => {
+      refs.menu.hidden = true;
+      document.body.style.overflow = '';
+      refs.openBtn?.setAttribute('aria-expanded', 'false');
+      resolve();
+    }, 400);
+  });
 }
 
-function smoothScroll(targetHref) {
+/* ---------- header offset helpers ---------- */
+function getHeaderOffset() {
+  return (refs.header?.offsetHeight || 80) + 8;
+}
+function applyScrollPadding() {
+  document.documentElement.style.scrollPaddingTop = `${getHeaderOffset()}px`;
+}
+applyScrollPadding();
+window.addEventListener('resize', () => requestAnimationFrame(applyScrollPadding));
+
+/* ---------- custom smooth scroll (no teleports) ---------- */
+function smoothScroll(targetHref, duration = 500) {
   const raw = (targetHref || '').replace('#', '');
-  const el =
-    document.getElementById(raw) ||
-    document.getElementById(`${raw}-section`);
+  const el = document.getElementById(raw) || document.getElementById(`${raw}-section`);
   if (!el) return;
 
-  const offset = (refs.header?.offsetHeight || 80) + 8; // буфер ниже хедера
-  const y = el.getBoundingClientRect().top + window.pageYOffset - offset;
+  const headerOffset = getHeaderOffset();
+  const targetY = el.getBoundingClientRect().top + window.pageYOffset - headerOffset;
 
-  window.scrollTo({ top: y, behavior: 'smooth' });
+  const startY = window.pageYOffset;
+  const diff = targetY - startY;
+  let t0 = null;
+
+  const ease = t => (t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2);
+
+  function step(ts) {
+    if (t0 === null) t0 = ts;
+    const p = Math.min(1, (ts - t0) / duration);
+    window.scrollTo(0, startY + diff * ease(p));
+    if (p < 1) {
+      requestAnimationFrame(step);
+    } else {
+      // NEW: переносим фокус на секцию, чтобы ссылка потеряла :focus
+      el.setAttribute('tabindex', '-1');
+      el.focus({ preventScroll: true });
+      setTimeout(() => el.removeAttribute('tabindex'), 0);
+    }
+  }
+  requestAnimationFrame(step);
 }
 
-
+/* ---------- menu events ---------- */
 refs.openBtn?.addEventListener('click', openMenu);
 refs.closeBtn?.addEventListener('click', closeMenu);
-
-refs.links.forEach(link =>
-  link.addEventListener('click', e => {
-    e.preventDefault();
-    const targetId = link.getAttribute('href');
-    closeMenu();
-    smoothScroll(targetId);
-  })
-);
 
 refs.logos.forEach(logo => {
   logo.addEventListener('click', e => {
@@ -75,10 +97,9 @@ document.addEventListener('keydown', e => {
   }
 });
 
-const sections = document.querySelectorAll('section[id]');
+/* ---------- scroll-spy with IO ---------- */
 const navLinks = document.querySelectorAll('.header-nav-link, .mobile-menu-nav-link');
 
-// карта: ЭЛЕМЕНТ СЕКЦИИ -> массив ссылок, которые на него указывают (с поддержкой alias: #id и #id-section)
 const linkTargets = new Map();
 navLinks.forEach(a => {
   const href = (a.getAttribute('href') || '').trim();
@@ -90,7 +111,6 @@ navLinks.forEach(a => {
   linkTargets.get(el).push(a);
 });
 
-// единый setter: строго одна активная
 let currentEl = null;
 function setActiveByEl(el) {
   if (!el || currentEl === el) return;
@@ -99,70 +119,69 @@ function setActiveByEl(el) {
   currentEl = el;
 }
 
-// блокировка обновлений от IO после клика (на время smooth-scroll)
 let lockUntil = 0;
 const LOCK_MS = 700;
 const isLocked = () => Date.now() < lockUntil;
 
-// IO с учётом фикс-хедера
-const headerOffset = (refs.header?.offsetHeight || 80) + 8;
-const visibleRatio = new Map(); // el -> ratio
+let io;
+function initScrollSpy() {
+  if (io) io.disconnect();
 
-const io = new IntersectionObserver(
-  entries => {
-    entries.forEach(en => {
-      visibleRatio.set(en.target, en.isIntersecting ? en.intersectionRatio : 0);
-    });
-    if (isLocked()) return; // во время якорного скролла не трогаем подсветку
-    const best = [...visibleRatio.entries()].sort((a, b) => b[1] - a[1])[0];
-    if (best && best[1] > 0) setActiveByEl(best[0]);
-  },
-  {
-    root: null,
-    rootMargin: `-${headerOffset}px 0px -55% 0px`,
-    threshold: [0, 0.25, 0.5, 0.75, 1],
-  }
-);
+  const rootMargin = `-${getHeaderOffset()}px 0px -55% 0px`;
+  const visibleRatio = new Map();
 
-// наблюдаем только секции, на которые есть ссылки
-linkTargets.forEach((_, el) => io.observe(el));
+  io = new IntersectionObserver(
+    entries => {
+      entries.forEach(en => {
+        visibleRatio.set(en.target, en.isIntersecting ? en.intersectionRatio : 0);
+      });
+      if (isLocked()) return;
+      const best = [...visibleRatio.entries()].sort((a, b) => b[1] - a[1])[0];
+      if (best && best[1] > 0) setActiveByEl(best[0]);
+    },
+    { root: null, rootMargin, threshold: [0, 0.25, 0.5, 0.75, 1] }
+  );
 
-// первичная активация при загрузке
-window.addEventListener('load', () => {
-  window.dispatchEvent(new Event('scroll'));
-});
+  linkTargets.forEach((_, el) => io.observe(el));
+}
+initScrollSpy();
+window.addEventListener('resize', () => requestAnimationFrame(initScrollSpy));
 
-// клик по ссылке: мгновенная подсветка + блокировка IO
+/* ---------- nav handlers ---------- */
+// Desktop: не трогаем мобильные (у них есть data-menu-link)
 navLinks.forEach(a => {
-  a.addEventListener('click', () => {
+  a.addEventListener('click', (e) => {
+    if (a.matches('[data-menu-link]')) return;
     const href = (a.getAttribute('href') || '').trim();
     if (!href.startsWith('#')) return;
+
+    e.preventDefault();
+    a.blur();                      // NEW: снимаем :focus с кликнутой ссылки
+
     const raw = href.slice(1);
     const el = document.getElementById(raw) || document.getElementById(`${raw}-section`);
     if (!el) return;
+
     setActiveByEl(el);
     lockUntil = Date.now() + LOCK_MS;
+    smoothScroll(href);
   });
 });
 
+// Mobile: ждём закрытие меню, снимаем фокус, потом скроллим
+refs.links.forEach(link =>
+  link.addEventListener('click', async e => {
+    e.preventDefault();
+    link.blur();                   // NEW: снимаем :focus с мобильной ссылки
+    const targetId = link.getAttribute('href');
+    await closeMenu();
+    smoothScroll(targetId);
+  })
+);
 
-function onScroll() {
-  const scrollPos = window.scrollY + refs.header.offsetHeight + 10;
-
-  sections.forEach(sec => {
-    if (
-      scrollPos >= sec.offsetTop &&
-      scrollPos < sec.offsetTop + sec.offsetHeight
-    ) {
-      const id = sec.getAttribute('id');
-      navLinks.forEach(link => {
-        link.classList.toggle(
-          'active',
-          link.getAttribute('href') === `#${id}`
-        );
-      });
-    }
-  });
-}
-
-window.addEventListener('scroll', onScroll);
+window.addEventListener('load', () => {
+  applyScrollPadding();
+  if (location.hash) {
+    setTimeout(() => smoothScroll(location.hash), 0);
+  }
+});

@@ -34,7 +34,7 @@
 html,
 body {
   overflow-x: clip;
- 
+  scroll-behavior: smooth;
   width: 100%;
 }
 
