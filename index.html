@@ -27,8 +27,9 @@
     />
     <!-- def-styles -->
     <script type="module" crossorigin src="/ForceTech7-Website2/index.js"></script>
-    <link rel="modulepreload" crossorigin href="/ForceTech7-Website2/assets/vendor-BkCUij8E.js">
-    <link rel="stylesheet" crossorigin href="/ForceTech7-Website2/assets/index-D3l_W4n6.css">
+    <link rel="modulepreload" crossorigin href="/ForceTech7-Website2/assets/vendor-BGCTnJtW.js">
+    <link rel="stylesheet" crossorigin href="/ForceTech7-Website2/assets/vendor-LSkyOk9H.css">
+    <link rel="stylesheet" crossorigin href="/ForceTech7-Website2/assets/index-C_sVfk9K.css">
   </head>
   <body>
     <header class="header">
@@ -42,7 +43,7 @@
 
     <nav class="header-nav" aria-label="Main navigation">
       <ul class="header-nav-list">
-        <li><a href="#artists" class="header-nav-link">Artists</a></li>
+        <li><a href="#artists-section" class="header-nav-link">Artists</a></li>
         <li><a href="#about" class="header-nav-link">About Us</a></li>
         <li><a href="#reviews" class="header-nav-link">Reviews</a></li>
       </ul>
@@ -86,7 +87,10 @@
       <nav class="mobile-menu-nav" aria-label="Mobile navigation">
         <ul class="mobile-menu-nav-list">
           <li>
-            <a href="#artists" class="mobile-menu-nav-link" data-menu-link
+            <a
+              href="#artists-section"
+              class="mobile-menu-nav-link"
+              data-menu-link
               >Artists</a
             >
           </li>
@@ -110,25 +114,25 @@
     <!-- Main Content import -->
     <main>
       <section class="hero-section" id="hero">
-    <div class="container hero-container">
-
-        <div class="hero-content">
-            <h1 class="hero-title">Discover Your Next Favorite Artist Today</h1>
-            <p class="hero-subtitle">
-                Dive into a world of music discoveries with ArtistsHub – your personal
-                guide to the boundless universe of sound. Explore, filter, and learn about
-                your favorite artists all in one place.
-            </p>
-            <a href="#artists" id="exploreBtn" class="hero-btn">
-                Explore Artists
-                <svg class="icon-play-btn" width="24" height="24">
-                    <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_play_hero_section"></use>
-                </svg>
-            </a>
-        </div>
-        <div class="hero-img"></div>
+  <div class="container hero-container">
+    <div class="hero-content">
+      <h1 class="hero-title">Discover Your Next Favorite Artist Today</h1>
+      <p class="hero-subtitle">
+        Dive into a world of music discoveries with ArtistsHub – your personal
+        guide to the boundless universe of sound. Explore, filter, and learn
+        about your favorite artists all in one place.
+      </p>
+      <a href="#artists-section" id="exploreBtn" class="hero-btn">
+        Explore Artists
+        <svg class="icon-play-btn" width="24" height="24">
+          <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_play_hero_section"></use>
+        </svg>
+      </a>
     </div>
+    <div class="hero-img"></div>
+  </div>
 </section>
+
       <div id="artists"></div>
 
 <section id="artists-section" class="artists1 container">
@@ -303,47 +307,85 @@
 </section>
 
       <section id="reviews">
-    <div class="feedback-section container">
-        <h2 class="hidden">Feedbacks our visitors</h2>
-        <div class="swiper">
-            <div class="swiper-wrapper"></div>
-            <div class="swiper-button-prev">
-                <svg class="left-arrow" width="14px" height="14px">
-                    <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_right_button_feedback_sec"></use>
-            </div>
-            <div class="swiper-button-next">
-                <svg width="14px" height="14px">
-                    <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_right_button_feedback_sec"></use>
-            </div>
-            <div class="swiper-pagination">
-            </div>
-        </div>
-        <button class="review-btn feedback-btn">Leave feedback</button>
+  <div class="feedback-section container">
+    <h2 class="hidden">Feedbacks our visitors</h2>
+
+    <div class="swiper" aria-label="Visitors feedback slider">
+      <div class="swiper-wrapper"></div>
+
+      <button class="swiper-button-prev" type="button" aria-label="Previous">
+        <svg class="left-arrow" width="14" height="14">
+          <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_right_button_feedback_sec"></use>
+        </svg>
+      </button>
+
+      <button class="swiper-button-next" type="button" aria-label="Next">
+        <svg width="14" height="14">
+          <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_right_button_feedback_sec"></use>
+        </svg>
+      </button>
+
+      <div class="swiper-pagination"></div>
     </div>
-    <div class="overlay hidden">
-        <div class="modal ">
-            <svg class="close-icon" width="14px" height="14px">
-                <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_close"></use>
-            </svg>
-            <form id="feedback-form">
-                <h3 class="title-modal">Submit feedback</h3>
-                <div class="form-name">
-                    <label>Name</label>
-                    <input class="form-input-name" type="text" placeholder="Emily" required />
-                </div>
-                <div class="form-message">
-                    <label>Message</label>
-                    <textarea class="form-input-message" type="text" placeholder="Type your message..."
-                        required></textarea>
-                </div>
-                <div id="customer-rating" class="rating my-rating" data-rating="0">
-                </div>
-                <div class="send-btn-cont">
-                    <button class="review-btn send-feedback-btn" type="submit">Submit</button>
-                </div>
-            </form>
+
+    <button class="review-btn feedback-btn" type="button">
+      Leave feedback
+    </button>
+  </div>
+
+  <div
+    class="overlay hidden"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="feedback-title"
+  >
+    <div class="modal">
+      <svg class="close-icon" width="14" height="14" aria-label="Close">
+        <use href="/ForceTech7-Website2/assets/sprite-DL16Y-CB.svg#icon-icon_close"></use>
+      </svg>
+
+      <form id="feedback-form">
+        <h3 class="title-modal" id="feedback-title">Submit feedback</h3>
+
+        <div class="form-name">
+          <label for="fb-name">Name</label>
+          <input
+            id="fb-name"
+            name="name"
+            class="form-input-name"
+            type="text"
+            placeholder="Emily"
+            required
+          />
         </div>
+
+        <div class="form-message">
+          <label for="fb-message">Message</label>
+          <textarea
+            id="fb-message"
+            name="message"
+            class="form-input-message"
+            placeholder="Type your message..."
+            required
+          ></textarea>
+        </div>
+
+        <div
+          id="customer-rating"
+          class="rating my-rating"
+          data-rating="0"
+        ></div>
+
+        <div class="send-btn-cont">
+          <button class="review-btn send-feedback-btn" type="submit">
+            Submit
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </section>
+
     </main>
 
     <footer class="footer-section">
