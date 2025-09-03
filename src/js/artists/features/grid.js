@@ -5,16 +5,45 @@ import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
 import { openZoom } from "./zoom.js";
 
-function getBasePath() {
-  if (location.hostname.endsWith('github.io')) {
-    const parts = location.pathname.split('/').filter(Boolean); // ["repo", ...]
-    return parts.length ? `/${parts[0]}` : '';
+/* ---------- SPRITE: robust base path + helper ---------- */
+function detectBasePath() {
+  // 1) <base href="...">, если задан
+  try {
+    const baseEl = document.querySelector("base");
+    if (baseEl?.href) {
+      const u = new URL(baseEl.getAttribute("href"), location.href);
+      return u.pathname.replace(/\/$/, "");
+    }
+  } catch {}
+
+  // 2) Vite BASE_URL (заменяется на сборке)
+  const viteBase =
+    (typeof import.meta !== "undefined" &&
+      import.meta.env &&
+      typeof import.meta.env.BASE_URL === "string")
+      ? import.meta.env.BASE_URL
+      : "";
+
+  if (viteBase) return viteBase.replace(/\/$/, "");
+
+  // 3) GitHub Pages: username.github.io/<repo>/...
+  if (location.hostname.endsWith("github.io")) {
+    const parts = location.pathname.split("/").filter(Boolean);
+    return parts.length ? `/${parts[0]}` : "";
   }
+
+  // 4) по умолчанию — корень
+  return "";
 }
-const BASE   = getBasePath();
-const SPRITE = `${BASE}/img/sprite.svg`;
 
+const BASE_URL = detectBasePath();
+const SPRITE   = `${BASE_URL}/img/sprite.svg`;
 
+// универсальная вставка иконки со страховкой href/xlink:href
+const icon = (id, cls = "ico") =>
+  `<svg class="${cls}" aria-hidden="true"><use href="${SPRITE}#${id}" xlink:href="${SPRITE}#${id}"></use></svg>`;
+
+/* ---------- main ---------- */
 export function initGrid(root = document.querySelector("#artists-section")) {
   if (!root) return;
 
@@ -107,7 +136,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     });
   }
 
-  // удержание высоты
+  // удержание высоты на время перерендера
   let gridCleanupTimer = null;
   function lockGridHeight(h) {
     const hh = h ?? grid.getBoundingClientRect().height;
@@ -159,9 +188,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
         <p class="card__text">${about}</p>
         <button class="card__link" data-action="more">
           Learn More
-          <svg class="ico" aria-hidden="true">
-            <use href="${SPRITE}#icon-icon_play_artists_sections"></use>
-          </svg>
+          ${icon("icon-icon_play_artists_sections")}
         </button>
       </li>`;
   }
