@@ -24,14 +24,13 @@
 .swiper {
   position: relative;
   padding: 64px 16px 16px 16px;
-  display: flex;
+
   align-items: center;
-  flex-wrap: row;
-  justify-content: flex-start;
-  overflow: visible;
   width: 288px;
 }
-
+.swiper {
+  overflow: hidden;
+}
 @media screen and (min-width: 768px) {
   .swiper {
     width: 704px;
