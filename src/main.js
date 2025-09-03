@@ -4,3 +4,4 @@ import './js/footer.js';
 import './js/header.js';
 import './js/hero.js';
 import './js/comments.js';
+import "./js/global-sfx.js";
