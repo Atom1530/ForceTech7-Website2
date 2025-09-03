@@ -105,7 +105,7 @@ export function createArtistModal(rootEl = document) {
       const r = dialog.getBoundingClientRect();
       const right = Math.max(pad, window.innerWidth - (r.left + r.width) + pad);
       scrollTopBtn.style.right = `${right}px`;
-      scrollTopBtn.style.bottom = `28px`;
+      scrollTopBtn.style.bottom = `58px`;
     };
 
     // видимость по скроллу + актуализация позиции

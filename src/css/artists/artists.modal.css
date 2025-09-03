@@ -377,30 +377,40 @@ a:focus .am-yt {
 /* ...дальше твои стили (контент, таблицы и т.п.) остаются... */
 
 /* ===== Scroll to top — контрастнее и ВЫШЕ плеера ===== */
+/* КНОПКА «ВВЕРХ» — выше, толще окантовка, жирнее стрелка */
 .amodal__scrolltop {
-  position: fixed; /* фикс в вьюпорте модалки */
-  right: 28px;
-  bottom: 28px;
-  width: 56px;
-  height: 56px;
+  position: fixed;
   display: none;
   align-items: center;
   justify-content: center;
 
+  width: 56px;
+  height: 56px;
+  right: 28px; /* реальное выравнивание справа задаёт JS; это — дефолт */
+  bottom: 58px; /* дефолт (JS также выставляет 58px) */
+
   background: rgba(10, 10, 10, 0.55);
-  border: 1px solid rgba(255, 255, 255, 0.22);
+  border: 2px solid rgba(255, 255, 255, 0.95); /* толще и белее кольцо */
   border-radius: 999px;
+
   color: #fff;
   font-weight: 900;
-  font-size: 22px;
+  font-size: 28px; /* стрелка чуть жирнее/крупнее */
   line-height: 1;
 
-  z-index: 12000; /* ВЫШЕ плеера (плеер 9999) */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.35),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+  z-index: 1500; /* выше контента модалки и плеера */
 }
 .amodal__scrolltop:focus-visible {
-  outline: 2px solid rgba(255, 255, 255, 0.6);
+  outline: 2px solid rgba(255, 255, 255, 0.65);
   outline-offset: 2px;
+}
+@media (max-width: 767.98px) {
+  .amodal__scrolltop {
+    right: 22px;
+    bottom: 58px; /* также 58px на мобиле */
+  }
 }
 
 /* ... остальной файл без изменений ... */
@@ -420,4 +430,51 @@ a:focus .am-yt {
   content: '';
   position: absolute;
   inset: -10px; /* расширенная hit-area */
+}
+
+/* === Slim scrollbars: modal dialog + genre dropdown === */
+
+/* 1) Места, где есть прокрутка */
+.amodal__dialog,
+.artists1 .dd__list {
+  /* чтобы не дёргался лэйаут при появлении полосы */
+  scrollbar-gutter: stable both-edges;
+  /* Firefox */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.28) transparent;
+}
+
+/* WebKit (Chrome/Edge/Safari) */
+.amodal__dialog::-webkit-scrollbar,
+.artists1 .dd__list::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.amodal__dialog::-webkit-scrollbar-track,
+.artists1 .dd__list::-webkit-scrollbar-track {
+  background: transparent; /* без белой «дорожки» */
+}
+
+.amodal__dialog::-webkit-scrollbar-thumb,
+.artists1 .dd__list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.28); /* деликатный полупрозрачный */
+  border-radius: 8px;
+  /* лёгкий внутренний «зазор», чтобы казался ещё тоньше */
+  border: 2px solid transparent;
+  background-clip: padding-box;
+}
+
+.amodal__dialog::-webkit-scrollbar-thumb:hover,
+.artists1 .dd__list::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.42); /* при ховере чуть заметнее */
+}
+
+/* Чуть уже на очень узких экранах */
+@media (max-width: 480px) {
+  .amodal__dialog::-webkit-scrollbar,
+  .artists1 .dd__list::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
 }
