@@ -1,6 +1,5 @@
-
-// Модалка артиста: ищет разметку в root или document, при отсутствии — создаёт каркас.
-// Интеграция: мини-плеер + zoom + стрелка «вверх»
+// Модалка артиста: каркас + интеграция с плеером + скролл-ап поверх плеера.
+// Важно: закрытие модалки НЕ останавливает плеер.
 
 import { lockScroll, unlockScroll } from "../lib/scroll-lock.js";
 import { UISound } from "../lib/sound.js";
@@ -10,7 +9,7 @@ import { openZoom } from "./zoom.js";
 
 const SPRITE = "/img/sprite.svg";
 
-/* ---------- утилиты ---------- */
+/* ---------- helpers ---------- */
 function fmtTime(val) {
   const ms = Number(val);
   if (!Number.isFinite(ms)) return "—";
@@ -36,7 +35,7 @@ const trackRow = (t) => {
       <span>${dur}</span>
       <span>${
         link
-          ? `<a class="yt" href="${link}" target="_blank" rel="noopener noreferrer" aria-label="Watch on YouTube">
+          ? `<a class="yt" href="${link}" target="_blank" rel="noopener noreferrer" aria-label="Play">
                <svg class="ico am-yt" aria-hidden="true"><use href="${SPRITE}#icon-icon_youtube_footer"></use></svg>
              </a>`
           : `<span class="yt-ph"></span>`
@@ -44,7 +43,7 @@ const trackRow = (t) => {
     </li>`;
 };
 
-/* ---------- создание каркаса (если partial не подключён) ---------- */
+/* ---------- ensure shell ---------- */
 function ensureModalShell(doc = document) {
   let modal = doc.querySelector("#artist-modal");
   if (modal) return modal;
@@ -65,10 +64,9 @@ function ensureModalShell(doc = document) {
   return modal;
 }
 
-/* ---------- основной модуль ---------- */
+/* ---------- main ---------- */
 export function createArtistModal(rootEl = document) {
-  // 1) ищем в rootEl, 2) в document, 3) если нет — создаём каркас
-  let modal =
+  const modal =
     (rootEl && rootEl.querySelector ? rootEl.querySelector("#artist-modal") : null) ||
     document.querySelector("#artist-modal") ||
     ensureModalShell(document);
@@ -77,44 +75,24 @@ export function createArtistModal(rootEl = document) {
   const modalClose = modal.querySelector("#am-close");
   const dialog     = modal.querySelector(".amodal__dialog");
 
-  // мини-плеер
-  const player = createMiniPlayer(); 
+  // Единый мини-плеер
+  const player = createMiniPlayer();
 
-  
-
-  // стрелка «вверх»
+  // Scroll-to-top (поверх плеера)
   let scrollTopBtn = null;
   function ensureScrollTop() {
     if (scrollTopBtn) return;
     scrollTopBtn = document.createElement("button");
     scrollTopBtn.type = "button";
+    scrollTopBtn.className = "amodal__scrolltop";
     scrollTopBtn.setAttribute("aria-label", "Scroll to top");
     scrollTopBtn.textContent = "↑";
-    Object.assign(scrollTopBtn.style, {
-      position: "fixed",
-      right: "24px",
-      bottom: "24px",
-      width: "56px",
-      height: "56px",
-      borderRadius: "50%",
-      border: "none",
-      cursor: "pointer",
-      display: "none",
-      alignItems: "center",
-      justifyContent: "center",
-      fontSize: "22px",
-      lineHeight: "1",
-      background: "var(--color-affair, #764191)",
-      color: "var(--color-white, #fff)",
-      boxShadow: "0 8px 20px rgba(0,0,0,.35), inset 0 0 0 1px rgba(255,255,255,0.1)",
-      zIndex: "5",
-    });
+    dialog.appendChild(scrollTopBtn);
+
     scrollTopBtn.addEventListener("click", () => {
       UISound?.tap?.();
       dialog.scrollTo({ top: 0, behavior: "smooth" });
     });
-    modal.appendChild(scrollTopBtn);
-
     dialog.addEventListener("scroll", () => {
       scrollTopBtn.style.display = (dialog.scrollTop || 0) > 220 ? "flex" : "none";
     });
@@ -124,11 +102,12 @@ export function createArtistModal(rootEl = document) {
     modal.removeAttribute("hidden");
     lockScroll();
     ensureScrollTop();
+    scrollTopBtn.style.display = "none";
     modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
     document.addEventListener("keydown", onEsc);
   }
   function close() {
-    if (player.isActive()) player.close();
+    // ВАЖНО: не трогаем плеер! (музыка продолжает играть)
     modal.setAttribute("hidden", "");
     unlockScroll();
     modalBody.innerHTML = "";
@@ -144,10 +123,15 @@ export function createArtistModal(rootEl = document) {
     }
   });
 
-  // делегирование кликов: YouTube + zoom
+  // Делегирование кликов: YouTube => открыть наш плеер, Zoom — по картинке
   modal.addEventListener("click", (e) => {
     const a = e.target.closest("a.yt");
-    if (a) { e.preventDefault(); UISound?.tap?.(); player.open(a.href); return; }
+    if (a) {
+      e.preventDefault();
+      UISound?.tap?.();
+      player.open(a.href);  // играем внутри сайта
+      return;
+    }
     const zoomImg = e.target.closest(".amodal__img");
     if (zoomImg) {
       UISound?.tap?.();
