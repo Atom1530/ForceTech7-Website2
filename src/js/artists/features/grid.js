@@ -160,7 +160,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
         <button class="card__link" data-action="more">
           Learn More
           <svg class="ico" aria-hidden="true">
-            <use href="img/sprite.svg#icon-icon_play_artists_sections"></use>
+            <use href="./img/sprite.svg#icon-icon_play_artists_sections"></use>
           </svg>
         </button>
       </li>`;
