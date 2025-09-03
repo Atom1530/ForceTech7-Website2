@@ -1,9 +1,8 @@
-// Мини-плеер (singleton): очередь, next/prev, автоследование,
-// drag карточки, свёрнутый режим (bubble) с запоминанием позиции,
-// верхняя левая ссылка "YouTube" (закрывает плеер при клике).
+
 
 let _instance = null;
 
+/* -------------------- YT API -------------------- */
 function loadYTAPI() {
   if (window.YT && window.YT.Player) return Promise.resolve();
   if (loadYTAPI._p) return loadYTAPI._p;
@@ -46,40 +45,27 @@ function fmtTimeSec(sec) {
   return `${m}:${s}`;
 }
 
-// ——— bubble position persistence ———
-const BUBBLE_KEY = "amBubblePos";
-function saveBubblePos(left, top) {
-  try { localStorage.setItem(BUBBLE_KEY, JSON.stringify({ left, top })); } catch {}
-}
-function loadBubblePos() {
-  try { return JSON.parse(localStorage.getItem(BUBBLE_KEY) || "null"); } catch { return null; }
-}
-
+/* -------------------- Экспорт: фабрика singleton -------------------- */
 export function createMiniPlayer() {
   if (_instance) return _instance;
 
-  // ---------- DOM ----------
+  /* ---------- DOM ---------- */
   const dock = document.createElement("div");
   dock.className = "am-player";
   dock.innerHTML = `
     <div class="am-player__inner">
-      <!-- верхняя зона для drag -->
-      <div class="am-player__dragzone" aria-hidden="true"></div>
+      <div class="am-player__dragzone" aria-hidden="true" title="Drag the player"></div>
 
-      <!-- кнопки в правом верхнем углу -->
-      <button class="am-player__drag" type="button" aria-label="Drag"></button>
-      <button class="am-player__hide am-player__hide--floating" type="button" aria-label="Minimize">Hide</button>
+      <!-- Верхние кнопки: Hide слева от Close -->
+      <button class="am-player__hide" type="button" aria-label="Hide">Hide</button>
       <button class="am-player__close" type="button" aria-label="Close">×</button>
 
-      <!-- видео -->
       <div class="am-player__frame">
         <div class="am-player__host" id="am-player-host"></div>
-
-        <!-- наша верхняя левая "YouTube" ссылка (ниже drag-зоны) -->
+        <!-- наша кнопка YouTube поверх кадра, влево-вверх -->
         <a class="am-player__ytlink" href="#" target="_blank" rel="noopener noreferrer" aria-label="Open on YouTube">YouTube ↗</a>
       </div>
 
-      <!-- нижняя панель -->
       <div class="am-player__bar">
         <div class="am-player__left">
           <button class="am-player__skip am-player__prev" type="button" aria-label="Previous">⏮</button>
@@ -93,7 +79,6 @@ export function createMiniPlayer() {
         </div>
 
         <div class="am-player__right">
-          <!-- нижнюю ссылку YouTube удалили -->
           <button class="am-player__mute" type="button" aria-label="Mute/Unmute">🔈</button>
           <input class="am-player__slider" type="range" min="0" max="100" value="60" step="1" aria-label="Volume">
         </div>
@@ -102,108 +87,13 @@ export function createMiniPlayer() {
   `;
   document.body.appendChild(dock);
 
-  // пузырь (свёрнутый режим)
+  // плавающий пузырь создаём по требованию
   let bubble = null;
-  let bubbleDragging = false;
-  let bubbleStart = null;
-
-  function ensureBubble() {
-    if (bubble) return bubble;
-    bubble = document.createElement("button");
-    bubble.className = "am-player__bubble is-paused";
-    bubble.type = "button";
-    bubble.setAttribute("aria-label", "Open player");
-    bubble.style.display = "none"; // по умолчанию скрыта
-    bubble.innerHTML = `<span class="note">♪</span>`;
-    document.body.appendChild(bubble);
-
-    // drag bubble
-    bubble.addEventListener("pointerdown", (e) => {
-      bubbleDragging = false;
-      bubble.setPointerCapture(e.pointerId);
-      bubbleStart = { x: e.clientX, y: e.clientY };
-      bubble.dataset.bx = String(bubble.offsetLeft);
-      bubble.dataset.by = String(bubble.offsetTop);
-    });
-    bubble.addEventListener("pointermove", (e) => {
-      if (!bubbleStart) return;
-      const dx = e.clientX - bubbleStart.x;
-      const dy = e.clientY - bubbleStart.y;
-      if (Math.abs(dx) + Math.abs(dy) > 3) bubbleDragging = true;
-      const nx = (parseFloat(bubble.dataset.bx || "0") + dx) | 0;
-      const ny = (parseFloat(bubble.dataset.by || "0") + dy) | 0;
-      bubble.style.left = `${nx}px`;
-      bubble.style.top  = `${ny}px`;
-    });
-    bubble.addEventListener("pointerup", (e) => {
-      try { bubble.releasePointerCapture(e.pointerId); } catch {}
-      if (!bubbleDragging) { restoreFromBubble(); }
-      const rect = bubble.getBoundingClientRect();
-      saveBubblePos(rect.left, rect.top);
-      bubbleStart = null;
-      bubbleDragging = false;
-      clampBubbleToViewport();
-    });
-
-    return bubble;
-  }
-
-  function showBubble(useSaved = true) {
-    const b = ensureBubble();
-    let left, top;
-    if (useSaved) {
-      const saved = loadBubblePos();
-      if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
-        left = saved.left; top = saved.top;
-      }
-    }
-    // если нет сохранённой — центр-низ
-    if (left == null || top == null) {
-      const vpW = (window.visualViewport?.width || window.innerWidth);
-      const vpH = (window.visualViewport?.height || window.innerHeight);
-      const size = 64; // базовый размер пузыря из CSS
-      left = (vpW - size) / 2;
-      top  = vpH - size - 24;
-    }
-    b.style.left = `${left | 0}px`;
-    b.style.top  = `${top | 0}px`;
-    b.style.display = "grid";
-    clampBubbleToViewport();
-  }
-  function hideBubble() {
-    if (bubble) bubble.style.display = "none";
-  }
-  function setBubblePulse(isPlaying) {
-    const b = ensureBubble();
-    b.classList.toggle("is-paused", !isPlaying);
-  }
-  function setBubbleAmp(volVal) {
-    const b = ensureBubble();
-    const amp = 1.02 + (Math.max(0, Math.min(100, volVal)) / 100) * 0.08;
-    b.style.setProperty("--amp", amp.toFixed(3));
-  }
-  function clampBubbleToViewport(margin = 8) {
-    if (!bubble || bubble.style.display === "none") return;
-    const vpW = (window.visualViewport?.width || window.innerWidth);
-    const vpH = (window.visualViewport?.height || window.innerHeight);
-    const r = bubble.getBoundingClientRect();
-    let left = r.left, top = r.top;
-    const maxLeft = vpW - r.width - margin;
-    const maxTop  = vpH - r.height - margin;
-    left = Math.max(margin, Math.min(left, Math.max(margin, maxLeft)));
-    top  = Math.max(margin, Math.min(top,  Math.max(margin, maxTop)));
-    bubble.style.left = `${left}px`;
-    bubble.style.top  = `${top}px`;
-  }
 
   // refs
   const host     = dock.querySelector("#am-player-host");
-  const dragZone = dock.querySelector(".am-player__dragzone");
-  const dragBtn  = dock.querySelector(".am-player__drag");
   const btnClose = dock.querySelector(".am-player__close");
   const btnHide  = dock.querySelector(".am-player__hide");
-  const ytLink   = dock.querySelector(".am-player__ytlink");
-
   const btnPlay  = dock.querySelector(".am-player__play");
   const btnPrev  = dock.querySelector(".am-player__prev");
   const btnNext  = dock.querySelector(".am-player__next");
@@ -212,35 +102,52 @@ export function createMiniPlayer() {
   const prog     = dock.querySelector(".am-player__progress");
   const tCur     = dock.querySelector(".am-player__cur");
   const tDur     = dock.querySelector(".am-player__dur");
+  const dragzone = dock.querySelector(".am-player__dragzone");
+  const aYTlink  = dock.querySelector(".am-player__ytlink");
 
-  // ---------- state ----------
+  /* ---------- state ---------- */
   let yt = null;
   let ready = false;
-  let isPlaying = false;
   let duration = 0;
   let timer = null;
   let muted = false;
   let volVal = 60;
   let userSeeking = false;
 
-  // drag state (карточка)
-  let dragActive = false;
-  let dragStart = null;
-  let dockStart = null;
-
   // очередь
   let queue = [];
   let qi = -1;
   let loop = false;
 
-  if (isIOS) { vol.disabled = true; vol.title = "On iOS the volume is hardware-only"; }
+  // позиция дока (free mode)
+  const DOCK_KEY = "amPlayerPos";
+  let dockDrag = null;
 
-  // ---------- UI ----------
+  // позиция пузыря
+  const BUBBLE_KEY = "amBubblePos2";
+  let bubbleDragging = false;
+  let bubbleStart = null;
+  let _bubblePos = null;
+
+  // watchdog (если видео не стартовало)
+  let watchdogId = null;
+
+  if (isIOS) {
+    vol.disabled = true;
+    vol.title = "On iOS the volume is hardware-only";
+  }
+
+  /* ---------- UI helpers ---------- */
   function uiShow(on) {
     dock.classList.toggle("am-player--active", !!on);
     if (on) hideBubble();
   }
-  function uiPlayIcon(play) { btnPlay.textContent = play ? "⏸" : "▶"; }
+  function uiMin(on) {
+    dock.classList.toggle("am-player--min", !!on);
+    if (on) showBubble(true);
+    else hideBubble();
+  }
+  function uiPlayIcon(isPlaying) { btnPlay.textContent = isPlaying ? "⏸" : "▶"; }
   function uiMuteIcon(isMuted) { btnMute.textContent = isMuted ? "🔇" : "🔈"; }
   function uiSetTime(cur, dur) {
     tCur.textContent = fmtTimeSec(cur);
@@ -261,8 +168,13 @@ export function createMiniPlayer() {
       uiSetTime(cur, dur);
     }, 250);
   }
+  function clearWatchdog() {
+    if (watchdogId) { clearTimeout(watchdogId); watchdogId = null; }
+  }
 
-  // ---------- YT ----------
+  /* ---------- YT ---------- */
+  function skipWithDelay(ms = 2000) { setTimeout(autoNext, ms); }
+
   function ensureYT(id) {
     return loadYTAPI().then(() => {
       if (yt) { try { yt.destroy(); } catch {} yt = null; }
@@ -281,46 +193,74 @@ export function createMiniPlayer() {
             if (!isIOS && typeof yt.setVolume === "function") yt.setVolume(volVal);
             if (muted && yt.mute) yt.mute();
             uiPlayIcon(true);
-            isPlaying = true;
             setBubblePulse(true);
             setBubbleAmp(volVal);
             startTimer();
+
+            clearWatchdog();
+            // если за 6с не ушло в PLAYING — скипаем
+            watchdogId = setTimeout(() => {
+              try {
+                if (yt && yt.getPlayerState && yt.getPlayerState() !== YT.PlayerState.PLAYING) {
+                  console.warn("Watchdog: видео не стартовало — пропускаем.");
+                  setBubblePulse(false);
+                  skipWithDelay(0);
+                }
+              } catch {}
+            }, 6000);
           },
           onStateChange: (e) => {
             if (e.data === YT.PlayerState.PLAYING) {
+              clearWatchdog();
               uiPlayIcon(true);
-              isPlaying = true;
               setBubblePulse(true);
               startTimer();
             } else if (e.data === YT.PlayerState.PAUSED) {
               uiPlayIcon(false);
-              isPlaying = false;
               setBubblePulse(false);
               clearTimer();
             } else if (e.data === YT.PlayerState.ENDED) {
               uiPlayIcon(false);
-              isPlaying = false;
               setBubblePulse(false);
               clearTimer();
+              clearWatchdog();
               autoNext();
-              window.dispatchEvent(new CustomEvent("amplayer:ended", { detail: { id } }));
             }
+          },
+          onError: (e) => {
+            console.error("YT Player error:", e?.data);
+            uiPlayIcon(false);
+            setBubblePulse(false);
+            clearTimer();
+            clearWatchdog();
+            skipWithDelay(1200);
           }
         }
       });
     });
   }
 
-  // ---------- queue helpers ----------
-  function playByIndex(idx) {
+  /* ---------- Очередь ---------- */
+  async function playByIndex(idx) {
     if (!queue.length) return;
     qi = clamp(idx, 0, queue.length - 1);
     const id = queue[qi];
-    // выставляем ссылку для верхней левой "YouTube"
-    if (ytLink) ytLink.href = `https://www.youtube.com/watch?v=${id}`;
+    if (!id || !/^[\w-]{11}$/.test(id)) {
+      console.warn("Некорректный YouTube ID, пропускаю:", id);
+      return skipWithDelay(0);
+    }
+    // обновим ссылку «YouTube ↗»
+    aYTlink.href = `https://www.youtube.com/watch?v=${id}`;
+
     uiShow(true);
-    ready = false; duration = 0; clearTimer();
-    return ensureYT(id);
+    ready = false; duration = 0; clearTimer(); clearWatchdog();
+
+    try {
+      await ensureYT(id);
+    } catch (err) {
+      console.error("Не удалось воспроизвести:", id, err);
+      skipWithDelay(1200);
+    }
   }
   function autoNext() {
     if (!queue.length) return;
@@ -328,141 +268,273 @@ export function createMiniPlayer() {
     else if (loop) playByIndex(0);
   }
 
-  // ---------- Drag карточки ----------
-  function onDragStart(e) {
-    dragActive = true;
-    dock.classList.add("am-player--free");
-    const r = dock.getBoundingClientRect();
-    dock.style.left = `${r.left}px`;
-    dock.style.top  = `${r.top}px`;
-    dock.style.transform = "none";
-    dragStart = { x: e.clientX, y: e.clientY };
-    dockStart = { left: r.left, top: r.top };
-    (e.currentTarget === dragZone ? dragZone : dragBtn).classList.add("dragging");
-    try { e.currentTarget.setPointerCapture(e.pointerId); } catch {}
+  /* ---------- Перетаскивание ДОКА ---------- */
+  function getVP() {
+    const w = window.visualViewport?.width || document.documentElement.clientWidth || window.innerWidth;
+    const h = window.visualViewport?.height || document.documentElement.clientHeight || window.innerHeight;
+    return { w, h };
   }
-  function onDragMove(e) {
-    if (!dragActive || !dragStart || !dockStart) return;
-    const dx = e.clientX - dragStart.x;
-    const dy = e.clientY - dragStart.y;
-    dock.style.left = `${(dockStart.left + dx) | 0}px`;
-    dock.style.top  = `${(dockStart.top + dy) | 0}px`;
+  function clampDock() {
+    if (!dock.classList.contains("am-player--free")) return;
+    const rect = dock.getBoundingClientRect();
+    const { w, h } = getVP();
+    let left = clamp(rect.left, 8, Math.max(8, w - rect.width - 8));
+    let top  = clamp(rect.top,  8, Math.max(8, h - rect.height - 8));
+    dock.style.left = `${left}px`;
+    dock.style.top  = `${top}px`;
+    try { localStorage.setItem(DOCK_KEY, JSON.stringify({ left, top })); } catch {}
   }
-  function clampDockToViewport(margin = 8) {
-    const vpW = (window.visualViewport?.width || window.innerWidth);
-    const vpH = (window.visualViewport?.height || window.innerHeight);
+  function restoreDockPos() {
+    let pos = null;
+    try { pos = JSON.parse(localStorage.getItem(DOCK_KEY) || "null"); } catch {}
+    if (pos && Number.isFinite(pos.left) && Number.isFinite(pos.top)) {
+      dock.classList.add("am-player--free");
+      dock.style.transform = "none";
+      dock.style.left = `${pos.left}px`;
+      dock.style.top  = `${pos.top}px`;
+      dock.style.right = "auto";
+      dock.style.bottom = "auto";
+      clampDock();
+    } else {
+      dock.classList.remove("am-player--free");
+      dock.style.left = "";
+      dock.style.top  = "";
+      dock.style.right = "";
+      dock.style.bottom = "";
+      dock.style.transform = "";
+    }
+  }
+  function beginDockDrag(e) {
+    if (!dock.classList.contains("am-player--free")) {
+      const r = dock.getBoundingClientRect();
+      dock.classList.add("am-player--free");
+      dock.style.transform = "none";
+      dock.style.left = `${r.left}px`;
+      dock.style.top  = `${r.top}px`;
+      dock.style.right = "auto";
+      dock.style.bottom = "auto";
+    }
+    dockDrag = {
+      startX: e.clientX,
+      startY: e.clientY,
+      baseLeft: parseFloat(dock.style.left || "0"),
+      baseTop:  parseFloat(dock.style.top || "0"),
+    };
+    dragzone.classList.add("dragging");
+    try { dragzone.setPointerCapture?.(e.pointerId); } catch {}
+  }
+  function moveDockDrag(e) {
+    if (!dockDrag) return;
+    let left = dockDrag.baseLeft + (e.clientX - dockDrag.startX);
+    let top  = dockDrag.baseTop  + (e.clientY - dockDrag.startY);
     const r = dock.getBoundingClientRect();
-    let left = r.left, top = r.top;
-    const maxLeft = vpW - r.width - margin;
-    const maxTop  = vpH - r.height - margin;
-    left = Math.max(margin, Math.min(left, Math.max(margin, maxLeft)));
-    top  = Math.max(margin, Math.min(top,  Math.max(margin, maxTop)));
+    const { w, h } = getVP();
+    left = clamp(left, 8, Math.max(8, w - r.width - 8));
+    top  = clamp(top,  8, Math.max(8, h - r.height - 8));
     dock.style.left = `${left}px`;
     dock.style.top  = `${top}px`;
   }
-  function onDragEnd(e) {
-    dragActive = false;
-    (dragZone.classList.contains("dragging") ? dragZone : dragBtn).classList.remove("dragging");
-    try { e.currentTarget.releasePointerCapture(e.pointerId); } catch {}
-    clampDockToViewport(8);
+  function endDockDrag(e) {
+    if (!dockDrag) return;
+    try { dragzone.releasePointerCapture?.(e.pointerId); } catch {}
+    dragzone.classList.remove("dragging");
+    dockDrag = null;
+    clampDock();
   }
 
-  [dragZone, dragBtn].forEach(el => {
-    el.addEventListener("pointerdown", onDragStart);
-    el.addEventListener("pointermove", onDragMove);
-    el.addEventListener("pointerup", onDragEnd);
-    el.addEventListener("pointercancel", onDragEnd);
-  });
+  dragzone.addEventListener("pointerdown", beginDockDrag);
+  window.addEventListener("pointermove", moveDockDrag);
+  window.addEventListener("pointerup", endDockDrag);
+  window.addEventListener("resize", clampDock);
+  window.visualViewport?.addEventListener("resize", clampDock);
+  window.addEventListener("orientationchange", clampDock);
 
-  // ресайз/эмуляция
-  function onViewportChange() {
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        if (dock.classList.contains("am-player--free")) clampDockToViewport(8);
-        clampBubbleToViewport(8);
-      });
+  /* ---------- ПУЗЫРЬ ---------- */
+  function ensureBubble() {
+    if (bubble) return bubble;
+    bubble = document.createElement("button");
+    bubble.className = "am-player__bubble is-paused";
+    bubble.type = "button";
+    bubble.setAttribute("aria-label", "Open player");
+    bubble.style.display = "none";
+    bubble.style.left = "auto";
+    bubble.style.top = "auto";
+    bubble.style.right = "auto";
+    bubble.style.bottom = "auto";
+    bubble.innerHTML = `<span class="note">♪</span>`;
+    document.body.appendChild(bubble);
+
+    bubble.addEventListener("pointerdown", (e) => {
+      bubbleDragging = false;
+      try { bubble.setPointerCapture(e.pointerId); } catch {}
+      const r = bubble.getBoundingClientRect();
+      bubbleStart = { x: e.clientX, y: e.clientY, left: r.left, top: r.top };
     });
-  }
-  window.addEventListener("resize", onViewportChange);
-  window.visualViewport?.addEventListener("resize", onViewportChange);
-  window.addEventListener("orientationchange", onViewportChange);
+    bubble.addEventListener("pointermove", (e) => {
+      if (!bubbleStart) return;
+      const dx = e.clientX - bubbleStart.x;
+      const dy = e.clientY - bubbleStart.y;
+      if (Math.abs(dx) + Math.abs(dy) > 3) bubbleDragging = true;
+      const nx = (bubbleStart.left + dx) | 0;
+      const ny = (bubbleStart.top  + dy) | 0;
+      bubble.style.right = "auto";
+      bubble.style.bottom = "auto";
+      bubble.style.left = `${nx}px`;
+      bubble.style.top  = `${ny}px`;
+    });
+    bubble.addEventListener("pointerup", (e) => {
+      try { bubble.releasePointerCapture(e.pointerId); } catch {}
+      if (!bubbleDragging) { uiMin(false); } // клик — раскрыть
+      clampBubbleToViewport();
+      persistBubblePos();
+      bubbleStart = null;
+      bubbleDragging = false;
+    });
 
-  // ---------- UI events ----------
+    return bubble;
+  }
+
+  function getStableWH() {
+    const w = document.documentElement.clientWidth || window.innerWidth;
+    const h = document.documentElement.clientHeight || window.innerHeight;
+    return { w, h };
+  }
+  function saveBubblePos(left, top, width, height) {
+    const { w, h } = getStableWH();
+    const rw = Math.max(1, w - width);
+    const rh = Math.max(1, h - height);
+    _bubblePos = {
+      left, top, width, height,
+      rx: clamp(left / rw, 0, 1),
+      ry: clamp(top  / rh, 0, 1)
+    };
+    try { localStorage.setItem(BUBBLE_KEY, JSON.stringify(_bubblePos)); } catch {}
+  }
+  function loadBubblePos() {
+    if (_bubblePos && Number.isFinite(_bubblePos.left) && Number.isFinite(_bubblePos.top)) return _bubblePos;
+    try {
+      const obj = JSON.parse(localStorage.getItem(BUBBLE_KEY) || "null");
+      if (obj && Number.isFinite(obj.rx) && Number.isFinite(obj.ry)) return obj;
+    } catch {}
+    return null;
+  }
+  function fromRatioToPx(pos, fallback = 64) {
+    const { w, h } = getStableWH();
+    const bw = pos?.width  || fallback;
+    const bh = pos?.height || fallback;
+    const rw = Math.max(1, w - bw);
+    const rh = Math.max(1, h - bh);
+    const left = clamp(Math.round((pos?.rx ?? 0.5) * rw), 8, rw);
+    const top  = clamp(Math.round((pos?.ry ?? 0.8) * rh), 8, rh);
+    return { left, top };
+  }
+  function showBubble(useSaved = true) {
+    const b = ensureBubble();
+    b.style.right = "auto";
+    b.style.bottom = "auto";
+    b.style.display = "grid";
+
+    const r0 = b.getBoundingClientRect();
+    let pos = useSaved ? loadBubblePos() : null;
+    let left, top;
+    if (pos) {
+      const p = fromRatioToPx(pos, r0.width || 64);
+      left = p.left; top = p.top;
+    } else {
+      const { w, h } = getVP();
+      const size = r0.width || 64;
+      left = Math.max(8, Math.round((w - size) / 2));
+      top  = Math.max(8, Math.round(h - size - 24));
+    }
+    b.style.left = `${left}px`;
+    b.style.top  = `${top}px`;
+    clampBubbleToViewport();
+    persistBubblePos();
+  }
+  function hideBubble() { if (bubble) bubble.style.display = "none"; }
+  function setBubblePulse(isPlaying) {
+    const b = ensureBubble();
+    b.classList.toggle("is-paused", !isPlaying);
+  }
+  function setBubbleAmp(v) {
+    const b = ensureBubble();
+    const amp = 1.02 + (Math.max(0, Math.min(100, v)) / 100) * 0.08;
+    b.style.setProperty("--amp", amp.toFixed(3));
+  }
+  function clampBubbleToViewport(margin = 8) {
+    if (!bubble || bubble.style.display === "none") return;
+    const { w, h } = getVP();
+    const r = bubble.getBoundingClientRect();
+    let left = clamp(r.left, margin, Math.max(margin, w - r.width - margin));
+    let top  = clamp(r.top,  margin, Math.max(margin, h - r.height - margin));
+    bubble.style.right = "auto";
+    bubble.style.bottom = "auto";
+    bubble.style.left = `${left}px`;
+    bubble.style.top  = `${top}px`;
+  }
+  function persistBubblePos() {
+    if (!bubble || bubble.style.display === "none") return;
+    const r = bubble.getBoundingClientRect();
+    saveBubblePos(r.left, r.top, r.width, r.height);
+  }
+  window.addEventListener("resize", () => { clampBubbleToViewport(); persistBubblePos(); });
+  window.visualViewport?.addEventListener("resize", () => { clampBubbleToViewport(); persistBubblePos(); });
+  window.addEventListener("orientationchange", () => { clampBubbleToViewport(); persistBubblePos(); });
+
+  /* ---------- Кнопки UI ---------- */
   btnClose.addEventListener("click", () => {
     try { yt?.stopVideo?.(); yt?.destroy?.(); } catch {}
-    yt = null; ready = false; duration = 0; clearTimer();
-    isPlaying = false;
-    uiPlayIcon(false);
+    yt = null; ready = false; duration = 0; clearTimer(); clearWatchdog();
     uiShow(false);
-    hideBubble(); // закрываем полностью — пузыря тоже нет
+    uiMin(false);
     queue = []; qi = -1;
+    setBubblePulse(false);
   });
 
-  btnHide.addEventListener("click", () => {
+  btnHide.addEventListener("click", () => { uiMin(true); });
+
+  // Ссылка YouTube ↗: перед навигацией — выключаем плеер
+  aYTlink.addEventListener("click", () => {
+    try { yt?.stopVideo?.(); yt?.destroy?.(); } catch {}
+    yt = null; ready = false; duration = 0; clearTimer(); clearWatchdog();
     uiShow(false);
-    showBubble(true);      // показываем в сохранённом месте
-    setBubbleAmp(volVal);
-    setBubblePulse(isPlaying);
-  });
-
-  function restoreFromBubble() {
-    uiShow(true);
-    hideBubble();
-  }
-
-  // верхняя левая "YouTube": открываем и закрываем плеер
-  ytLink.addEventListener("click", (e) => {
-    const url = ytLink.getAttribute("href");
-    if (!url) return;
-    e.preventDefault();
-    // открыть в новой вкладке
-    window.open(url, "_blank", "noopener,noreferrer");
-    // полностью закрыть плеер (и скрыть пузырь)
-    btnClose.click();
+    uiMin(false);
+    queue = []; qi = -1;
+    setBubblePulse(false);
+    // дальше браузер откроет ссылку в новой вкладке
   });
 
   btnPlay.addEventListener("click", () => {
     if (!ready || !yt) return;
     const s = yt.getPlayerState ? yt.getPlayerState() : -1;
     if (s === YT.PlayerState.PLAYING) {
-      yt.pauseVideo?.();
-      isPlaying = false;
-      setBubblePulse(false);
-      uiPlayIcon(false);
+      yt.pauseVideo?.(); uiPlayIcon(false); setBubblePulse(false);
     } else {
-      yt.playVideo?.();
-      isPlaying = true;
-      setBubblePulse(true);
-      uiPlayIcon(true);
+      yt.playVideo?.();  uiPlayIcon(true);  setBubblePulse(true);
     }
   });
-
   btnPrev.addEventListener("click", () => {
     if (!queue.length) return;
     playByIndex(qi > 0 ? qi - 1 : (loop ? queue.length - 1 : 0));
   });
-
   btnNext.addEventListener("click", () => {
     if (!queue.length) return;
     playByIndex(qi < queue.length - 1 ? qi + 1 : (loop ? 0 : qi));
   });
-
   btnMute.addEventListener("click", () => {
     if (!yt) return;
     muted = !muted;
     if (muted) yt.mute?.(); else yt.unMute?.();
     uiMuteIcon(muted);
   });
-
   vol.addEventListener("input", () => {
     const v = Number(vol.value) || 0;
     volVal = v;
-    setBubbleAmp(volVal);
     if (!isIOS) yt?.setVolume?.(v);
     if (v === 0 && !muted) { muted = true; yt?.mute?.(); uiMuteIcon(true); }
     else if (v > 0 && muted) { muted = false; yt?.unMute?.(); uiMuteIcon(false); }
+    setBubbleAmp(v);
   });
-
   prog.addEventListener("input", () => {
     userSeeking = true;
     const v = Number(prog.value) || 0;
@@ -477,17 +549,15 @@ export function createMiniPlayer() {
     yt.seekTo?.(sec, true);
   });
 
-  // ---------- Public API ----------
+  /* ---------- Публичное API ---------- */
   async function open(urlOrId) {
     const id = getYouTubeId(urlOrId);
     if (!id) return;
     queue = [id]; qi = 0;
-    if (ytLink) ytLink.href = `https://www.youtube.com/watch?v=${id}`;
-    uiShow(true);
-    hideBubble();
-    await ensureYT(id);
+    uiMin(false); uiShow(true);
+    restoreDockPos();
+    await playByIndex(0);
   }
-
   async function openQueue(list, opts = {}) {
     const ids = (list || []).map(getYouTubeId).filter(Boolean);
     if (!ids.length) return;
@@ -495,15 +565,16 @@ export function createMiniPlayer() {
     const arr = opts.shuffle ? shuffleArr(ids) : ids.slice();
     queue = arr;
     const start = clamp(Number(opts.startIndex ?? 0) || 0, 0, queue.length - 1);
-    hideBubble();
+    uiMin(false); uiShow(true);
+    restoreDockPos();
     await playByIndex(start);
   }
-
   function next() { if (queue.length) playByIndex(qi < queue.length - 1 ? qi + 1 : (loop ? 0 : qi)); }
   function prev() { if (queue.length) playByIndex(qi > 0 ? qi - 1 : (loop ? queue.length - 1 : 0)); }
-  function isActive() { return dock.classList.contains("am-player--active"); }
+  function isActive() { return dock.classList.contains("am-player--active") && !dock.classList.contains("am-player--min"); }
+  function minimize() { uiMin(true); }
   function close() { btnClose.click(); }
 
-  _instance = { open, openQueue, next, prev, isActive, close };
+  _instance = { open, openQueue, next, prev, minimize, isActive, close };
   return _instance;
 }
