@@ -5,8 +5,15 @@ import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
 import { openZoom } from "./zoom.js";
 
+function getBasePath() {
+  if (location.hostname.endsWith('github.io')) {
+    const parts = location.pathname.split('/').filter(Boolean); // ["repo", ...]
+    return parts.length ? `/${parts[0]}` : '';
+  }
+}
+const BASE   = getBasePath();
+const SPRITE = `${BASE}/img/sprite.svg`;
 
-const SPRITE = `${import.meta.env.BASE_URL}img/sprite.svg`;
 
 export function initGrid(root = document.querySelector("#artists-section")) {
   if (!root) return;
