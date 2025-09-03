@@ -119,7 +119,7 @@ import{a as An,S as En,i as ve}from"./assets/vendor-BGCTnJtW.js";(function(){con
         <button class="card__link" data-action="more">
           Learn More
           <svg class="ico" aria-hidden="true">
-            <use href="img/sprite.svg#icon-icon_play_artists_sections"></use>
+            <use href="./img/sprite.svg#icon-icon_play_artists_sections"></use>
           </svg>
         </button>
       </li>`}function Ne(s){m.innerHTML=s.map(oe).join(""),U()}function Fe(s,d){if(d<=0){a.innerHTML="",F(a);return}if(d===1){a.innerHTML='<button class="active" data-page="1" disabled>1</button>',C(a);return}const g=(q,Le,Ae=!1,qe=!1)=>`<button ${Ae?"disabled":""} data-page="${Le}" class="${qe?"active":""}">${q}</button>`,Y=2,W=Math.max(1,s-Y),N=Math.min(d,s+Y),D=[];D.push(g("‹",Math.max(1,s-1),s===1,!1)),W>1&&(D.push(g("1",1,!1,s===1)),W>2&&D.push('<button class="dots">…</button>'));for(let q=W;q<=N;q++)D.push(g(String(q),q,!1,q===s));N<d&&(N<d-1&&D.push('<button class="dots">…</button>'),D.push(g(String(d),d,!1,s===d))),D.push(g("›",Math.min(d,s+1),s===d,!1)),a.innerHTML=D.join(""),C(a)}async function le(){try{w==null||w.classList.add("loading"),k==null||k.setAttribute("aria-busy","true"),k&&(k.disabled=!0),P.innerHTML=`
