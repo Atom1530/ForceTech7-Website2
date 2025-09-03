@@ -10,7 +10,7 @@ export default defineConfig(({ command }) => {
       [command === 'serve' ? 'global' : '_global']: {},
     },
     root: 'src',
-    base: '/ForceTech7-Website2/',
+    base: process.env.NODE_ENV === 'production' ? '/ForceTech7-Website2/' : '/',
     build: {
       sourcemap: true,
       rollupOptions: {
