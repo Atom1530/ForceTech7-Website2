@@ -1,0 +1,77 @@
+/* === Zoom overlay === */
+.am-zoom {
+  position: fixed;
+  inset: 0;
+  z-index: 6000; /* выше плеера */
+}
+
+.am-zoom__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.am-zoom__dialog {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  gap: 12px;
+  padding: 16px;
+}
+
+@media (min-width: 768px) {
+  .am-zoom__dialog {
+    padding: 24px;
+  }
+}
+
+.am-zoom__stage {
+  position: relative;
+  background: #000;
+  border-radius: 12px;
+  overflow: hidden;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 240px;
+  height: calc(100vh - 140px);
+  touch-action: none; /* жесты pinch/drag — нашими руками */
+}
+
+.am-zoom__img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto !important; /* ключ к отсутствию растягивания */
+  object-fit: contain;
+  transform-origin: center center;
+  will-change: transform;
+  user-select: none;
+  -webkit-user-drag: none;
+  pointer-events: auto;
+}
+
+.am-zoom__bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.am-zoom__open {
+  color: #fff;
+  text-decoration: none;
+}
+
+.am-zoom__close {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  border: none;
+  background: var(--color-affair, #764191);
+  color: #fff;
+  cursor: pointer;
+}

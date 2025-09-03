@@ -1,0 +1,52 @@
+/* Artists — Pagination */
+.artists1 .pager {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin: 32px 0 64px;
+}
+
+.artists1 .pager button {
+  min-width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--border-muted, rgba(255, 255, 255, 0.15));
+  background: transparent;
+  color: var(--color-text, var(--color-white, #fff));
+  cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease,
+    transform 100ms ease;
+}
+
+.artists1 .pager button:hover:not([disabled]) {
+  background: var(--surface-hover, rgba(255, 255, 255, 0.06));
+}
+
+.artists1 .pager button:focus-visible {
+  outline: 2px solid color-mix(in oklab, var(--color-affair, #764191), #fff 25%);
+  outline-offset: 2px;
+}
+
+.artists1 .pager button.active {
+  background: var(--color-affair-800, #3c2a58);
+  border-color: var(--color-affair-800, #3c2a58);
+  color: var(--color-white, #fff);
+}
+
+.artists1 .pager button[disabled] {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.artists1 .pager .dots {
+  border: 0;
+  background: transparent;
+  color: var(--color-text-muted, rgba(255, 255, 255, 0.7));
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artists1 .pager button {
+    transition: none;
+  }
+}

@@ -1,0 +1,400 @@
+/* панель фильтров + бар */
+.artists1 .filters {
+  position: relative;
+  z-index: 5;
+}
+.artists1 .filters__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.artists1 .filters__label {
+  color: #b8b9c0;
+  font-weight: 600;
+}
+.artists1 .filters__reset {
+  margin-left: auto;
+  margin-right: auto;
+  background: none;
+  border: 0;
+  color: #b8b9c0;
+  cursor: pointer;
+}
+
+/* кнопка раскрытия панели на моб/таб */
+#filters-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2d2b33;
+  border: 0;
+  border-radius: 12px;
+  color: var(--color-white);
+  padding: 10px 14px;
+  cursor: pointer;
+  position: relative;
+  padding-right: 30px;
+}
+#filters-toggle .ico {
+  display: none !important;
+}
+#filters-toggle::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+#filters-toggle[aria-expanded='true']::after {
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+/* сама панель */
+#filters-panel {
+  background: #1e1d24;
+  border-radius: 12px;
+  padding: 24px;
+  border: 1px solid #262626;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  margin-top: 12px;
+  overflow: visible;
+}
+
+/* mobile/tablet: aria-hidden управляет показом */
+@media (max-width: 1439.98px) {
+  #filters-panel[aria-hidden='true'] {
+    display: none;
+  }
+  #filters-panel[aria-hidden='false'] {
+    display: block;
+  }
+
+  /* панель как overlay ниже бара */
+  #filters-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 0;
+    right: 0;
+    z-index: 20;
+    max-height: min(80vh, 720px);
+    overflow: auto;
+  }
+
+  /* glass-стили управления (кнопки, поля) */
+  .artists1 #filters-toggle,
+  .artists1 #filters-panel .fld,
+  .artists1 #filters-panel #flt-q-btn,
+  .artists1 #filters-panel .dd {
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 0;
+    color: var(--color-white);
+  }
+  .artists1 #filters-panel .dd__btn {
+    background: transparent;
+    color: var(--color-white);
+  }
+  .artists1 #filters-panel .dd__btn::after {
+    border-right-color: var(--color-white);
+    border-bottom-color: var(--color-white);
+  }
+
+  .artists1 #filters-panel #flt-q {
+    background: transparent;
+    color: var(--color-white);
+  }
+  .artists1 #filters-panel #flt-q::placeholder {
+    color: rgba(255, 255, 255, 0.8);
+  }
+}
+
+/* desktop: панель всегда видима и без overlay */
+@media (min-width: 1440px) {
+  #filters-toggle {
+    display: none !important;
+  }
+  #filters-panel {
+    display: block !important;
+    background: var(--color-neutral-darkest);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    width: 304px;
+    overflow: visible;
+  }
+  #filters-panel .fld,
+  #filters-panel .dd {
+    width: 100%;
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 12px;
+    margin-bottom: 12px;
+  }
+  #filters-panel .dd__btn {
+    height: 43px;
+    padding: 8px 12px;
+    font: 600 16px/1 'IBM Plex Sans';
+    border-radius: 12px;
+  }
+  #filters-panel .dd__btn::after {
+    right: 12px;
+  }
+
+  /* списки в панели раскрываются без абсолютного позиционирования */
+  #filters-panel .dd {
+    position: static !important;
+  }
+  #filters-panel .dd__list {
+    position: static !important;
+    display: none;
+    max-height: 320px;
+    overflow: auto;
+    background: var(--color-neutral-darkest);
+    border: 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 0 0 12px 12px;
+    box-shadow: none;
+    padding: 8px 0;
+  }
+  #filters-panel .dd.open .dd__list {
+    display: block;
+  }
+  #filters-panel .dd.open .dd__btn {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  #filters-panel .fld {
+    min-height: 43px;
+    padding: 8px 12px;
+  }
+}
+
+/* поля поиска */
+.fld {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #272630;
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  min-height: 48px;
+}
+.fld .ico {
+  width: 24px;
+  height: 24px;
+  fill: var(--color-white);
+}
+#flt-q {
+  flex: 1 1 auto;
+  background: transparent;
+  border: 0;
+  color: var(--color-white);
+  outline: 0;
+  font-size: 16px;
+}
+#flt-q::-webkit-search-cancel-button {
+  -webkit-appearance: none;
+  appearance: none;
+  display: none;
+}
+#flt-q-btn {
+  display: none !important;
+}
+
+/* дропдауны */
+.dd {
+  position: relative;
+  background: #272630;
+  border-radius: 12px;
+  margin-bottom: 12px;
+}
+.dd__btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  background: transparent;
+  border: 0;
+  color: #e8e8ec;
+  cursor: pointer;
+  padding: 12px 14px;
+  min-height: 48px;
+  position: relative;
+  padding-right: 30px;
+  font: 600 16px/1 'IBM Plex Sans';
+}
+.dd__btn .ico {
+  display: none !important;
+}
+.dd__btn::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+.dd.open .dd__btn::after {
+  transform: translateY(-50%) rotate(-135deg);
+}
+
+.dd__list {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% - 1px);
+  z-index: 30;
+  display: none;
+  max-height: 320px;
+  overflow: auto;
+  padding: 8px 0;
+  background: #0d0d0d;
+  border: 1px solid #262626;
+  border-top: 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+.dd.open .dd__list {
+  display: block;
+}
+.dd__list li {
+  list-style: none;
+  padding: 10px 14px;
+  cursor: pointer;
+  color: #e8e8ec;
+  font-size: 16px;
+}
+.dd__list li:hover {
+  background: #383744;
+  border-radius: 10px;
+}
+
+/* mobile layout */
+@media (max-width: 767.98px) {
+  .artists1 .filters__bar {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+  #filters-toggle {
+    order: 3;
+    width: 100%;
+    height: 56px;
+    padding: 0 16px;
+    justify-content: space-between;
+    color: var(--color-white);
+    text-align: center;
+  }
+}
+
+/* tablet layout */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  #filters-panel {
+    width: 304px;
+    margin: 12px 0 0 auto;
+    padding: 12px;
+    border-radius: 12px;
+    background: #0d0d0d;
+    border: 1px solid #262626;
+    box-shadow: none;
+    overflow: visible;
+  }
+  .artists1 #filters-panel .fld {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding: 0;
+    background: #272630;
+    border: 0;
+    border-radius: 12px;
+  }
+  .artists1 #filters-panel .fld .ico {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    width: 24px;
+    height: 24px;
+    pointer-events: none;
+  }
+  #flt-q {
+    width: 100%;
+    height: 47px;
+    padding: 10px 12px 10px 44px;
+    border-radius: 12px;
+    border: 0;
+    background: transparent;
+    font-size: 16px;
+    color: var(--color-white);
+    outline: 0;
+  }
+  #flt-q-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 233px;
+    height: 47px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    border: none;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    color: var(--color-white);
+    gap: 8px;
+    margin-left: auto;
+    cursor: pointer;
+  }
+  #flt-q-btn .ico {
+    width: 24px;
+    height: 24px;
+    fill: currentColor;
+  }
+
+  #filters-toggle {
+    width: 233px;
+    height: 47px;
+    padding: 10px 24px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+      inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--color-white);
+    position: relative;
+  }
+}
+
+/* мини-лоадер в списке жанров */
+.dd__loading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  color: #e8e8ec;
+  font-size: 16px;
+}
+.dd__spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.6);
+  animation: spin 0.8s linear infinite;
+}

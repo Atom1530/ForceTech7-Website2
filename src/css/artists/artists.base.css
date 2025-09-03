@@ -1,0 +1,94 @@
+[hidden] {
+  display: none !important;
+}
+
+.artists1.container {
+  margin-top: 64px;
+}
+@media (min-width: 1440px) {
+  .artists1.container {
+    margin-top: 112px;
+  }
+}
+
+/* Заголовок секции */
+.artists1__head {
+  margin: 0 0 24px;
+}
+.artists1__head .eyebrow {
+  color: var(--color-neutral-300, #9aa0a6);
+  font: 600 16px/1.5 'IBM Plex Sans', system-ui;
+  margin-bottom: 16px;
+}
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  .artists1__head {
+    max-width: 704px;
+    margin: 0 auto 32px;
+  }
+}
+@media (min-width: 1440px) {
+  .artists1__head {
+    max-width: 863px;
+    margin: 0 0 80px;
+  }
+}
+.artists1__head .title {
+  color: var(--color-white);
+  font-family: 'Epilogue', system-ui;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+  font-size: 44px;
+  line-height: 1.2;
+}
+@media (min-width: 1440px) {
+  .artists1__head .title {
+    font-size: 84px;
+    line-height: 1.1;
+  }
+}
+
+/* Общий layout секции */
+.artists1__layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+  margin-top: 0;
+}
+@media (min-width: 1440px) {
+  .artists1__layout {
+    grid-template-columns: 304px 1fr;
+    gap: 32px;
+  }
+}
+
+.artists1 .ico,
+.artists1 .ico use,
+.artists1 .ico path {
+  --color1: var(--color-white);
+  fill: var(--color-white) !important;
+  color: var(--color-white) !important;
+}
+
+/* Лоадер “крутилка” секции */
+.artists1 .loader {
+  width: 64px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  margin: 24px auto;
+  border: 6px solid rgba(255, 255, 255, 0.12);
+  border-right-color: var(--color-affair, #764191);
+  animation: spin 0.8s linear infinite;
+}
+
+/* Состояния/тексты */
+.artists1 .muted {
+  color: var(--color-neutral-300, #b8b9c0);
+}
+
+/* запрет прокрутки фона когда открыта модалка — управляет JS */
+.no-scroll {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}

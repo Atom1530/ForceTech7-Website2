@@ -9,10 +9,9 @@
 @import url('./base.css');
 @import url('./container.css');
 
-
 /* Sections style */
 @import url('./hero.css');
-@import url('./artists.css');
+@import url('./artists/index.css');
 @import url('./header.css');
 @import url('./about.css');
 @import url('./comments.css');
