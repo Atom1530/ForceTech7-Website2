@@ -5,14 +5,14 @@ import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
 import { openZoom } from "./zoom.js";
 
-function getBasePath() {
-  if (location.hostname.endsWith('github.io')) {
-    const parts = location.pathname.split('/').filter(Boolean); // ["repo", ...]
-    return parts.length ? `/${parts[0]}` : '';
-  }
-}
-const BASE   = getBasePath();
-const SPRITE = `${BASE}/img/sprite.svg`;
+// function getBasePath() {
+//   if (location.hostname.endsWith('github.io')) {
+//     const parts = location.pathname.split('/').filter(Boolean); // ["repo", ...]
+//     return parts.length ? `/${parts[0]}` : '';
+//   }
+// }
+// const BASE   = getBasePath();
+// const SPRITE = `${BASE}/img/sprite.svg`;
 
 
 export function initGrid(root = document.querySelector("#artists-section")) {
@@ -160,7 +160,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
         <button class="card__link" data-action="more">
           Learn More
           <svg class="ico" aria-hidden="true">
-            <use href="${SPRITE}#icon-icon_play_artists_sections"></use>
+            <use href="img/sprite.svg#icon-icon_play_artists_sections"></use>
           </svg>
         </button>
       </li>`;
