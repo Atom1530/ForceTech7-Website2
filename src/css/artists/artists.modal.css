@@ -402,3 +402,22 @@ a:focus .am-yt {
   outline: 2px solid rgba(255, 255, 255, 0.6);
   outline-offset: 2px;
 }
+
+/* ... остальной файл без изменений ... */
+
+.amodal__close {
+  position: absolute;
+  top: 20px;
+  right: 34px; /* было ~24px, сдвинул левее на ~10px */
+  border: 0;
+  background: transparent;
+  color: var(--color-white);
+  font-size: 28px;
+  cursor: pointer;
+  z-index: 2;
+}
+.amodal__close::after {
+  content: '';
+  position: absolute;
+  inset: -10px; /* расширенная hit-area */
+}
