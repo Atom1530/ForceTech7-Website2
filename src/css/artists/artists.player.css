@@ -234,3 +234,46 @@
   gap: 10px;
   align-items: center;
 }
+
+/* Кнопка-хват для перетаскивания */
+.am-player__drag {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  z-index: 6; /* выше панели/видео */
+  width: 28px;
+  height: 28px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(0, 0, 0, 0.4);
+  color: #fff;
+  border-radius: 8px;
+  display: grid;
+  place-items: center;
+  cursor: grab;
+  user-select: none;
+}
+.am-player__drag:active {
+  cursor: grabbing;
+}
+@media (hover: hover) {
+  .am-player__drag:hover {
+    background: rgba(0, 0, 0, 0.55);
+  }
+}
+@media (max-width: 480px) {
+  .am-player__drag {
+    top: 8px;
+    left: 8px;
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* перетаскиваем за панель управления */
+.am-player__bar {
+  cursor: grab;
+  touch-action: none;
+}
+.am-player__bar.dragging {
+  cursor: grabbing;
+}

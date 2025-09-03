@@ -1,4 +1,4 @@
-// src/js/artists/features/player.js
+
 // Мини-плеер (singleton). Очередь, next/prev, автопереход, фиксы автоплея.
 
 import { UISound } from "../lib/sound.js";
@@ -80,6 +80,123 @@ export function createMiniPlayer() {
     </div>
   `;
   document.body.appendChild(dock);
+
+// --- Drag handle (кнопка-«хват») ---
+const dragHandle = document.createElement("button");
+dragHandle.type = "button";
+dragHandle.className = "am-player__drag";
+dragHandle.setAttribute("aria-label", "Drag player");
+dragHandle.textContent = "⋮⋮"; // можно заменить на иконку
+dock.querySelector(".am-player__inner").appendChild(dragHandle);
+
+// ——— Перетаскивание ———
+(function enableDrag(el, handle){
+  let dragging = false;
+  let startX = 0, startY = 0;
+  let startLeft = 0, startTop = 0;
+
+  const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+
+  function toPixel(n){ return typeof n === "number" ? n : parseFloat(String(n||0)) || 0; }
+
+  function switchToAbsoluteFromCurrentPosition(){
+    // берём текущие координаты визуального расположения
+    const r = el.getBoundingClientRect();
+    // переводим плеер из режима bottom/left:50%/transform — в явные left/top
+    el.style.left = `${Math.round(r.left)}px`;
+    el.style.top  = `${Math.round(r.top)}px`;
+    el.style.right = "auto";
+    el.style.bottom = "auto";
+    el.style.transform = "translate(0,0)";
+  }
+
+  handle.addEventListener("pointerdown", (e) => {
+    // ЛКМ/палец/перо
+    if (e.pointerType === "mouse" && e.button !== 0) return;
+    dragging = true;
+    handle.setPointerCapture(e.pointerId);
+
+    // если плеер ещё в «центровке» (left:50% + translate),
+    // переведём его в абсолютные координаты, чтобы двигать свободно
+    const st = getComputedStyle(el);
+    const usingTranslateCenter = st.transform && st.transform !== "none" && st.left === "50%";
+    if (usingTranslateCenter) switchToAbsoluteFromCurrentPosition();
+
+    startX = e.clientX;
+    startY = e.clientY;
+
+    // фиксируем стартовые left/top
+    const st2 = getComputedStyle(el);
+    startLeft = toPixel(st2.left);
+    startTop  = toPixel(st2.top);
+
+    // чтобы скролл/даблтап не мешал на мобилках
+    handle.style.touchAction = "none";
+    document.body.style.userSelect = "none";
+  });
+
+  handle.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+
+    // границы внутри вьюпорта
+    const vw = document.documentElement.clientWidth;
+    const vh = document.documentElement.clientHeight;
+    const rect = el.getBoundingClientRect();
+    const w = rect.width;
+    const h = rect.height;
+
+    let nextLeft = startLeft + dx;
+    let nextTop  = startTop + dy;
+
+    nextLeft = clamp(nextLeft, 8, vw - w - 8);
+    nextTop  = clamp(nextTop, 8, vh - h - 8);
+
+    el.style.left = `${Math.round(nextLeft)}px`;
+    el.style.top  = `${Math.round(nextTop)}px`;
+  });
+
+  function endDrag(e){
+    if (!dragging) return;
+    dragging = false;
+    try { handle.releasePointerCapture(e.pointerId); } catch {}
+    handle.style.touchAction = "";
+    document.body.style.userSelect = "";
+    // запомним позицию
+    localStorage.setItem("amplayer_pos", JSON.stringify({
+      left: el.style.left, top: el.style.top
+    }));
+  }
+  handle.addEventListener("pointerup", endDrag);
+  handle.addEventListener("pointercancel", endDrag);
+
+  // двойной клик по «хвату» — вернуть «как было» (по центру снизу)
+  handle.addEventListener("dblclick", () => {
+    el.style.left = "50%";
+    el.style.right = "auto";
+    el.style.bottom = "128px";
+    el.style.top = "auto";
+    el.style.transform = "translate(-50%, 0)";
+    localStorage.removeItem("amplayer_pos");
+  });
+
+  // восстановление позиции при загрузке
+  const saved = localStorage.getItem("amplayer_pos");
+  if (saved) {
+    try {
+      const { left, top } = JSON.parse(saved);
+      if (left && top) {
+        el.style.left = left;
+        el.style.top = top;
+        el.style.right = "auto";
+        el.style.bottom = "auto";
+        el.style.transform = "translate(0,0)";
+      }
+    } catch {}
+  }
+})(dock, dragHandle);
+
 
   // refs
   const host    = dock.querySelector("#am-player-host");
