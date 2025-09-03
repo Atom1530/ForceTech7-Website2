@@ -37,7 +37,7 @@ function detectBasePath() {
 }
 
 const BASE_URL = detectBasePath();
-const SPRITE   = `${BASE_URL}/img/sprite.svg`;
+const SPRITE   = `${BASE_URL}/src/img/sprite.svg`;
 
 // универсальная вставка иконки со страховкой href/xlink:href
 const icon = (id, cls = "ico") =>
