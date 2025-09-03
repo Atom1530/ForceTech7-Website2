@@ -1,12 +1,17 @@
+/* =========================================================
+   Artists — Player
+   Готовый файл artists.player.css
+   ========================================================= */
+
 /* ====== PLAYER (карточка) ====== */
 .am-player {
   position: fixed;
   left: 50%;
   right: auto;
-  bottom: 128px;
+  bottom: 128px; /* запас под стрелку scroll-top */
   width: min(720px, 92vw);
-  z-index: 9999;
-  transform: translate(-50%, 12px);
+  z-index: 9999; /* ниже scroll-top */
+  transform: translate(-50%, 12px); /* мягкое появление снизу */
   opacity: 0;
   pointer-events: none;
   transition: transform 160ms ease, opacity 160ms ease;
@@ -17,21 +22,23 @@
   pointer-events: auto;
 }
 
-/* Свободное позиционирование после drag */
+/* Свободное позиционирование после drag (JS сам снимает transform) */
 .am-player--free {
-  /* transform уже снимаем скриптом */
 }
 
+/* Карточка */
 .am-player__inner {
   background: #111;
   color: #fff;
   border-radius: 14px;
   overflow: hidden;
   box-shadow: 0 16px 42px rgba(0, 0, 0, 0.5);
-  position: relative;
+  position: relative; /* для абсолютных кнопок */
 }
 
-/* Верхняя «кромка» для перетаскивания (поверх видео) */
+/* ====== Drag: верхняя «шапка» + маленький хэндл ====== */
+
+/* Большая зона перетаскивания поверх видео: по всей ширине */
 .am-player__dragzone {
   position: absolute;
   top: 0;
@@ -40,18 +47,18 @@
   height: 44px;
   z-index: 6;
   cursor: grab;
-  touch-action: none;
+  touch-action: none; /* конфликтов с слайдерами нет — тянем за шапку */
   background: transparent;
 }
 .am-player__dragzone.dragging {
   cursor: grabbing;
 }
 
-/* Маленькая кнопка-хват рядом с крестиком */
+/* Маленький хэндл слева от крестика */
 .am-player__drag {
   position: absolute;
   top: 8px;
-  right: 48px; /* слева от крестика */
+  right: 48px; /* слева от close */
   z-index: 7;
   width: 26px;
   height: 26px;
@@ -59,9 +66,13 @@
   border-radius: 7px;
   background: rgba(0, 0, 0, 0.35);
   cursor: grab;
+  touch-action: none;
 }
 .am-player__drag:hover {
   background: rgba(0, 0, 0, 0.55);
+}
+.am-player__drag:active {
+  cursor: grabbing;
 }
 .am-player__drag::before {
   content: '⠿';
@@ -78,7 +89,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  z-index: 7;
+  z-index: 8; /* поверх drag-зоны */
   cursor: pointer;
   border: none;
   background: #764191;
@@ -90,7 +101,7 @@
   text-align: center;
 }
 
-/* Видео */
+/* ====== Видео-кадр ====== */
 .am-player__frame {
   position: relative;
   width: 100%;
@@ -108,7 +119,7 @@
   display: block;
 }
 
-/* Панель */
+/* ====== Нижняя панель ====== */
 .am-player__bar {
   position: absolute;
   left: 8px;
@@ -116,7 +127,7 @@
   bottom: 8px;
   z-index: 5;
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto 1fr auto; /* слева — кнопки, по центру — прогресс, справа — громкость/ссылка */
   gap: 10px;
   align-items: center;
   background: rgba(0, 0, 0, 0.55);
@@ -124,7 +135,8 @@
   padding: 8px 10px;
   border-radius: 10px;
   box-sizing: border-box;
-  cursor: default;
+  cursor: default; /* панель не является «хваталкой» */
+  touch-action: auto !important; /* чтобы в DevTools/тач работали слайдеры */
 }
 
 .am-player__left,
@@ -154,10 +166,11 @@
     sans-serif;
 }
 
-/* Прогресс — центр */
+/* ====== Прогресс ====== */
 .am-player__progresswrap {
   min-width: 0;
 }
+
 .am-player__progress {
   width: clamp(140px, 34vw, 440px);
   max-width: 440px;
@@ -170,6 +183,8 @@
   margin: 0;
   vertical-align: middle;
 }
+
+/* thumb */
 .am-player__progress::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -189,6 +204,7 @@
   border: 0;
   cursor: pointer;
 }
+/* track (Firefox) */
 .am-player__progress::-moz-range-track {
   height: 6px;
   background: rgba(255, 255, 255, 0.35);
@@ -196,10 +212,11 @@
   border-radius: 999px;
 }
 
-/* Правый блок: громкость фикс шириной */
+/* ====== Громкость ====== */
 .am-player__right {
   min-width: 0;
 }
+
 .am-player__right .am-player__slider {
   flex: 0 0 120px;
   width: 120px;
@@ -238,6 +255,7 @@
   border-radius: 999px;
 }
 
+/* Ссылка на YouTube — не расталкивает громкость */
 .am-player__yt {
   color: #fff;
   text-decoration: none;
@@ -256,6 +274,7 @@
   height: 32px;
   padding: 0 10px;
   border-radius: 8px;
+  z-index: 8; /* поверх drag-зоны */
 }
 .am-player__hide:hover,
 .am-player__hide:focus-visible {
@@ -263,7 +282,7 @@
   outline: none;
 }
 
-/* Мобилка: ниже и уже громкость */
+/* ====== Респонсив ====== */
 @media (max-width: 480px) {
   .am-player {
     bottom: 110px;
@@ -274,7 +293,7 @@
   }
 }
 
-/* ====== Свёрнутый режим ====== */
+/* ====== Свёрнутый режим (минимизация) ====== */
 .am-player--min .am-player__inner {
   opacity: 0;
   pointer-events: none;
@@ -282,12 +301,13 @@
   transition: transform 160ms ease, opacity 160ms ease;
 }
 
-/* ====== Пузырь ====== */
+/* ====== Пузырь (кнопка восстановления) ====== */
 .am-player__bubble {
   position: fixed;
-  z-index: 10000; /* ниже кнопки scrolltop в модалке */
   right: 24px;
   bottom: 24px;
+  z-index: 10000; /* ниже scroll-top, но выше всего остального */
+
   width: 64px;
   height: 64px;
   border-radius: 999px;
@@ -301,6 +321,7 @@
   box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35),
     inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 
+  /* «дыхание», параметры меняем из JS под громкость/темп */
   --amp: 1.06;
   --bpmDur: 520ms;
   animation: am-bubble-breathe var(--bpmDur) ease-in-out infinite;
@@ -325,6 +346,7 @@
   animation-delay: calc(var(--bpmDur) / 2);
   opacity: 0.7;
 }
+/* Пауза — останавливаем пульс */
 .am-player__bubble.is-paused {
   animation-play-state: paused;
 }
@@ -333,6 +355,8 @@
   animation-play-state: paused;
   opacity: 0.35;
 }
+
+/* Ключевые кадры пульса */
 @keyframes am-bubble-breathe {
   0%,
   100% {
@@ -363,4 +387,27 @@
     width: 56px;
     height: 56px;
   }
+}
+
+/* ====== Поведенческие фиксы (DevTools/тач) ====== */
+/* Панель — обычные клики/скроллы работают */
+.am-player__bar {
+  touch-action: auto !important;
+  cursor: default;
+}
+/* Перетаскивание — только за верх/хэндл */
+.am-player__drag,
+.am-player__dragzone {
+  touch-action: none;
+  cursor: grab;
+}
+.am-player__drag:active,
+.am-player__dragzone.dragging {
+  cursor: grabbing;
+}
+
+/* Кнопки поверх drag-зоны */
+.am-player__close,
+.am-player__hide {
+  z-index: 8;
 }
