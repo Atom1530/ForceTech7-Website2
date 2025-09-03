@@ -65,7 +65,9 @@ section[id] {
 .header-nav-link.active {
   color: var(--color-affair);
 }
-
+.mobile-menu-nav-link.active {
+  color: var(--color-affair);
+}
 /* ---------- BURGER MENU ---------- */
 .burger-menu-btn {
   background: transparent;

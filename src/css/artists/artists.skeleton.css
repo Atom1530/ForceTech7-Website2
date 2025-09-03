@@ -1,0 +1,50 @@
+/* Fade-in изображений карточек */
+.artists1 .img-fade {
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+.artists1 .img-fade.is-loaded {
+  opacity: 1;
+}
+
+/* Скелетоны карты */
+.artists1 .card--skel .skel {
+  display: block;
+  border-radius: 12px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.12) 37%,
+    rgba(255, 255, 255, 0.06) 63%
+  );
+  background-size: 400% 100%;
+  animation: skel-shine 1.4s ease infinite;
+}
+.artists1 .skel--media {
+  height: 177px;
+  border-radius: 16px;
+}
+.artists1 .skel--tag {
+  width: 72px;
+  height: 32px;
+  border-radius: 6px;
+}
+.artists1 .skel--title {
+  height: 28px;
+  margin: 12px 0 8px;
+}
+.artists1 .skel--text {
+  height: 40px;
+  border-radius: 8px;
+}
+
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  .artists1 .skel--media {
+    height: 432px;
+  }
+}
+@media (min-width: 1440px) {
+  .artists1 .skel--media {
+    height: 393px;
+  }
+}

@@ -1,0 +1,286 @@
+.amodal {
+  position: fixed;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  z-index: 1000;
+}
+.amodal__backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+}
+.amodal__dialog {
+  position: relative;
+  z-index: 1;
+  background: var(--color-neutral-darkest);
+  border-radius: 16px;
+
+  /* стабильные габариты на мобиле — без растяжения */
+  inline-size: min(360px, calc(100vw - 48px));
+  max-block-size: 90vh;
+  overflow: auto;
+  padding: 52px 8px;
+  scrollbar-gutter: stable both-edges;
+  overscroll-behavior: contain;
+}
+@supports (height: 1svh) {
+  .amodal__dialog {
+    max-block-size: 90svh;
+  }
+}
+@media (min-width: 768px) {
+  .amodal__dialog {
+    inline-size: min(702px, calc(100vw - 48px));
+    padding: 64px 24px;
+  }
+}
+@media (min-width: 1440px) {
+  .amodal__dialog {
+    inline-size: min(1312px, calc(100vw - 96px));
+    padding: 64px;
+  }
+}
+.amodal__close {
+  position: absolute;
+  right: 12px;
+  top: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--color-white);
+  font-size: 28px;
+  cursor: pointer;
+}
+
+.amodal__body {
+  color: #e8e8ec;
+}
+.amodal__title {
+  font: 700 20px/1.3 'Epilogue', system-ui;
+  color: var(--color-white);
+  text-align: center;
+  margin: 0 0 16px;
+}
+@media (min-width: 768px) {
+  .amodal__title {
+    font-size: 32px;
+  }
+}
+
+.amodal__content {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+@media (min-width: 1440px) {
+  .amodal__content {
+    flex-direction: row;
+    gap: 32px;
+    align-items: flex-start;
+  }
+}
+.amodal__img {
+  width: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+}
+
+.amodal__info {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* мета */
+.am-meta {
+  display: flex;
+  gap: 16px;
+}
+.am-meta__col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 150px;
+}
+.am-meta__item {
+  display: flex;
+  flex-direction: column;
+}
+.lbl {
+  font-weight: 600;
+  color: var(--color-white);
+  line-height: 1.5;
+}
+.val {
+  color: #e8e8ec;
+}
+
+/* биография */
+.am-bio .lbl {
+  margin-bottom: 8px;
+}
+.am-bio p {
+  margin: 0;
+  color: #e8e8ec;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 10;
+  -webkit-box-orient: vertical;
+  overflow: auto;
+}
+@media (min-width: 768px) {
+  .am-bio p {
+    -webkit-line-clamp: 12;
+    line-clamp: 12;
+  }
+}
+
+/* теги */
+.am-tags {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.am-tags .tag {
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
+  padding: 4px 10px;
+  height: 32px;
+  font-weight: 600;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+/* альбомы и треки */
+.amodal__albums-title {
+  margin: 16px 0;
+  font: 700 24px/1.3 'Epilogue', system-ui;
+}
+.amodal__albums {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+@media (min-width: 768px) {
+  .amodal__albums {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  .amodal__albums .am-album {
+    width: calc((100% - 32px) / 2);
+  }
+}
+@media (min-width: 1440px) {
+  .amodal__albums .am-album {
+    width: calc((100% - 96px) / 4);
+  }
+}
+.am-album {
+  background: #1e1c1f;
+  border-radius: 16px;
+  padding: 14px 11px;
+  display: flex;
+  flex-direction: column;
+  min-width: 250px;
+}
+.am-album__title {
+  font-weight: 600;
+  font-size: 16px;
+  margin: 0 0 12px;
+  color: var(--color-white);
+}
+
+/* таблица треков */
+.tbl {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.tbl .th {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 12px;
+  font-weight: 600;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--color-white);
+}
+.tr {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #e8e8ec;
+}
+.tr:nth-child(2n) {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+}
+
+/* колонки */
+.th span:nth-child(1),
+.tr span:nth-child(1) {
+  flex-basis: 60%;
+}
+.th span:nth-child(2),
+.tr span:nth-child(2) {
+  flex-basis: 20%;
+  text-align: left;
+}
+.th span:nth-child(3),
+.tr span:nth-child(3) {
+  flex-basis: 10%;
+  text-align: right;
+}
+
+/* ютуб-иконка в таблице */
+.am-yt {
+  width: 24px;
+  height: 24px;
+  fill: var(--color-white);
+  display: inline-block;
+  transition: fill 0.2s ease;
+}
+a:hover .am-yt,
+a:focus .am-yt {
+  fill: var(--color-affair);
+}
+.yt-ph {
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+}
+
+#artist-modal .amodal__dialog {
+  padding-right: clamp(20px, 2.2vw, 32px);
+  scrollbar-gutter: stable both-edges;
+}
+
+#artist-modal .amodal__close {
+  position: absolute;
+  top: 24px;
+  right: 28px;
+  z-index: 10;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+}
+#artist-modal .amodal__close::after {
+  content: '';
+  position: absolute;
+  inset: -8px;
+}
+
+@media (max-width: 767.98px) {
+  #artist-modal .amodal__dialog {
+    padding-right: 20px;
+  }
+  #artist-modal .amodal__close {
+    top: 16px;
+    right: 20px;
+  }
+}
