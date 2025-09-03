@@ -20,17 +20,24 @@ const STORAGE_KEY = "myFeedback";
 
 
 // modal
+let scrollY = 0;
 openBtn.addEventListener("click", (e) => {
+  e.preventDefault();
+  scrollY = window.scrollY;
+  document.body.style.top = `-${scrollY}px`;
+  document.body.style.left = "0";
+  document.body.style.rigth = "0";
     overlay.classList.remove("hidden");
   container.classList.add("hidden");
-  document.body.classList.add("no-scroll");
+
   dataFromLocalStorage();
 })
 
 closeBtn.addEventListener("click", (e) => {
     overlay.classList.add("hidden");
   container.classList.remove("hidden");
-  document.body.classList.remove("no-scroll");
+
+
   createStars(document.getElementById("customer-rating", 0));
 });
 

@@ -1,79 +1,41 @@
 <section id="reviews">
   <div class="feedback-section container">
     <h2 class="hidden">Feedbacks our visitors</h2>
-
-    <div class="swiper" aria-label="Visitors feedback slider">
+    <div class="swiper">
       <div class="swiper-wrapper"></div>
-
-      <button class="swiper-button-prev" type="button" aria-label="Previous">
-        <svg class="left-arrow" width="14" height="14">
+      <div class="swiper-button-prev">
+        <svg class="left-arrow" width="14px" height="14px">
           <use href="/img/sprite.svg#icon-icon_right_button_feedback_sec"></use>
-        </svg>
-      </button>
-
-      <button class="swiper-button-next" type="button" aria-label="Next">
-        <svg width="14" height="14">
+      </div>
+      <div class="swiper-button-next">
+        <svg width="14px" height="14px">
           <use href="/img/sprite.svg#icon-icon_right_button_feedback_sec"></use>
-        </svg>
-      </button>
-
-      <div class="swiper-pagination"></div>
+      </div>
+      <div class="swiper-pagination">
+      </div>
     </div>
-
-    <button class="review-btn feedback-btn" type="button">
-      Leave feedback
-    </button>
+    <button class="review-btn feedback-btn" type="button">Leave feedback</button>
   </div>
-
-  <div
-    class="overlay hidden"
-    role="dialog"
-    aria-modal="true"
-    aria-labelledby="feedback-title"
-  >
-    <div class="modal">
-      <svg class="close-icon" width="14" height="14" aria-label="Close">
+  <div class="overlay hidden">
+    <div class="modal ">
+      <svg class="close-icon" width="14px" height="14px">
         <use href="/img/sprite.svg#icon-icon_close"></use>
       </svg>
-
       <form id="feedback-form">
-        <h3 class="title-modal" id="feedback-title">Submit feedback</h3>
-
+        <h3 class="title-modal">Submit feedback</h3>
         <div class="form-name">
-          <label for="fb-name">Name</label>
-          <input
-            id="fb-name"
-            name="name"
-            class="form-input-name"
-            type="text"
-            placeholder="Emily"
-            required
-          />
+          <label>Name</label>
+          <input class="form-input-name" type="text" placeholder="Emily" required />
         </div>
-
         <div class="form-message">
-          <label for="fb-message">Message</label>
-          <textarea
-            id="fb-message"
-            name="message"
-            class="form-input-message"
-            placeholder="Type your message..."
-            required
-          ></textarea>
+          <label>Message</label>
+          <textarea class="form-input-message" type="text" placeholder="Type your message..." required></textarea>
         </div>
-
-        <div
-          id="customer-rating"
-          class="rating my-rating"
-          data-rating="0"
-        ></div>
-
+        <div id="customer-rating" class="rating my-rating" data-rating="0">
+        </div>
         <div class="send-btn-cont">
-          <button class="review-btn send-feedback-btn" type="submit">
-            Submit
-          </button>
+          <button class="review-btn send-feedback-btn" type="submit">Submit</button>
         </div>
       </form>
     </div>
-  </div>
 </section>
