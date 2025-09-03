@@ -356,7 +356,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     sectionRoot.classList.toggle("view-list", listOn);
     sectionRoot.classList.toggle("view-grid", !listOn);
     viewToggle.setAttribute("aria-pressed", String(listOn));
-    viewToggle.textContent = listOn ? "Grid view" : "List view";
+    viewToggle.textContent = listOn ? "Default view" : "List view";
   });
 
   // ---------- модалка и зум ----------

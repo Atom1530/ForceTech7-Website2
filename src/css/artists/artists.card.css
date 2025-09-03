@@ -38,7 +38,7 @@
   color: var(--color-white);
   font: 400 18px/1.5 'IBM Plex Sans';
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+
   -webkit-box-orient: vertical;
   overflow: hidden;
   margin-bottom: 24px;

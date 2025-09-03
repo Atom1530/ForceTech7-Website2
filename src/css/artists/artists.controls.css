@@ -202,7 +202,7 @@
   white-space: nowrap;
 }
 .artists1 .filters__view::after {
-  content: 'Grid view'; /* самая длинная подпись */
+  content: 'default view';
   visibility: hidden;
   display: inline-block;
   white-space: nowrap;
