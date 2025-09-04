@@ -2,9 +2,13 @@
   display: none !important;
 }
 
-.artists1.container {
-  margin-top: 64px;
+@media (min-width: 320px) and (max-width: 767.98px) {
+  .artists1.container {
+    max-width: 320px;
+    padding: 64px 16px;
+  }
 }
+
 @media (min-width: 1440px) {
   .artists1.container {
     margin-top: 112px;

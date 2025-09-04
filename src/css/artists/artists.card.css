@@ -1,31 +1,36 @@
+/* =========================
+   DEFAULT VIEW (база + фикс мобильной фотки)
+   ========================= */
+
 .artists1 .card {
   color: #e8e8ec;
   max-width: 100%;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   will-change: transform;
 }
+
 .artists1 .card__media img {
   width: 100%;
+  height: 177px;
   display: block;
   border-radius: 16px;
   object-fit: cover;
-  height: 177px;
   object-position: center top;
 }
 
 .artists1 .card__tags {
   display: flex;
-  gap: 16px;
-  margin: 16px 0;
   flex-wrap: wrap;
+  gap: 16px;
 }
+
 .artists1 .tag {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  padding: 4px 10px;
-  height: 32px;
   display: inline-flex;
   align-items: center;
+  height: 32px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
   font: 600 16px/1 'IBM Plex Sans';
 }
 
@@ -34,37 +39,52 @@
   font: 700 32px/1.3 'Epilogue', system-ui;
   letter-spacing: -0.01em;
 }
+
 .artists1 .card__text {
   color: var(--color-white);
   font: 400 18px/1.5 'IBM Plex Sans';
   display: -webkit-box;
-
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: 0; /* не суммируемся с верхним отступом у кнопки */
 }
 
+/* Кнопка Learn More — базовый вариант (Default View) */
 .artists1 .card__link {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  border-radius: 12px;
+
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  background: none;
-  border: 0;
-  color: var(--color-white);
+
+  width: 125px;
+  height: 27px;
+  padding: 0;
+  white-space: nowrap;
+
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #fff;
+
   cursor: pointer;
-  font: 500 18px/1.5 'IBM Plex Sans';
-  margin-top: 0;
-  border-radius: 12px;
 }
+
 .artists1 .card__link .ico {
   width: 24px;
   height: 24px;
-  fill: var(--color-white);
-  margin-left: 6px;
+  flex-shrink: 0;
+  fill: currentColor;
   transition: transform 0.2s ease, fill 0.2s ease;
 }
 
-/* hover-elevation и лёгкий сдвиг стрелки */
+/* hover */
 @media (hover: hover) {
   .artists1 .card:hover {
     transform: translateY(-5px);
@@ -77,15 +97,13 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .artists1 .card {
-    transition: none;
-  }
+  .artists1 .card,
   .artists1 .card__link .ico {
     transition: none;
   }
 }
 
-/* высоты медиа по брейкпоинтам */
+/* Высоты медиа по брейкпоинтам */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   .artists1 .grid .card__media img {
     height: 432px;
@@ -97,27 +115,57 @@
   }
 }
 
-/* ====== Artists grid spacing ====== */
-
-#artists-section #artists-grid {
-  --cards-gap-x: var(--space-32, 32px);
-  --cards-gap-y: var(--space-32, 32px);
-  gap: var(--cards-gap-y) var(--cards-gap-x);
+/* Внутренний ритм Default:
+   [media] →24→ [tags] →16→ [title] →8→ [text] →24→ [button] */
+.artists1 .card__media + .card__tags {
+  margin-top: 24px;
+}
+.artists1 .card__tags + .card__title {
+  margin-top: 16px;
+}
+.artists1 .card__title + .card__text {
+  margin-top: 8px;
 }
 
-/* tablet */
-@media (max-width: 1439.98px) and (min-width: 768px) {
-  #artists-section #artists-grid {
-    --cards-gap-x: var(--space-32, 32px);
-    --cards-gap-y: var(--space-32, 32px);
+/* Вернули 24px над кнопкой */
+.artists1:not(.view-list) #artists-grid .card__text + .card__link,
+.artists1:not(.view-list) #artists-grid .card__title + .card__link {
+  margin-top: 24px !important;
+}
+
+/* Грид/центровка карточек */
+.artists1 .grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 64px;
+  justify-content: center;
+}
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  .artists1 .grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .artists1 .grid .card {
+    max-width: 704px;
+    margin: 0 auto;
+  }
+}
+@media (min-width: 1440px) {
+  .artists1 .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
   }
 }
 
-/* mobile: вертикально 64px */
+/* MOBILE Default View: ширина карточки = 288px, фото 288×177 */
 @media (max-width: 767.98px) {
-  #artists-section #artists-grid {
-    --cards-gap-x: var(--space-32, 32px);
-    --cards-gap-y: var(--space-64, 64px);
+  .artists1:not(.view-list) .grid .card {
+    max-width: 288px;
+    margin: 0 auto;
+  }
+  .artists1:not(.view-list) .card__media img {
+    height: 177px;
+    border-radius: 16px;
   }
 }
 
@@ -128,493 +176,66 @@
   margin-top: 0;
 }
 
-/* По умолчанию мини-бейдж не видим, чтобы не дублировать жанры на десктопе/таблете */
-.card__title .tag--mini {
-  display: none;
+/* =========================
+   LIST VIEW — по референсу
+   ========================= */
+
+/* Контейнер сетки */
+.artists1.view-list .grid {
+  grid-template-columns: 1fr;
+  gap: 24px;
 }
 
-/* Мобилка в ListView: показываем 1 жанр прямо в заголовке, а список тегов остаётся скрытым */
-@media (max-width: 767.98px) {
-  .artists1.view-list #artists-grid .card__title .tag--mini {
-    display: inline-flex;
-    margin-left: 8px;
-    height: 20px;
-    padding: 2px 6px;
-    font-size: 10px;
-    line-height: 1;
-    border-radius: 6px;
-    opacity: 0.9;
-    vertical-align: middle;
-  }
-  /* Жанровую «полосу» в мобильном ListView по-прежнему прячем, чтобы держать 72px */
-  .artists1.view-list #artists-grid .card__tags {
-    display: none !important;
-  }
+/* Карточка (десктоп/планшет) */
+.artists1.view-list .grid .card {
+  display: grid;
+  grid-template-columns: 208px 1fr auto; /* превью | текст | кнопка */
+  grid-template-areas:
+    'media title  action'
+    'media tags   action';
+  align-items: center; /* кнопка по центру по вертикали */
+  column-gap: 16px;
+  row-gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  max-width: 976px;
+  margin: 0 auto;
 }
 
-/* === ListView tags: показываем все, в одну строку, без роста высоты === */
-
-/* 0) Базовая "шапка" для случаев List View */
-.artists1.view-list #artists-grid .card__head {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  min-width: 0; /* чтобы работали обрезки */
+/* Превью: десктоп/планшет */
+.artists1.view-list .card__media {
+  grid-area: media;
 }
-
-/* Заголовок не ломает строку */
-.artists1.view-list #artists-grid .card__title {
-  margin: 0;
-  font-weight: 700;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Полоса жанров — одна строка, скроем излишки */
-.artists1.view-list #artists-grid .card__tags {
-  display: inline-flex !important;
-  gap: 6px !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  mask-image: linear-gradient(
-    to right,
-    black 85%,
-    transparent
-  ); /* мягкий срез края */
-}
-
-/* Чипы жанров компактные */
-.artists1.view-list #artists-grid .card__tags .tag {
-  display: inline-flex !important;
-  align-items: center;
-  height: 22px;
-  padding: 2px 6px;
-  font-size: 10px;
-  line-height: 1;
-  border-radius: 6px;
-  opacity: 0.9;
-}
-
-/* Снимаем старое ограничение "только первый жанр" (если где-то было) */
-.artists1.view-list #artists-grid .card__tags .tag:not(:first-child) {
-  display: inline-flex !important;
-}
-
-/* 1) Мобилка: укладываем [thumb][(title+tags в одну строку)][button], текст скрыт */
-@media (max-width: 767.98px) {
-  .artists1.view-list #artists-grid .card {
-    display: grid !important;
-    grid-template-columns: 64px 1fr auto !important;
-    align-items: center !important;
-    column-gap: 12px !important;
-    row-gap: 0 !important;
-    padding: 8px 10px !important;
-    min-height: 72px !important;
-    border-radius: 12px !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-  }
-  .artists1.view-list #artists-grid .card__media {
-    width: 64px !important;
-    height: 64px !important;
-    border-radius: 10px !important;
-    overflow: hidden !important;
-  }
-  .artists1.view-list #artists-grid .card__media img {
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: cover !important;
-    display: block !important;
-  }
-
-  /* "Шапка" (title+tags) занимает центральную колонку, одной строкой */
-  .artists1.view-list #artists-grid .card__head {
-    grid-column: 2 !important;
-    grid-row: 1 !important;
-    min-width: 0;
-  }
-
-  /* Кнопка справа */
-  .artists1.view-list #artists-grid .card__link {
-    grid-column: 3 !important;
-    grid-row: 1 !important;
-    justify-self: end !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 6px 8px !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    background: transparent !important;
-    font-size: 12px !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-  }
-  .artists1.view-list #artists-grid .card__link .ico {
-    width: 16px !important;
-    height: 16px !important;
-    display: block !important;
-  }
-
-  /* Прячем длинный текст — он не помещается в 72px */
-  .artists1.view-list #artists-grid .card__text {
-    display: none !important;
-  }
-}
-
-/* 2) Планшет/Десктоп List View: показываем все жанры, в ряд, без переносов */
-@media (min-width: 768px) {
-  .artists1.view-list #artists-grid .card__tags {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip;
-  }
-}
-
-/* === ListView: жанры ПОД названием, без увеличения карточки === */
-
-/* Снимаем любые старые ограничения вида ":not(:first-child){display:none}" */
-.artists1.view-list #artists-grid .card__tags .tag {
-  display: inline-flex !important;
-}
-
-/* Полоса жанров — одна строка с обрезкой по ширине */
-.artists1.view-list #artists-grid .card__tags {
-  display: inline-flex !important;
-  gap: 6px !important;
-  white-space: nowrap !important;
-  overflow: hidden !important;
-  text-overflow: clip !important;
-  mask-image: linear-gradient(
-    to right,
-    black 88%,
-    transparent
-  ); /* мягкий fade справа */
-}
-
-/* Компактные чипы */
-.artists1.view-list #artists-grid .card__tags .tag {
-  align-items: center;
-  height: 22px;
-  padding: 2px 6px;
-  font-size: 10px;
-  line-height: 1;
-  border-radius: 6px;
-  opacity: 0.9;
-}
-
-/* ===== Мобилка: двухрядная центральная колонка (title -> tags) при той же высоте ===== */
-@media (max-width: 767.98px) {
-  .artists1.view-list #artists-grid .card {
-    display: grid !important;
-    grid-template-columns: 64px 1fr auto !important;
-    grid-template-rows: auto auto !important;
-    grid-template-areas:
-      'media title  action'
-      'media tags   action' !important;
-    column-gap: 12px !important;
-    row-gap: 2px !important;
-    padding: 8px 10px !important;
-    min-height: 72px !important;
-    border-radius: 12px !important;
-    background: rgba(255, 255, 255, 0.04) !important;
-  }
-  .artists1.view-list #artists-grid .card__media {
-    grid-area: media;
-    width: 64px;
-    height: 64px;
-    border-radius: 10px;
-    overflow: hidden;
-  }
-  .artists1.view-list #artists-grid .card__media img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-  }
-
-  .artists1.view-list #artists-grid .card__title {
-    grid-area: title;
-    margin: 0;
-    font-size: 16px;
-    line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-  .artists1.view-list #artists-grid .card__tags {
-    grid-area: tags;
-  }
-
-  /* Кнопка справа в обоих рядах (по вертикали центр) */
-  .artists1.view-list #artists-grid .card__link {
-    grid-area: action;
-    justify-self: end !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 6px 8px !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    background: transparent !important;
-    font-size: 12px !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-  }
-  .artists1.view-list #artists-grid .card__link .ico {
-    width: 16px !important;
-    height: 16px !important;
-  }
-
-  /* Текст убираем, чтобы сохранить высоту */
-  .artists1.view-list #artists-grid .card__text {
-    display: none !important;
-  }
-}
-
-/* ===== Планшет/Десктоп: оставляем твою прежнюю сетку (title -> tags -> text) ===== */
-/* Важно только показать все жанры и держать их в одну строку под названием */
-@media (min-width: 768px) {
-  .artists1.view-list #artists-grid .card__tags {
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-  }
-}
-
-/* === Mobile ListView hard clamp: genres in exactly ONE line, no 3rd row === */
-@media (max-width: 767.98px) {
-  .artists1.view-list #artists-grid .card {
-    /* две строки сетки: title (auto) + tags (ровно 22px) */
-    grid-template-rows: auto 22px !important;
-    /* симметричные отступы */
-    padding: 10px 10px !important;
-    min-height: 72px !important;
-  }
-
-  /* Теги — строго в одну строку, без переносов; лишнее аккуратно прячем */
-  .artists1.view-list #artists-grid .card__tags {
-    display: flex !important;
-    align-items: center !important;
-    flex-wrap: nowrap !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    min-height: 22px !important;
-    max-height: 22px !important;
-    /* мягкий «фейд» справа, как у текста */
-    mask-image: linear-gradient(to right, black 88%, transparent) !important;
-    -webkit-mask-image: linear-gradient(
-      to right,
-      black 88%,
-      transparent
-    ) !important;
-  }
-  .artists1.view-list #artists-grid .card__tags .tag {
-    /* чипы не сжимаем и не даём им переноситься */
-    flex: 0 0 auto !important;
-    line-height: 1 !important;
-    height: 22px !important;
-    padding: 2px 6px !important;
-    font-size: 10px !important;
-  }
-
-  /* Название — как и было: одна строка + обрезка */
-  .artists1.view-list #artists-grid .card__title {
-    margin: 0 !important;
-    font-size: 16px !important;
-    line-height: 1.25 !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: ellipsis !important;
-  }
-
-  /* Кнопка — точно по центру по вертикали справа */
-  .artists1.view-list #artists-grid .card__link {
-    grid-area: action;
-    justify-self: end !important;
-    align-self: center !important; /* <— ключ к центровке */
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    padding: 6px 8px !important;
-    border-radius: 8px !important;
-    border: 1px solid rgba(255, 255, 255, 0.15) !important;
-    background: transparent !important;
-    font-size: 12px !important;
-    line-height: 1 !important;
-    white-space: nowrap !important;
-  }
-  .artists1.view-list #artists-grid .card__link .ico {
-    width: 16px !important;
-    height: 16px !important;
-  }
-
-  /* Текст скрываем, чтобы удержать высоту = 72px */
-  .artists1.view-list #artists-grid .card__text {
-    display: none !important;
-  }
-}
-
-/* === Tablet/Desktop ListView: жанры под названием, в одну строку, обрезка справа === */
-@media (min-width: 768px) {
-  .artists1.view-list #artists-grid .card__tags {
-    display: inline-flex !important;
-    gap: 6px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    mask-image: linear-gradient(to right, black 92%, transparent);
-    -webkit-mask-image: linear-gradient(to right, black 92%, transparent);
-  }
-  .artists1.view-list #artists-grid .card__tags .tag {
-    flex: 0 0 auto !important;
-    line-height: 1 !important;
-    height: 22px !important;
-    padding: 2px 6px !important;
-    font-size: 10px !important;
-  }
-}
-
-/* ===== LIST VIEW — SURGICAL FIX PACK (без изменения структуры) ===== */
-
-/* 1) Mobile: Learn More строго по центру справа; симметрия по вертикали */
-@media (max-width: 767.98px) {
-  .artists1.view-list #artists-grid .card {
-    /* Ничего не меняем в колонках/строках — только выравнивание */
-    align-items: center !important; /* центр всего контента по вертикали */
-    padding-top: 10px !important;
-    padding-bottom: 10px !important; /* симметрия отступов */
-  }
-  .artists1.view-list #artists-grid .card__link {
-    /* Ровно по центру в правой колонке */
-    grid-row: 1 / span 2 !important;
-    justify-self: end !important;
-    align-self: center !important;
-    display: inline-flex !important;
-  }
-}
-
-/* 2) Tablet/Desktop: делаем “Название → Жанры” как на мобилке по ощущениям */
-/*    — аккуратные отступы, жанры под названием в одну строку с обрезкой */
-@media (min-width: 768px) {
-  .artists1.view-list #artists-grid .card {
-    /* Без смены сетки: только воздух и аккуратность */
-    padding-top: 12px; /* немного выше, как на мобилке */
-    padding-bottom: 12px;
-    row-gap: 6px; /* плотнее связка title ↔ tags */
-  }
-
-  /* Название — без лишних отступов и строго “от фото вправо” */
-  .artists1.view-list #artists-grid .card__title {
-    margin: 0 !important;
-    line-height: 1.25;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    justify-self: start; /* фикс смещения: привязка к началу колонки */
-  }
-
-  /* Жанры — под названием, одна строка, без “скачков”, с мягкой обрезкой справа */
-  .artists1.view-list #artists-grid .card__tags {
-    margin: 0 !important;
-    display: inline-flex !important;
-    align-items: center !important;
-    gap: 6px !important;
-    white-space: nowrap !important;
-    overflow: hidden !important;
-    text-overflow: clip !important;
-    min-height: 22px !important;
-    max-height: 22px !important;
-    mask-image: linear-gradient(to right, black 92%, transparent);
-    -webkit-mask-image: linear-gradient(to right, black 92%, transparent);
-    justify-self: start; /* фикс смещения: начало колонки, как у тайтла */
-  }
-  .artists1.view-list #artists-grid .card__tags .tag {
-    flex: 0 0 auto !important;
-    height: 22px !important;
-    padding: 2px 6px !important;
-    font-size: 10px !important;
-    line-height: 1 !important;
-    border-radius: 6px !important;
-    opacity: 0.9 !important;
-  }
-
-  /* Кнопка Learn More — оставить как было (по центру справа), просто закрепим явно */
-  .artists1.view-list #artists-grid .card__link {
-    justify-self: end;
-    align-self: center; /* центр по вертикали колонки action */
-  }
-}
-
-/* 3) Универсальные мелкие выравнивания (без влияния на размеры/схему) */
-.artists1.view-list #artists-grid .card__title,
-.artists1.view-list #artists-grid .card__tags {
-  /* Страховка на случай чужих правил выравнивания */
-  justify-self: start;
-}
-.artists1.view-list #artists-grid .card__text {
-  /* Ничего не меняем умышленно: на планшете/десктопе пусть остаётся как у тебя */
-  /* здесь можно оставить пусто — фиксы выше не касаются текста */
-}
-
-/* ===================== LIST/DEFAULT VIEW ALIGNMENT — FIX PACK v3 ===================== */
-
-/* A) DEFAULT VIEW — вернуть комфортные отступы и вертикальный ритм */
-.artists1:not(.view-list) #artists-grid .card__title {
-  margin: 12px 0 8px; /* чуть опускаем title вниз от фото */
-  line-height: 1.25;
-}
-.artists1:not(.view-list) #artists-grid .card__tags {
-  margin: 0 0 16px; /* жанры под title, затем текст */
-}
-.artists1:not(.view-list) #artists-grid .card__text {
-  margin-bottom: 24px; /* как было в базе */
-}
-
-/* B) LIST VIEW — жёстко фиксируем колонки: [64px media] [text] [button] */
-.artists1.view-list #artists-grid .card {
-  /* Мы НЕ меняем вашу сетку в целом — лишь страхуем ключевые зоны */
-  grid-template-columns: 64px 1fr auto !important;
-  align-items: center;
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
-
-/* Раскладка областей */
-.artists1.view-list #artists-grid .card__media {
-  grid-column: 1;
-  grid-row: 1 / span 2;
-  width: 64px;
-  height: 64px;
-  border-radius: 10px;
-  overflow: hidden;
-}
-.artists1.view-list #artists-grid .card__media img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.artists1.view-list .card__media img {
   display: block;
+  width: 208px;
+  height: 117px;
+  object-fit: cover;
+  border-radius: 12px;
 }
 
-/* Текст всегда “от фото вправо”: title сверху, жанры под ним */
-.artists1.view-list #artists-grid .card__title {
-  grid-column: 2;
-  grid-row: 1;
-  margin: 0;
-  font-size: 16px;
+/* Заголовок */
+.artists1.view-list .card__title {
+  grid-area: title;
+  margin: 0 0 2px;
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 18px;
   line-height: 1.25;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  justify-self: start;
 }
-.artists1.view-list #artists-grid .card__tags {
-  grid-column: 2;
-  grid-row: 2;
+
+/* Жанры — показываем ВСЕ, в одну строку, с мягкой обрезкой справа */
+.artists1.view-list .card__tags {
+  grid-area: tags;
   margin: 0;
   display: inline-flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: nowrap;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: clip;
@@ -623,94 +244,163 @@
   mask-image: linear-gradient(to right, black 92%, transparent);
   -webkit-mask-image: linear-gradient(to right, black 92%, transparent);
 }
-.artists1.view-list #artists-grid .card__tags .tag {
-  flex: 0 0 auto;
+/* снимаем возможный запрет на >1 тег из старых правил */
+.artists1.view-list .card__tags .tag {
+  display: inline-flex !important;
+  align-items: center;
   height: 22px;
   padding: 2px 6px;
   font-size: 10px;
   line-height: 1;
   border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
   opacity: 0.9;
 }
 
-/* Learn More — всегда по центру справа (и на мобилке, и на десктопе) */
-.artists1.view-list #artists-grid .card__link {
-  grid-column: 3;
-  grid-row: 1 / span 2;
+/* Текст в ListView не показываем */
+.artists1.view-list .card__text {
+  display: none !important;
+}
+
+/* Кнопка Learn More — как в рефе (12px + иконка 16×16), центр по вертикали */
+.artists1.view-list .card__link {
+  grid-area: action;
   justify-self: end;
   align-self: center;
   display: inline-flex;
   align-items: center;
   gap: 6px;
   padding: 6px 8px;
-  border-radius: 8px;
   border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
   background: transparent;
   font-size: 12px;
   line-height: 1;
+  color: var(--color-white);
   white-space: nowrap;
+  cursor: pointer;
 }
-.artists1.view-list #artists-grid .card__link .ico {
+.artists1.view-list .card__link .ico {
   width: 16px;
   height: 16px;
+  flex-shrink: 0;
+  fill: currentColor;
+  transition: transform 0.2s ease, fill 0.2s ease;
 }
 
-/* C) Мобилка: держим высоту, не даём “третьей строке” жанров */
+/* -------------------------
+   Мобильная версия (<768px)
+   — слева 64×64 превью, справа:
+     строка 1 — title, строка 2 — жанры
+   ------------------------- */
 @media (max-width: 767.98px) {
-  .artists1.view-list #artists-grid .card {
-    grid-template-rows: auto 22px; /* шапка + строка жанров */
-    min-height: 72px;
+  .artists1.view-list .grid {
+    gap: 24px; /* как в рефе для list */
+  }
+
+  .artists1.view-list .grid .card {
+    grid-template-columns: 64px 1fr auto; /* превью | текст | кнопка */
+    grid-template-areas:
+      'media title  action'
+      'media tags   action';
     column-gap: 12px;
+    row-gap: 2px;
+    padding: 8px 10px;
+    min-height: 72px;
+  }
+
+  .artists1.view-list .card__media {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .artists1.view-list .card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .artists1.view-list .card__title {
+    font-size: 16px;
+    line-height: 1.25;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* жанры — во второй строке, одной линией, без переносов */
+  .artists1.view-list .card__tags {
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    min-height: 22px;
+    max-height: 22px;
+    mask-image: linear-gradient(to right, black 88%, transparent);
+    -webkit-mask-image: linear-gradient(to right, black 88%, transparent);
+  }
+
+  /* кнопка — по центру по вертикали справа */
+  .artists1.view-list .card__link {
+    justify-self: end;
+    align-self: center;
   }
 }
-/* ===== DEFAULT VIEW — вернуть эталонные отступы/размеры из REF ===== */
-.artists1:not(.view-list) #artists-grid .card {
-  display: block !important;
-  padding: 0 !important;
-  background: transparent !important;
-}
 
-.artists1:not(.view-list) #artists-grid .card__tags {
-  display: flex !important;
-  gap: 16px !important;
-  margin: 16px 0 !important; /* как в REF */
-  flex-wrap: wrap !important;
-}
-
-.artists1:not(.view-list) #artists-grid .card__title {
-  margin: 0 !important; /* в REF у title без margin */
-  color: var(--color-white);
-  font: 700 32px/1.3 'Epilogue', system-ui;
-  letter-spacing: -0.01em;
-}
-
-.artists1:not(.view-list) #artists-grid .card__text {
-  margin: 0 0 24px !important; /* как в REF */
-  color: var(--color-white);
-  font: 400 18px/1.5 'IBM Plex Sans';
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-
-.artists1:not(.view-list) #artists-grid .tag {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  padding: 4px 10px;
-  height: 32px;
-  display: inline-flex;
-  align-items: center;
-  font: 600 16px/1 'IBM Plex Sans';
-}
-
-/* высоты медиа (дублируем REF для страховки от более «сильных» правил) */
-@media (min-width: 768px) and (max-width: 1439.98px) {
-  .artists1:not(.view-list) .grid .card__media img {
-    height: 432px !important;
-  }
-}
+/* -------------------------
+   Широкие (≥1440px) — как в рефе
+   ------------------------- */
 @media (min-width: 1440px) {
-  .artists1:not(.view-list) .grid .card__media img {
-    height: 393px !important;
+  .artists1.view-list .grid .card {
+    min-height: 84px;
+    padding: 10px 12px;
+  }
+  .artists1.view-list .card__title {
+    font-size: 18px;
+  }
+}
+
+/* === ListView • Mobile: кнопка Learn More = только иконка 24×24 === */
+@media (max-width: 767.98px) {
+  /* охватываем оба встречающихся селектора: с .grid и с #artists-grid */
+  .artists1.view-list .grid .card__link,
+  .artists1.view-list #artists-grid .card__link {
+    /* позиционирование — как было: справа и по центру по вертикали */
+    justify-self: end !important;
+    align-self: center !important;
+
+    /* сжимаем кнопку до ровно 24×24 и убираем всё лишнее */
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 6px !important; /* чуть скруглим, можно 0 если нужно */
+
+    /* скрываем текст, но оставляем SVG */
+    font-size: 0 !important;
+    line-height: 0 !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+
+    /* сетка для идеального центрирования иконки */
+    display: grid !important;
+    place-items: center !important;
+
+    /* на всякий случай: курсор и фон как раньше */
+    background: transparent !important;
+    color: var(--color-white, #fff) !important;
+    cursor: pointer !important;
+  }
+
+  /* иконка — ровно 24×24 и без отступов слева */
+  .artists1.view-list .grid .card__link .ico,
+  .artists1.view-list #artists-grid .card__link .ico {
+    width: 24px !important;
+    height: 24px !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
   }
 }
