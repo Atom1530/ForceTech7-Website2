@@ -1,72 +1,166 @@
+// src/js/artists/features/state.js
 
-// Единое хранилище состояния секции Artists + подписки.
+const STORAGE_KEY = "artistsStateV2";
 
-
-
-const _state = {
+const initial = {
   page: 1,
-  limit: 8,
-  total: 0,
-  sort: "",
+  limit: 8,            // базовый лимит для Default
   genre: "",
+  sort: "",
   q: "",
   isMobilePanelOpen: false,
 };
 
+// Текущее состояние
+let state = { ...initial };
+
+// Флаг и слушатели
+let storageLoaded = false;
 const listeners = new Set();
-function snapshot() { return { ..._state }; }
-function notify() {
-  const s = snapshot();
-  listeners.forEach(fn => { try { fn(s); } catch {} });
+
+/* ---------------- storage helpers ---------------- */
+function canUseStorage() {
+  try {
+    const k = "__probe__";
+    localStorage.setItem(k, "1");
+    localStorage.removeItem(k);
+    return true;
+  } catch {
+    return false;
+  }
 }
 
+function loadFromStorage() {
+  if (storageLoaded) return;
+  storageLoaded = true;
+  if (!canUseStorage()) return;
+
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const obj = JSON.parse(raw);
+    state = {
+      page: Math.max(1, Number(obj?.page) || initial.page),
+      limit: Math.max(1, Number(obj?.limit) || initial.limit),
+      genre: String(obj?.genre ?? initial.genre),
+      sort: String(obj?.sort ?? initial.sort),
+      q: String(obj?.q ?? initial.q),
+      isMobilePanelOpen: !!obj?.isMobilePanelOpen,
+    };
+  } catch {
+    // игнор
+  }
+}
+
+function saveToStorage() {
+  if (!storageLoaded || !canUseStorage()) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // квота/приватный режим — молча
+  }
+}
+
+/* ---------------- pub/sub ---------------- */
+function notify() {
+  const snap = { ...state };
+  for (const fn of listeners) {
+    try { fn(snap); } catch {}
+  }
+}
+
+/** Подписка на изменения состояния. Возвращает функцию отписки. */
 export function subscribe(fn) {
   if (typeof fn !== "function") return () => {};
   listeners.add(fn);
   return () => listeners.delete(fn);
 }
 
-export function getState() { return snapshot(); }
-
-/** Пакетное обновление: setState({ page, genre, ... })
- *  Если меняем genre/sort/q — страница сбрасывается на 1 
- */
-export function setState(patch = {}) {
-  const resetPage = ("genre" in patch) || ("sort" in patch) || ("q" in patch);
-  const next = { ..._state, ...patch };
-  if (resetPage && !("page" in patch)) next.page = 1;
-
-  // клампы
-  next.page  = Math.max(1, Number(next.page)  || 1);
-  next.limit = Math.max(1, Number(next.limit) || 8);
-  next.total = Math.max(0, Number(next.total) || 0);
-
-  let changed = false;
-  for (const k of Object.keys(next)) {
-    if (_state[k] !== next[k]) { _state[k] = next[k]; changed = true; }
-  }
-  if (changed) notify();
-  return snapshot();
+/** Явная отписка (альтернатива функции, возвращаемой subscribe) */
+export function unsubscribe(fn) {
+  listeners.delete(fn);
 }
 
-export function resetFilters() {
-  return setState({ page: 1, sort: "", genre: "", q: "" });
-}
+// на всякий случай алиас, если где-то импортируется другое имя
+export const onChange = subscribe;
 
-/* ===== Совместимость с прежним интерфейсом ===== */
-export const ArtistState = {
-  get() { return snapshot(); },
-
-  setPage(p)  { setState({ page: Math.max(1, Number(p) || 1) }); },
-  setLimit(n) { setState({ limit: Math.max(1, Number(n) || 8) }); },
-
-  setSort(v)  { setState({ sort: v || "" }); },
-  setGenre(v) { setState({ genre: v || "" }); },
-  setQuery(v) { setState({ q: (v || "").trim() }); },
-
-  setTotal(n) { setState({ total: Math.max(0, Number(n) || 0) }); },
-
-  setMobilePanel(open) { setState({ isMobilePanelOpen: !!open }); },
-
-  reset() { resetFilters(); },
+/* ---------------- современный API ---------------- */
+const ArtistState = {
+  get() {
+    loadFromStorage();
+    return { ...state };
+  },
+  setPage(p) {
+    loadFromStorage();
+    state.page = Math.max(1, Number(p) || 1);
+    saveToStorage(); notify();
+  },
+  setLimit(n) {
+    loadFromStorage();
+    state.limit = Math.max(1, Number(n) || initial.limit);
+    saveToStorage(); notify();
+  },
+  setGenre(v) {
+    loadFromStorage();
+    state.genre = v || "";
+    saveToStorage(); notify();
+  },
+  setSort(v) {
+    loadFromStorage();
+    state.sort = v || "";
+    saveToStorage(); notify();
+  },
+  setQuery(v) {
+    loadFromStorage();
+    state.q = v || "";
+    saveToStorage(); notify();
+  },
+  setMobilePanel(on) {
+    loadFromStorage();
+    state.isMobilePanelOpen = !!on;
+    saveToStorage(); notify();
+  },
+  reset() {
+    loadFromStorage();
+    state = { ...initial };
+    saveToStorage(); notify();
+  },
 };
+
+export { ArtistState };
+export default ArtistState;
+
+/* ---------------- back-compat экспорт ---------------- */
+// Старые импорты могли использовать эти функции.
+export const getState = () => ArtistState.get();
+
+export const setState = (patch = {}) => {
+  loadFromStorage();
+  const next = { ...state };
+
+  if ("page" in patch)  next.page  = Math.max(1, Number(patch.page)  || 1);
+  if ("limit" in patch) next.limit = Math.max(1, Number(patch.limit) || initial.limit);
+  if ("genre" in patch) next.genre = String(patch.genre || "");
+  if ("sort" in patch)  next.sort  = String(patch.sort  || "");
+  if ("q" in patch)     next.q     = String(patch.q     || "");
+  if ("isMobilePanelOpen" in patch) next.isMobilePanelOpen = !!patch.isMobilePanelOpen;
+
+  state = next;
+  saveToStorage(); notify();
+  return ArtistState.get();
+};
+
+export const resetState = () => { ArtistState.reset(); return ArtistState.get(); };
+
+// Пробрасываем поименованные сеттеры, если где-то импортируются напрямую
+export const setPage        = (p)  => ArtistState.setPage(p);
+export const setLimit       = (n)  => ArtistState.setLimit(n);
+export const setGenre       = (v)  => ArtistState.setGenre(v);
+export const setSort        = (v)  => ArtistState.setSort(v);
+export const setQuery       = (v)  => ArtistState.setQuery(v);
+export const setMobilePanel = (on) => ArtistState.setMobilePanel(on);
+
+/* ---------------- первичная загрузка ---------------- */
+loadFromStorage(); // чтобы состояние было готово до первых подписок
+
+
