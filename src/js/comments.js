@@ -40,7 +40,7 @@ closeBtn.addEventListener("click", (e) => {
   container.classList.remove("hidden");
   document.body.style.position = "";
   window.scrollTo(0, scrollY);
-  createStars(document.getElementById("customer-rating", 0));
+  createStars(document.getElementById("customer-rating"), 0);
 });
 
 overlay.addEventListener("click", (e) => {
@@ -49,7 +49,7 @@ overlay.addEventListener("click", (e) => {
     container.classList.remove("hidden");
     document.body.style.position = "";
   window.scrollTo(0, scrollY);
-  createStars(document.getElementById("customer-rating", 0));
+  createStars(document.getElementById("customer-rating"), 0);
   }
 });
 document.addEventListener("keydown", (e) => {
@@ -58,7 +58,7 @@ document.addEventListener("keydown", (e) => {
     container.classList.remove("hidden")
     document.body.style.position = "";
   window.scrollTo(0, scrollY);
-  createStars(document.getElementById("customer-rating", 0));
+  createStars(document.getElementById("customer-rating"), 0);
   }
 })
 
@@ -102,14 +102,22 @@ function hoveredStar(container, upTo) {
 const formRating = document.getElementById("customer-rating");
 createStars(formRating, parseInt(formRating.dataset.rating) || 0);
 
+// было: spaceBetween: 50
 const swiper = new Swiper('.swiper', {
   slidesPerView: 1,
-  spaceBetween: 50,
+  spaceBetween: 0,               // <-- критично
   loop: false,
-        grabCursor: true,
-        navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', },
-  pagination: { el: '.swiper-pagination', clickable: true, },
+  grabCursor: true,
+  navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
+  pagination: { el: '.swiper-pagination', clickable: true },
+  centeredSlides: false,
+  breakpoints: {
+    0:    { slidesPerView: 1, centeredSlides: false, spaceBetween: 0 },
+    768:  { slidesPerView: 1, centeredSlides: false, spaceBetween: 0 },
+    1440: { slidesPerView: 1, centeredSlides: false, spaceBetween: 0 },
+  },
 });
+
 document.querySelector('.swiper-button-prev').addEventListener('click', () => {
   swiper.slidePrev();
 })

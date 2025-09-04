@@ -37,12 +37,7 @@
   }
 }
 
-/* Desktop */
-@media (min-width: 1440px) {
-  .swiper {
-    max-width: 1312px;
-  }
-}
+
 
 @media screen and (min-width: 1440px) {
   .swiper {
@@ -58,6 +53,7 @@
 .swiper .swiper-slide {
   flex: 0 0 100% !important;
   width: 100% !important;
+  margin: 0 !important;
   box-sizing: border-box;
 }
 
