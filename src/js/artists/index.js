@@ -149,9 +149,23 @@ document.addEventListener("DOMContentLoaded", () => {
   if (btn) {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
-      // если плеер ещё не активен — стартуем радио, иначе — Next
-      if (!player.isActive?.()) startMixRadio(player);
-      else player.next?.();
+
+      // если свёрнут (пузырь) — просто next, не раскрывая плеер
+      if (player.isMinimized?.()) {
+        player.next?.();
+        return;
+      }
+
+      // если ещё не запущен — стартуем радио (создаст очередь)
+      if (!player.isActive?.()) {
+        // теоретически, если очередь уже есть, можно тоже next:
+        if (player.hasQueue?.()) player.next?.();
+        else startMixRadio(player);
+        return;
+      }
+
+      // если открыт — next
+      player.next?.();
     });
   }
 });

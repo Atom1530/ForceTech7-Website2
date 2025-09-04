@@ -3,7 +3,7 @@
   display: flex;
   justify-content: center;
   gap: 6px;
-  margin: 32px 0 64px;
+  margin-top: 64px;
 }
 
 .artists1 .pager button {

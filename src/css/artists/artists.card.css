@@ -1,31 +1,36 @@
+/* =========================
+   DEFAULT VIEW (база + фикс мобильной фотки)
+   ========================= */
+
 .artists1 .card {
   color: #e8e8ec;
   max-width: 100%;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   will-change: transform;
 }
+
 .artists1 .card__media img {
   width: 100%;
+  height: 177px;
   display: block;
   border-radius: 16px;
   object-fit: cover;
-  height: 177px;
   object-position: center top;
 }
 
 .artists1 .card__tags {
   display: flex;
-  gap: 16px;
-  margin: 16px 0;
   flex-wrap: wrap;
+  gap: 16px;
 }
+
 .artists1 .tag {
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 6px;
-  padding: 4px 10px;
-  height: 32px;
   display: inline-flex;
   align-items: center;
+  height: 32px;
+  padding: 4px 10px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
   font: 600 16px/1 'IBM Plex Sans';
 }
 
@@ -34,37 +39,52 @@
   font: 700 32px/1.3 'Epilogue', system-ui;
   letter-spacing: -0.01em;
 }
+
 .artists1 .card__text {
   color: var(--color-white);
   font: 400 18px/1.5 'IBM Plex Sans';
   display: -webkit-box;
-
   -webkit-box-orient: vertical;
   overflow: hidden;
-  margin-bottom: 24px;
+  margin-bottom: 0; /* не суммируемся с верхним отступом у кнопки */
 }
 
+/* Кнопка Learn More — базовый вариант (Default View) */
 .artists1 .card__link {
+  -webkit-appearance: none;
+  appearance: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: transparent;
+  border-radius: 12px;
+
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  background: none;
-  border: 0;
-  color: var(--color-white);
+
+  width: 125px;
+  height: 27px;
+  padding: 0;
+  white-space: nowrap;
+
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.5;
+  color: #fff;
+
   cursor: pointer;
-  font: 500 18px/1.5 'IBM Plex Sans';
-  margin-top: 0;
-  border-radius: 12px;
 }
+
 .artists1 .card__link .ico {
   width: 24px;
   height: 24px;
-  fill: var(--color-white);
-  margin-left: 6px;
+  flex-shrink: 0;
+  fill: currentColor;
   transition: transform 0.2s ease, fill 0.2s ease;
 }
 
-/* hover-elevation и лёгкий сдвиг стрелки */
+/* hover */
 @media (hover: hover) {
   .artists1 .card:hover {
     transform: translateY(-5px);
@@ -77,15 +97,13 @@
   }
 }
 @media (prefers-reduced-motion: reduce) {
-  .artists1 .card {
-    transition: none;
-  }
+  .artists1 .card,
   .artists1 .card__link .ico {
     transition: none;
   }
 }
 
-/* высоты медиа по брейкпоинтам */
+/* Высоты медиа по брейкпоинтам */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   .artists1 .grid .card__media img {
     height: 432px;
@@ -97,27 +115,57 @@
   }
 }
 
-/* ====== Artists grid spacing ====== */
-
-#artists-section #artists-grid {
-  --cards-gap-x: var(--space-32, 32px);
-  --cards-gap-y: var(--space-32, 32px);
-  gap: var(--cards-gap-y) var(--cards-gap-x);
+/* Внутренний ритм Default:
+   [media] →24→ [tags] →16→ [title] →8→ [text] →24→ [button] */
+.artists1 .card__media + .card__tags {
+  margin-top: 24px;
+}
+.artists1 .card__tags + .card__title {
+  margin-top: 16px;
+}
+.artists1 .card__title + .card__text {
+  margin-top: 8px;
 }
 
-/* tablet */
-@media (max-width: 1439.98px) and (min-width: 768px) {
-  #artists-section #artists-grid {
-    --cards-gap-x: var(--space-32, 32px);
-    --cards-gap-y: var(--space-32, 32px);
+/* Вернули 24px над кнопкой */
+.artists1:not(.view-list) #artists-grid .card__text + .card__link,
+.artists1:not(.view-list) #artists-grid .card__title + .card__link {
+  margin-top: 24px !important;
+}
+
+/* Грид/центровка карточек */
+.artists1 .grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 64px;
+  justify-content: center;
+}
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  .artists1 .grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .artists1 .grid .card {
+    max-width: 704px;
+    margin: 0 auto;
+  }
+}
+@media (min-width: 1440px) {
+  .artists1 .grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 32px;
   }
 }
 
-/* mobile: вертикально 64px */
+/* MOBILE Default View: ширина карточки = 288px, фото 288×177 */
 @media (max-width: 767.98px) {
-  #artists-section #artists-grid {
-    --cards-gap-x: var(--space-32, 32px);
-    --cards-gap-y: var(--space-64, 64px);
+  .artists1:not(.view-list) .grid .card {
+    max-width: 288px;
+    margin: 0 auto;
+  }
+  .artists1:not(.view-list) .card__media img {
+    height: 177px;
+    border-radius: 16px;
   }
 }
 
@@ -126,4 +174,233 @@
 }
 #artists-section .card + .card {
   margin-top: 0;
+}
+
+/* =========================
+   LIST VIEW — по референсу
+   ========================= */
+
+/* Контейнер сетки */
+.artists1.view-list .grid {
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+/* Карточка (десктоп/планшет) */
+.artists1.view-list .grid .card {
+  display: grid;
+  grid-template-columns: 208px 1fr auto; /* превью | текст | кнопка */
+  grid-template-areas:
+    'media title  action'
+    'media tags   action';
+  align-items: center; /* кнопка по центру по вертикали */
+  column-gap: 16px;
+  row-gap: 6px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.04);
+  max-width: 976px;
+  margin: 0 auto;
+}
+
+/* Превью: десктоп/планшет */
+.artists1.view-list .card__media {
+  grid-area: media;
+}
+.artists1.view-list .card__media img {
+  display: block;
+  width: 208px;
+  height: 117px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+/* Заголовок */
+.artists1.view-list .card__title {
+  grid-area: title;
+  margin: 0 0 2px;
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 18px;
+  line-height: 1.25;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Жанры — показываем ВСЕ, в одну строку, с мягкой обрезкой справа */
+.artists1.view-list .card__tags {
+  grid-area: tags;
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: clip;
+  min-height: 22px;
+  max-height: 22px;
+  mask-image: linear-gradient(to right, black 92%, transparent);
+  -webkit-mask-image: linear-gradient(to right, black 92%, transparent);
+}
+/* снимаем возможный запрет на >1 тег из старых правил */
+.artists1.view-list .card__tags .tag {
+  display: inline-flex !important;
+  align-items: center;
+  height: 22px;
+  padding: 2px 6px;
+  font-size: 10px;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  opacity: 0.9;
+}
+
+/* Текст в ListView не показываем */
+.artists1.view-list .card__text {
+  display: none !important;
+}
+
+/* Кнопка Learn More — как в рефе (12px + иконка 16×16), центр по вертикали */
+.artists1.view-list .card__link {
+  grid-area: action;
+  justify-self: end;
+  align-self: center;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 8px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 8px;
+  background: transparent;
+  font-size: 12px;
+  line-height: 1;
+  color: var(--color-white);
+  white-space: nowrap;
+  cursor: pointer;
+}
+.artists1.view-list .card__link .ico {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+  fill: currentColor;
+  transition: transform 0.2s ease, fill 0.2s ease;
+}
+
+/* -------------------------
+   Мобильная версия (<768px)
+   — слева 64×64 превью, справа:
+     строка 1 — title, строка 2 — жанры
+   ------------------------- */
+@media (max-width: 767.98px) {
+  .artists1.view-list .grid {
+    gap: 24px; /* как в рефе для list */
+  }
+
+  .artists1.view-list .grid .card {
+    grid-template-columns: 64px 1fr auto; /* превью | текст | кнопка */
+    grid-template-areas:
+      'media title  action'
+      'media tags   action';
+    column-gap: 12px;
+    row-gap: 2px;
+    padding: 8px 10px;
+    min-height: 72px;
+  }
+
+  .artists1.view-list .card__media {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .artists1.view-list .card__media img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+
+  .artists1.view-list .card__title {
+    font-size: 16px;
+    line-height: 1.25;
+    margin: 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  /* жанры — во второй строке, одной линией, без переносов */
+  .artists1.view-list .card__tags {
+    align-items: center;
+    gap: 6px;
+    white-space: nowrap;
+    overflow: hidden;
+    min-height: 22px;
+    max-height: 22px;
+    mask-image: linear-gradient(to right, black 88%, transparent);
+    -webkit-mask-image: linear-gradient(to right, black 88%, transparent);
+  }
+
+  /* кнопка — по центру по вертикали справа */
+  .artists1.view-list .card__link {
+    justify-self: end;
+    align-self: center;
+  }
+}
+
+/* -------------------------
+   Широкие (≥1440px) — как в рефе
+   ------------------------- */
+@media (min-width: 1440px) {
+  .artists1.view-list .grid .card {
+    min-height: 84px;
+    padding: 10px 12px;
+  }
+  .artists1.view-list .card__title {
+    font-size: 18px;
+  }
+}
+
+/* === ListView • Mobile: кнопка Learn More = только иконка 24×24 === */
+@media (max-width: 767.98px) {
+  /* охватываем оба встречающихся селектора: с .grid и с #artists-grid */
+  .artists1.view-list .grid .card__link,
+  .artists1.view-list #artists-grid .card__link {
+    /* позиционирование — как было: справа и по центру по вертикали */
+    justify-self: end !important;
+    align-self: center !important;
+
+    /* сжимаем кнопку до ровно 24×24 и убираем всё лишнее */
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 6px !important; /* чуть скруглим, можно 0 если нужно */
+
+    /* скрываем текст, но оставляем SVG */
+    font-size: 0 !important;
+    line-height: 0 !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+
+    /* сетка для идеального центрирования иконки */
+    display: grid !important;
+    place-items: center !important;
+
+    /* на всякий случай: курсор и фон как раньше */
+    background: transparent !important;
+    color: var(--color-white, #fff) !important;
+    cursor: pointer !important;
+  }
+
+  /* иконка — ровно 24×24 и без отступов слева */
+  .artists1.view-list .grid .card__link .ico,
+  .artists1.view-list #artists-grid .card__link .ico {
+    width: 24px !important;
+    height: 24px !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
+  }
 }

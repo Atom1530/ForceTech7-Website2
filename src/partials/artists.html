@@ -1,5 +1,3 @@
-<div id="artists"></div>
-
 <section id="artists-section" class="artists1 container">
   <div class="artists1__head">
     <p class="eyebrow">Artists</p>
@@ -7,6 +5,7 @@
   </div>
 
   <div class="artists1__layout">
+    <!-- TOOLBAR / FILTERS -->
     <aside class="filters" id="filters">
       <div class="filters__bar">
         <span class="filters__label">Filters</span>
@@ -36,6 +35,7 @@
       </div>
 
       <div id="filters-panel" class="filters__panel" aria-hidden="true">
+        <!-- Search -->
         <label class="fld fld-search">
           <svg class="ico" aria-hidden="true" width="24" height="24">
             <use href="/img/sprite.svg#icon-search"></use>
@@ -43,6 +43,7 @@
           <input id="flt-q" type="search" placeholder="Search" />
         </label>
 
+        <!-- Sorting -->
         <div class="dd" data-dd="sort">
           <button
             class="dd__btn"
@@ -60,6 +61,7 @@
           </ul>
         </div>
 
+        <!-- Genre -->
         <div class="dd" data-dd="genre">
           <button
             class="dd__btn"
@@ -73,6 +75,7 @@
           <ul class="dd__list" id="dd-genre-list" role="listbox"></ul>
         </div>
 
+        <!-- Mix Radio / Next (иконки оставлены) -->
         <button id="random-radio" type="button" class="btn btn--purple">
           <span>Mix Radio</span>
           <svg class="ico" aria-hidden="true" width="24" height="24">
@@ -88,6 +91,7 @@
       </div>
     </aside>
 
+    <!-- CONTENT -->
     <div class="artists1__content">
       <div id="artists-empty" class="empty" hidden>
         <div class="empty__card">
@@ -97,7 +101,6 @@
             Looks like no artists match your filters.<br class="empty__br" />
             Try changing them or hit “Reset Filters” to bring back the beat.
           </p>
-
           <button class="empty__btn" id="empty-reset" type="button">
             Reset filters
           </button>
@@ -105,25 +108,29 @@
       </div>
 
       <div id="artists-loader" class="loader" hidden></div>
-
       <ul id="artists-grid" class="grid"></ul>
-
       <nav id="artists-pager" class="pager" aria-label="Pagination"></nav>
     </div>
   </div>
 
+  <!-- MODAL (оставляем как в проекте) -->
   <div id="artist-modal" class="amodal" hidden>
     <div class="amodal__backdrop"></div>
-    <div class="amodal__dialog" role="dialog" aria-modal="true">
+    <div
+      class="amodal__dialog"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Artist details"
+    >
       <button
-        class="amodal__close"
         id="am-close"
+        class="amodal__close"
         type="button"
         aria-label="Close"
       >
         ×
       </button>
-      <div class="amodal__body" id="am-body">
+      <div id="am-body" class="amodal__body">
         <div class="amodal__loader loader"></div>
       </div>
     </div>

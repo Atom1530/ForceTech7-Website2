@@ -214,7 +214,7 @@
   margin-bottom: 12px;
 }
 .dd__btn {
-  width: 100%;
+  /* width: 100%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -227,7 +227,7 @@
   min-height: 48px;
   position: relative;
   padding-right: 30px;
-  font: 600 16px/1 'IBM Plex Sans';
+  font: 600 16px/1 'IBM Plex Sans'; */
 }
 .dd__btn .ico {
   display: none !important;
