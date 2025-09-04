@@ -5,10 +5,10 @@ import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
 import { openZoom } from "./zoom.js";
 
-// === SVG SPRITE: инлайн через Vite ?raw, без путей/BASE ===
+// === SVG SPRITE: inline через Vite ?raw, монтируем 1 раз ===
 import SPRITE_RAW from "../../../img/sprite.svg?raw";
-
 const SPRITE_CONTAINER_ID = "GLOBAL_SVG_SPRITE";
+
 function ensureSpriteMounted(doc = document) {
   if (doc.getElementById(SPRITE_CONTAINER_ID)) return;
   const wrap = doc.createElement("div");
@@ -21,21 +21,18 @@ function ensureSpriteMounted(doc = document) {
   wrap.innerHTML = SPRITE_RAW;
   doc.body.prepend(wrap);
 }
+
 const icon = (id, cls = "ico") =>
   `<svg class="${cls}" aria-hidden="true"><use href="#${id}" xlink:href="#${id}"></use></svg>`;
 
 const DEFAULT_LIMIT = 8;
-const FALLBACK_IMG = "https://via.placeholder.com/960x540?text=No+Image";
-
-// лимит для List View по брейкпоинтам
-function computeListLimit() {
+function computeListLimitByBP() {
   const w = window.innerWidth || document.documentElement.clientWidth || 0;
-  if (w >= 1440) return 16; // desktop
-  if (w >= 768)  return 12; // tablet
-  return 10;                // mobile
+  if (w >= 1440) return 16;
+  if (w >= 768)  return 12;
+  return 10;
 }
 
-// гарантируем наличие кнопки List view и на мобилке
 function ensureViewToggle(root) {
   let btn = root.querySelector("#view-toggle");
   if (!btn) {
@@ -45,66 +42,51 @@ function ensureViewToggle(root) {
     btn.className = "filters__view";
     btn.setAttribute("aria-pressed", "false");
     btn.textContent = "List view";
-    const mount = root.querySelector(".filters__bar") || root.querySelector(".filters") || root;
-    mount.appendChild(btn);
+    (root.querySelector(".filters__bar") || root.querySelector(".filters") || root).appendChild(btn);
   }
   return btn;
 }
 
 export function initGrid(root = document.querySelector("#artists-section")) {
   if (!root) return;
-
-  // смонтировать спрайт один раз
   ensureSpriteMounted(document);
 
-  // ---------- refs ----------
+  const sectionRoot = root.closest(".artists1") || root;
+
   const panel       = root.querySelector("#filters-panel");
   const toggleBtn   = root.querySelector("#filters-toggle");
   const resetBtn    = root.querySelector("#filters-reset");
   const resetBtnSm  = root.querySelector("#filters-reset-sm");
-
-  const viewToggle  = ensureViewToggle(root); // <- важно для мобилки
+  const viewToggle  = ensureViewToggle(root);
 
   const searchInput = root.querySelector("#flt-q");
   const searchBtn   = root.querySelector("#flt-q-btn");
 
   const ddSort      = root.querySelector('.dd[data-dd="sort"]');
-  const ddSortBtn   = root.querySelector("#dd-sort-btn") || ddSort?.querySelector(".dd__btn");
-  const ddSortList  = root.querySelector("#dd-sort-list") || ddSort?.querySelector(".dd__list");
+  const ddSortBtn   = root.querySelector("#dd-sort-btn");
+  const ddSortList  = root.querySelector("#dd-sort-list");
 
   const ddGenre     = root.querySelector('.dd[data-dd="genre"]');
-  const ddGenreBtn  = root.querySelector("#dd-genre-btn") || ddGenre?.querySelector(".dd__btn");
-  const ddGenreList = root.querySelector("#dd-genre-list") || ddGenre?.querySelector(".dd__list");
+  const ddGenreBtn  = root.querySelector("#dd-genre-btn");
+  const ddGenreList = root.querySelector("#dd-genre-list");
 
   const grid        = root.querySelector("#artists-grid");
   const pager       = root.querySelector("#artists-pager");
   const empty       = root.querySelector("#artists-empty");
 
-  const sectionRoot = root.closest(".artists1") || root;
-
-  // модалка (единый экземпляр)
   const modalApi = createArtistModal(document);
 
-  // защита от гонок API
   let reqId = 0;
-
-  // для слежения за авто-лимитом при ресайзе
   let lastAppliedLimit = null;
 
-  // ---------- utils ----------
   const show = (el) => el && el.removeAttribute("hidden");
   const hide = (el) => el && el.setAttribute("hidden", "");
   const isDesktop = () => matchMedia("(min-width:1440px)").matches;
   const byName = (a) => (a?.strArtist || a?.name || "").toLowerCase();
   const isListMode = () => sectionRoot.classList.contains("view-list");
 
-  function updateViewButtonUI(listOn) {
-    viewToggle?.setAttribute("aria-pressed", String(listOn));
-    if (viewToggle) viewToggle.textContent = listOn ? "Default view" : "List view";
-  }
-
   function applyAutoLimitForCurrentMode({ resetPage = false } = {}) {
-    const want = isListMode() ? computeListLimit() : DEFAULT_LIMIT;
+    const want = isListMode() ? computeListLimitByBP() : DEFAULT_LIMIT;
     if (lastAppliedLimit === want) return;
     lastAppliedLimit = want;
     ArtistState.setLimit(want);
@@ -134,13 +116,13 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     else { hide(empty); show(grid); }
   }
   function resetGridInlineStyles() {
+    if (!grid) return;
     grid.style.height = "";
     grid.style.overflow = "";
     grid.style.transition = "";
     grid.style.willChange = "";
   }
 
-  // ---------- skeleton + fade-in ----------
   function buildSkeletonCard() {
     return `
       <li class="card card--skel">
@@ -149,7 +131,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
           <span class="tag skel skel--tag"></span>
           <span class="tag skel skel--tag"></span>
         </div>
-        <h3 class="card__title skel skel--title"></h3>
+        <div class="skel skel--title"></div>
         <div class="skel skel--text"></div>
       </li>`;
   }
@@ -166,13 +148,14 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       else img.addEventListener("load", done, { once: true });
     });
   }
+
+  const FALLBACK_IMG = "https://via.placeholder.com/960x540?text=No+Image";
   function attachImgFallbacks() {
-    grid.querySelectorAll("img").forEach(img => {
+    grid.querySelectorAll("img.img-fade").forEach(img => {
       img.onerror = () => { img.onerror = null; img.src = FALLBACK_IMG; };
     });
   }
 
-  // удержание высоты на время перерендера
   let gridCleanupTimer = null;
   function lockGridHeight(h) {
     const hh = h ?? grid.getBoundingClientRect().height;
@@ -198,33 +181,31 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     gridCleanupTimer = setTimeout(unlockGridHeight, 400);
   }
 
-  // ---------- rendering ----------
+  // ====== ВАЖНО: порядок DOM → [media] [tags] [title] [text] [button] ======
   function buildCard(a) {
-    const id    = a?.id || a?._id || a?.artistId || "";
-    const name  = a?.strArtist || a?.name || "Unknown";
-    const img   = a?.strArtistThumb || a?.photo || a?.image || FALLBACK_IMG;
+    const id = a?.id || a?._id || a?.artistId || "";
+    const name = a?.strArtist || a?.name || "Unknown";
+    const img  = a?.strArtistThumb || a?.photo || a?.image || FALLBACK_IMG;
     const about = a?.strBiographyEN || a?.about || "";
     const tags  = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
+    const sizes = "(min-width:1440px) 50vw, (min-width:768px) 704px, 100vw";
 
-    // ВАЖНО: markup оставляем универсальным.
-    // Default View — теги идут сверху.
-    // В List View раскладываем сеткой так, что теги оказываются ПОД названием.
     return `
       <li class="card" data-id="${id}">
         <div class="card__media">
           <img
             class="img-fade"
             src="${img}"
+            srcset="${img} 1x, ${img} 2x"
+            sizes="${sizes}"
             alt="${name}"
             loading="lazy"
-            onerror="this.onerror=null;this.src='${FALLBACK_IMG}'">
+            onerror="this.onerror=null;this.src='${FALLBACK_IMG}'"
+          >
         </div>
-
         <div class="card__tags">${tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
         <h3 class="card__title">${name}</h3>
-
         <p class="card__text">${about}</p>
-
         <button class="card__link" data-action="more">
           Learn More
           ${icon("icon-icon_play_artists_sections")}
@@ -239,53 +220,66 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   }
 
   function renderPager(page, totalPages) {
-    if (totalPages <= 0) { pager.innerHTML = ""; hide(pager); return; }
-    if (totalPages === 1) {
-      pager.innerHTML = `<button class="active" data-page="1" disabled>1</button>`;
-      show(pager);
+    if (!pager) return;
+
+    const current = Math.max(1, Number(page) || 1);
+    const tp = Math.max(1, Number(totalPages) || 1);
+
+    if (tp <= 1) {
+      pager.innerHTML = "";
+      pager.setAttribute("hidden", "");
       return;
     }
-    const btn = (label, p, dis = false, act = false) =>
-      `<button ${dis ? "disabled" : ""} data-page="${p}" class="${act ? "active" : ""}">${label}</button>`;
+
+    const mk = (label, target, opts = {}) => {
+      const disabled = opts.disabled ? "disabled" : "";
+      const active = opts.active ? "active" : "";
+      const data = typeof target === "number" ? `data-page="${target}"` : "";
+      return `<button type="button" ${data} ${disabled} class="${active}">${label}</button>`;
+    };
 
     const win = 2;
-    const from = Math.max(1, page - win);
-    const to = Math.min(totalPages, page + win);
-    const out = [];
+    const from = Math.max(1, current - win);
+    const to = Math.min(tp, current + win);
+    const parts = [];
 
-    out.push(btn("‹", Math.max(1, page - 1), page === 1, false));
+    parts.push(mk("‹", Math.max(1, current - 1), { disabled: current === 1 }));
+
     if (from > 1) {
-      out.push(btn("1", 1, false, page === 1));
-      if (from > 2) out.push(`<button class="dots">…</button>`);
+      parts.push(mk("1", 1, { active: current === 1 }));
+      if (from > 2) parts.push(`<button class="dots" type="button" disabled>…</button>`);
     }
-    for (let p = from; p <= to; p++) out.push(btn(String(p), p, false, p === page));
-    if (to < totalPages) {
-      if (to < totalPages - 1) out.push(`<button class="dots">…</button>`);
-      out.push(btn(String(totalPages), totalPages, false, p === totalPages));
-    }
-    out.push(btn("›", Math.min(totalPages, page + 1), page === totalPages, false));
 
-    pager.innerHTML = out.join("");
-    show(pager);
+    for (let i = from; i <= to; i++) {
+      parts.push(mk(String(i), i, { active: i === current }));
+    }
+
+    if (to < tp) {
+      if (to < tp - 1) parts.push(`<button class="dots" type="button" disabled>…</button>`);
+      parts.push(mk(String(tp), tp, { active: current === tp }));
+    }
+
+    parts.push(mk("›", Math.min(tp, current + 1), { disabled: current === tp }));
+
+    pager.innerHTML = parts.join("");
+    pager.removeAttribute("hidden");
   }
 
-  // ---------- data ----------
   async function loadGenres() {
+    if (!ddGenreList) return;
     try {
       ddGenre?.classList.add("loading");
       ddGenreBtn?.setAttribute("aria-busy", "true");
       if (ddGenreBtn) ddGenreBtn.disabled = true;
-      if (ddGenreList) {
-        ddGenreList.innerHTML = `
-          <li class="dd__loading">
-            <span class="dd__spinner" aria-hidden="true"></span>
-            <span>Loading…</span>
-          </li>`;
-      }
+      ddGenreList.innerHTML = `
+        <li class="dd__loading">
+          <span class="dd__spinner" aria-hidden="true"></span>
+          <span>Loading…</span>
+        </li>`;
       const list = await fetchGenres();
-      if (ddGenreList) ddGenreList.innerHTML = list.map((g) => `<li data-val="${g}">${g}</li>`).join("");
+      ddGenreList.innerHTML = list.map((g) => `<li data-val="${g}">${g}</li>`).join("");
     } catch {
-      if (ddGenreList) ddGenreList.innerHTML = `<li data-val="">All Genres</li>`;
+      ddGenreList.innerHTML = `<li data-val="">All Genres</li>`;
     } finally {
       ddGenre?.classList.remove("loading");
       ddGenreBtn?.removeAttribute("aria-busy");
@@ -321,7 +315,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       total = 0;
     }
 
-    let totalPages = Math.max(1, Math.ceil(total / limit));
+    let totalPages = Math.max(1, Math.ceil(total / Math.max(1, limit)));
     if (page > totalPages && allowRetry) { ArtistState.setPage(totalPages); return loadArtists(false); }
     if (page < 1 && allowRetry)          { ArtistState.setPage(1);         return loadArtists(false); }
 
@@ -342,12 +336,11 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     renderPager(ArtistState.get().page, totalPages);
   }
 
-  // ---------- dropdowns ----------
   function closeDropdowns(except) {
     [ddSort, ddGenre].forEach((dd) => {
-      if (dd && dd !== except) {
-        dd.classList.remove("open");
-        const ul = dd.querySelector(".dd__list");
+      if (dd !== except) {
+        dd?.classList.remove("open");
+        const ul = dd?.querySelector(".dd__list");
         if (ul) ul.style.display = "none";
       }
     });
@@ -361,13 +354,13 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     if (ul) ul.style.display = open ? "block" : "none";
   }
 
-  // ---------- UI events ----------
   toggleBtn?.addEventListener("click", () => {
     UISound?.tap?.();
     const st = ArtistState.get();
     ArtistState.setMobilePanel(!st.isMobilePanelOpen);
     syncPanelMode();
   });
+
   addEventListener("resize", () => {
     syncPanelMode();
     if (isListMode()) applyAutoLimitForCurrentMode({ resetPage: true });
@@ -382,6 +375,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     UISound?.tap?.();
     ArtistState.setSort(li.dataset.val || "");
     toggleDropdown(ddSort);
+    ArtistState.setPage(1);
     loadArtists();
   });
 
@@ -391,6 +385,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     const v = li.dataset.val || "";
     ArtistState.setGenre(v === "All Genres" ? "" : v);
     toggleDropdown(ddGenre);
+    ArtistState.setPage(1);
     loadArtists();
     ddSortBtn?.focus();
   });
@@ -421,20 +416,21 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   root.querySelector("#empty-reset")?.addEventListener("click", () => { UISound?.tap?.(); resetAll(); });
 
   pager?.addEventListener("click", (e) => {
-    const b = e.target.closest("button[data-page]"); if (!b || b.disabled) return;
-    const p = Number(b.dataset.page) || 1;
-    if (p === ArtistState.get().page) return;
+    const btn = e.target.closest("button[data-page]");
+    if (!btn || btn.disabled) return;
+    const targetPage = Number(btn.dataset.page) || 1;
+    const current = ArtistState.get().page;
+    if (targetPage === current) return;
     UISound?.page?.();
     scrollToGridTop();
-    ArtistState.setPage(p);
+    ArtistState.setPage(targetPage);
     loadArtists();
   });
 
-  // ---------- Learn More (модалка) + Zoom по картинке ----------
-  grid?.addEventListener("click", (e) => {
-    const btn = e.target.closest(".card__link, [data-action='more']");
-    if (btn) {
-      const id = btn.closest(".card")?.dataset?.id;
+  grid.addEventListener("click", (e) => {
+    const more = e.target.closest('[data-action="more"]');
+    if (more) {
+      const id = more.closest(".card")?.dataset?.id;
       if (!id) return;
       UISound?.tap?.();
       modalApi.openFor(id);
@@ -448,7 +444,15 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     }
   });
 
-  // ---------- List/Grid view ----------
+  // init
+  syncPanelMode();
+  lastAppliedLimit = null;
+  applyAutoLimitForCurrentMode({ resetPage: false });
+  loadGenres();
+  loadArtists();
+
+  // init view toggle state + handler
+  updateViewButtonUI(isListMode());
   viewToggle?.addEventListener("click", () => {
     UISound?.tap?.();
     const listOn = !isListMode();
@@ -458,13 +462,8 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     lastAppliedLimit = null;
     applyAutoLimitForCurrentMode({ resetPage: true });
   });
-
-  // ---------- init ----------
-  updateViewButtonUI(isListMode());
-  syncPanelMode();
-  lastAppliedLimit = null;
-  applyAutoLimitForCurrentMode({ resetPage: false });
-
-  loadGenres();
-  loadArtists();
+  function updateViewButtonUI(listOn) {
+    viewToggle?.setAttribute("aria-pressed", String(listOn));
+    if (viewToggle) viewToggle.textContent = listOn ? "Default view" : "List view";
+  }
 }
