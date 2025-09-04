@@ -1,46 +1,53 @@
+/* ====== FEEDBACK SECTION ====== */
 .feedback-section {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   flex-direction: column;
   gap: 80px;
-  padding: 64px 16px;
+  padding: 64px 0;
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
 }
 
-@media (min-width: 768px) {
-  .feedback-section {
-    padding: 64px 32px;
-  }
-}
-
 @media (min-width: 1440px) {
   .feedback-section {
-    padding: 112px 64px;
+    padding: 112px 0;
   }
 }
 
+/* ====== SWIPER AREA WIDTHS (288 / 704 / 1312) ====== */
 .swiper {
   position: relative;
-  overflow: hidden;
-  padding: 0;
   width: 100%;
   max-width: 288px;
-  display: block;
+  /* mobile */
+  margin: 0 auto;
+  overflow: hidden;
 }
 
 @media (min-width: 768px) {
   .swiper {
     max-width: 704px;
   }
+
+  /* tablet */
 }
 
+@media (min-width: 1440px) {
+  .swiper {
+    max-width: 1312px;
+  }
 
+  /* desktop */
+}
+
+/* страховка от зазоров между слайдами */
 .swiper .swiper-wrapper {
   gap: 0 !important;
 }
+
 .swiper .swiper-slide {
   flex: 0 0 100% !important;
   width: 100% !important;
@@ -48,6 +55,7 @@
   box-sizing: border-box;
 }
 
+/* ====== ARROWS ====== */
 .swiper-button-prev::after,
 .swiper-button-next::after {
   display: none;
@@ -62,29 +70,43 @@
   border-radius: 8px;
   background: transparent;
   display: none !important;
+  /* показываем только >=768px */
   align-items: center;
   justify-content: center;
-  top: 45%;
-  transform: translateY(-45%);
   position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  /* идеальный центр */
   z-index: 100;
-  transition: border-color 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: border-color 0.25s ease;
 }
+
 @media (min-width: 768px) {
+
   .swiper-button-prev,
   .swiper-button-next {
     display: flex !important;
   }
 }
-.swiper-button-prev { left: 0; }
-.swiper-button-next { right: 0; }
-.left-arrow { transform: rotate(180deg); }
+
+.swiper-button-prev {
+  left: 0;
+}
+
+.swiper-button-next {
+  right: 0;
+}
+
+.left-arrow {
+  transform: rotate(180deg);
+}
 
 .swiper-button-prev svg,
 .swiper-button-next svg {
   width: 24px;
   height: 24px;
   fill: var(--color-white);
+  /* видно всегда */
   transition: fill 0.25s ease;
 }
 
@@ -103,20 +125,7 @@
   pointer-events: none;
 }
 
-.swiper-button-prev {
-  left: 0;
-}
-.left-arrow {
-  transform: rotate(180deg);
-}
-.swiper-button-next {
-  right: 0;
-}
-
-.swiper-button-prev svg {
-  transition: fill 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
+/* ====== PAGINATION (3 точки) ====== */
 .swiper-pagination {
   display: flex;
   justify-content: center;
@@ -127,54 +136,62 @@
 }
 
 .swiper-dots {
-  width: 9px !important;
-  height: 9px !important;
-  background-color: rgba(255, 255, 255, 0.2) !important;
-  opacity: 1 !important;
-  cursor: pointer;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.2);
+  cursor: pointer;
 }
 
 .swiper-dots.active {
-  background: #fff !important;
+  background: #fff;
+}
+
+/* ====== STARS (в строку и по центру) ====== */
+.feedback-section .rating,
+.modal .rating {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  /* по макету — центр; поменяй на flex-start если нужно слева */
+  gap: 6px;
+  margin-bottom: 24px;
+  /* переносим отступ на контейнер */
 }
 
 .rating .star {
   cursor: pointer;
-  display: flex !important;
-  justify-content: flex-start !important;
-  gap: 6px;
+  display: inline-block !important;
+  /* переопределяем старое display:flex */
   width: 30px;
   height: 28px;
+  margin: 0 !important;
+  /* убираем «ступеньки» */
   background-color: var(--color-white);
-  clip-path: polygon(
-    50% 0%,
-    61% 35%,
-    98% 35%,
-    68% 57%,
-    79% 91%,
-    50% 70%,
-    21% 91%,
-    32% 57%,
-    2% 35%,
-    39% 35%
-  );
-  margin-bottom: 32px;
+  clip-path: polygon(50% 0%,
+      61% 35%,
+      98% 35%,
+      68% 57%,
+      79% 91%,
+      50% 70%,
+      21% 91%,
+      32% 57%,
+      2% 35%,
+      39% 35%);
 }
+
 .rating .star.filled {
   background-color: var(--color-affair);
-  cursor: pointer;
 }
-.my-rating {
-  display: flex !important;
-  justify-content: flex-start !important;
-}
+
+/* ====== TEXTS ====== */
 .feedback {
   display: flex;
   align-items: center;
   justify-content: flex-start;
   flex-direction: column;
 }
+
 .customer-feedback {
   font-weight: 700;
   font-size: 18px;
@@ -191,7 +208,6 @@
   .customer-feedback {
     font-size: 26px;
     max-width: 518px;
-    /* вместо width: 518px */
   }
 }
 
@@ -200,19 +216,18 @@
     font-size: 32px;
     line-height: 1.3;
     max-width: 768px;
-    /* вместо width: 768px */
   }
 }
+
 .customer-name {
   font-weight: 600;
   font-size: 18px;
-
-  /* line-height: 27px; */
   line-height: 1.5;
   color: var(--color-white);
   margin-bottom: 16px;
 }
 
+/* ====== BUTTON ====== */
 .review-btn {
   display: flex;
   align-items: center;
@@ -230,19 +245,19 @@
   background: var(--color-affair);
   font-weight: 500;
   font-size: 18px;
-
-  /* line-height: 27px; */
   color: var(--color-white);
   border: none;
   cursor: pointer;
   transition: all 0.3s ease;
 }
-@media screen and (min-width: 768px) {
+
+@media (min-width: 768px) {
   .review-btn {
     width: 158px;
   }
 }
-@media screen and (min-width: 1440px) {
+
+@media (min-width: 1440px) {
   .review-btn {
     width: 177px;
   }
@@ -256,11 +271,13 @@
   border: none;
   transform: translateY(-2px);
 }
+
 .review-btn:active {
   border: none;
   background: transparent;
 }
 
+/* ====== MODAL ====== */
 .overlay {
   position: fixed;
   inset: 0;
@@ -273,6 +290,7 @@
   visibility: hidden;
   transition: opacity .3s ease, visibility .3s ease;
 }
+
 .overlay:not(.hidden) {
   opacity: 1;
   visibility: visible;
@@ -280,7 +298,6 @@
 
 .modal {
   position: relative;
-  /* было absolute — убрали */
   display: flex;
   flex-direction: column;
   gap: 24px;
@@ -291,13 +308,13 @@
   max-height: min(90vh, 740px);
   background: #0b0b0b;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  overflow: auto;
 }
 
 @media (min-width: 768px) {
   .modal {
     padding: 40px 48px;
     max-width: 640px;
-    max-height: 90vh;
   }
 }
 
@@ -307,9 +324,11 @@
     max-width: 864px;
   }
 }
+
 .close-icon {
   position: absolute;
   top: 16px;
+  /* одинаково на всех брейках */
   right: 16px;
   cursor: pointer;
   fill: var(--color-white);
@@ -320,56 +339,37 @@
   transform: rotate(90deg) scale(1.05);
   fill: var(--color-affair);
 }
-@media screen and (min-width: 768px) {
-  .close-icon {
-    top: 98px;
-  }
-}
-@media screen and (min-width: 1440px) {
-  .close-icon {
-    top: 25px;
-  }
-}
 
-.close-icon:hover {
-  transform: rotate(90deg) scale(1.1);
-  fill: var(--color-affair);
-}
 .title-modal {
   margin-top: 64px;
   font-weight: 700;
   font-size: 24px;
-
-  /* line-height: 31px; */
   line-height: 1.3;
   letter-spacing: -0.01em;
   text-align: center;
   color: var(--color-white);
 }
 
-@media screen and (min-width: 768px) {
+@media (min-width: 768px) {
   .title-modal {
     font-size: 44px;
-    /* line-height: 53px; */
     line-height: 1.2;
-    margin-top: 64px;
-    margin-bottom: 64px;
-  }
-}
-@media screen and (min-width: 1440px) {
-  .title-modal {
-    font-size: 60px;
-    /* line-height: 72px; */
+    margin: 64px 0;
   }
 }
 
+@media (min-width: 1440px) {
+  .title-modal {
+    font-size: 60px;
+  }
+}
+
+/* ====== FORM ====== */
 label {
   display: block;
   margin-bottom: 8px;
   font-weight: 400;
   font-size: 18px;
-
-  /* line-height: 27px; */
   line-height: 1.5;
   color: #fff;
 }
@@ -383,7 +383,7 @@ label {
   padding: 8px 12px;
   width: 100%;
   max-width: 288px;
-  /* моб. */
+  /* mobile */
   height: 43px;
   font-weight: 400;
   font-size: 18px;
@@ -414,7 +414,7 @@ textarea {
   padding: 8px 12px;
   width: 100%;
   max-width: 288px;
-  /* моб. */
+  /* mobile */
   height: 130px;
   font-weight: 400;
   font-size: 18px;
@@ -440,29 +440,35 @@ textarea {
   }
 }
 
+/* ====== MISC ====== */
 .send-btn-cont {
   display: flex;
   justify-content: center;
   align-items: center;
 }
-@media screen and (min-width: 768px) {
+
+@media (min-width: 768px) {
   .send-feedback-btn {
     width: 340px;
   }
 }
-@media screen and (min-width: 1440px) {
+
+@media (min-width: 1440px) {
   .send-feedback-btn {
     width: 108px;
   }
 }
+
 .hidden {
   opacity: 0;
   visibility: hidden;
   cursor: none;
 }
+
 .hidden-container {
   display: none;
 }
+
 .no-scroll {
   overflow: hidden;
 }

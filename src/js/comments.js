@@ -1,210 +1,185 @@
-import 'css-star-rating/css/star-rating.css';
+// ===== Imports =====
 import Swiper from 'swiper/bundle';
 import 'swiper/swiper-bundle.css';
-import 'swiper/css';
-import 'swiper/css/navigation';
-import 'swiper/css/pagination';
 
 import iziToast from 'izitoast';
-import "izitoast/dist/css/iziToast.min.css";
+import 'izitoast/dist/css/iziToast.min.css';
 
+// ===== DOM =====
+const overlay = document.querySelector('.overlay');
+const openBtn = document.querySelector('.feedback-btn');
+const closeBtn = document.querySelector('.close-icon');
+const form = document.querySelector('#feedback-form');
+const container = document.querySelector('.feedback-section');
+const inputName = document.querySelector('.form-input-name');
+const inputMessage = document.querySelector('.form-input-message');
+const formRating = document.getElementById('customer-rating');
 
+const STORAGE_KEY = 'myFeedback';
 
-const overlay = document.querySelector(".overlay");
-const openBtn = document.querySelector(".feedback-btn")
-const closeBtn = document.querySelector(".close-icon");
-const form = document.querySelector("#feedback-form");
-const container = document.querySelector(".feedback-section");
-const inputName = document.querySelector(".form-input-name");
-const inputMessage = document.querySelector(".form-input-message");
-const STORAGE_KEY = "myFeedback";
-
-
-// modal
 let scrollY = 0;
-openBtn.addEventListener("click", (e) => {
+let swiper = null;
+
+// ===== Modal =====
+openBtn.addEventListener('click', (e) => {
   e.preventDefault();
   scrollY = window.scrollY;
-  document.body.style.position = "fixed";
+  document.body.style.position = 'fixed';
   document.body.style.top = `-${scrollY}px`;
-  document.body.style.left = "0";
-  document.body.style.right = "0";
-    overlay.classList.remove("hidden");
-  container.classList.add("hidden");
-  
+  document.body.style.left = '0';
+  document.body.style.right = '0';
+
+  overlay.classList.remove('hidden');
+  container.classList.add('hidden');
 
   dataFromLocalStorage();
-})
-
-closeBtn.addEventListener("click", (e) => {
-    overlay.classList.add("hidden");
-  container.classList.remove("hidden");
-  document.body.style.position = "";
-  window.scrollTo(0, scrollY);
-  createStars(document.getElementById("customer-rating"), 0);
 });
 
-overlay.addEventListener("click", (e) => {
-  if (e.target === overlay) {
-    overlay.classList.add("hidden")
-    container.classList.remove("hidden");
-    document.body.style.position = "";
+function closeModal() {
+  overlay.classList.add('hidden');
+  container.classList.remove('hidden');
+  document.body.style.position = '';
   window.scrollTo(0, scrollY);
-  createStars(document.getElementById("customer-rating"), 0);
-  }
-});
-document.addEventListener("keydown", (e) => {
-  if (e.key === "Escape") {
-    overlay.classList.add("hidden")
-    container.classList.remove("hidden")
-    document.body.style.position = "";
-  window.scrollTo(0, scrollY);
-  createStars(document.getElementById("customer-rating"), 0);
-  }
-})
+  createStars(document.getElementById('customer-rating'), 0);
+}
 
-// stars
+closeBtn.addEventListener('click', closeModal);
+
+overlay.addEventListener('click', (e) => {
+  if (e.target === overlay) closeModal();
+});
+
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ===== Stars =====
 function createStars(container, rating) {
-  container.innerHTML = "";
+  if (!container) return;
+  container.innerHTML = '';
   for (let i = 1; i <= 5; i++) {
-    const star = document.createElement("span");
-    star.classList.add("star");
-    if (i <= rating) star.classList.add("filled");
+    const star = document.createElement('span');
+    star.classList.add('star');
+    if (i <= rating) star.classList.add('filled');
     container.appendChild(star);
-    if (container.id === "customer-rating") {
-      star.addEventListener("click", (e) => {
+
+    if (container.id === 'customer-rating') {
+      star.addEventListener('click', () => {
         container.dataset.rating = i;
         createStars(container, i);
         saveToLocalStorage();
-      })
-      star.addEventListener('mouseenter', (e) => {
-        hoveredStar(container, i)
-      })
-      star.addEventListener('mouseleave', (e) => {
+      });
+      star.addEventListener('mouseenter', () => {
+        hoveredStar(container, i);
+      });
+      star.addEventListener('mouseleave', () => {
         const savedRating = parseInt(formRating.dataset.rating) || 0;
         createStars(container, savedRating);
-      })
+      });
     }
   }
 }
 
 function hoveredStar(container, upTo) {
-  const stars = container.querySelectorAll(".star");
+  const stars = container.querySelectorAll('.star');
   stars.forEach((star, index) => {
-    if (index < upTo) {
-      star.classList.add("filled");
-    } else {
-      star.classList.remove("filled")
-    }
+    if (index < upTo) star.classList.add('filled');
+    else star.classList.remove('filled');
   });
 }
 
-// data from API
-const formRating = document.getElementById("customer-rating");
-createStars(formRating, parseInt(formRating.dataset.rating) || 0);
+// инициализируем звёзды в форме
+createStars(formRating, parseInt(formRating?.dataset.rating) || 0);
 
-// было: spaceBetween: 50
-const swiper = new Swiper('.swiper', {
-  slidesPerView: 1,
-  spaceBetween: 0,             
-  loop: false,
-  grabCursor: true,
-  navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },
-  pagination: { el: '.swiper-pagination', clickable: true },
-  centeredSlides: false,
-  breakpoints: {
-    0:    { slidesPerView: 1, centeredSlides: false, spaceBetween: 0 },
-    768:  { slidesPerView: 1, centeredSlides: false, spaceBetween: 0 },
-    1440: { slidesPerView: 1, centeredSlides: false, spaceBetween: 0 },
-  },
-});
+// ===== Swiper =====
+function initSwiper() {
+  // если уже был — уничтожаем начисто
+  if (swiper) swiper.destroy(true, true);
 
-document.querySelector('.swiper-button-prev').addEventListener('click', () => {
-  swiper.slidePrev();
-})
-document.querySelector('.swiper-button-next').addEventListener('click', () => {
-  swiper.slideNext();
-})
+  swiper = new Swiper('.swiper', {
+    slidesPerView: 1,
+    spaceBetween: 0,
+    loop: false,
+    grabCursor: true,
+    navigation: {
+      nextEl: '.swiper-button-next',
+      prevEl: '.swiper-button-prev',
+    },
+    centeredSlides: false,
+    // Рисуем 3 точки: первый / середина / последний
+    pagination: {
+      el: '.swiper-pagination',
+      type: 'custom',
+      clickable: true,
+      renderCustom: (sw, current, total) => {
+        const first = 0;
+        const last = total - 1;
+        const middle = Math.floor(total / 2);
+        const curr = sw.realIndex;
 
-//dots
-const dots = document.querySelector('.swiper-pagination');
-dots.innerHTML = `
-  <span class="swiper-dots"></span>
-    <span class="swiper-dots"></span>
-  <span class="swiper-dots"></span>`
+        const isActive = (i) =>
+          (i === first && curr === first) ||
+          (i === last && curr === last) ||
+          (i === middle && curr !== first && curr !== last);
 
-function activateDot(dotNumber) {
-  const dots = document.querySelectorAll(".swiper-dots");
-  dots.forEach(dot => dot.classList.remove('active'));
-  if (dots[dotNumber - 1]) {
-    dots[dotNumber - 1].classList.add('active');
-  }
+        const dot = (i) =>
+          `<span class="swiper-dots ${isActive(i) ? 'active' : ''}" data-i="${i}"></span>`;
+
+        return dot(first) + dot(middle) + dot(last);
+      },
+    },
+  });
+
+  // клики по кастомным 3 точкам
+  const pag = document.querySelector('.swiper-pagination');
+  pag.onclick = (e) => {
+    const dot = e.target.closest('.swiper-dots');
+    if (!dot) return;
+    swiper.slideTo(Number(dot.dataset.i));
+  };
+
+  // при каждом слайде перерисовываем кастомные точки
+  swiper.on('slideChange', () => swiper.pagination.render());
 }
-  
-function getDotIndex(index) {
-  if (index === 0) {
-    return 1;
-  } else if (index === 9) {
-    return 3;
-  } else {
-    return 2;
-  }
-}
 
-activateDot(getDotIndex(swiper.realIndex));
-
-const dotElements = document.querySelectorAll('.swiper-dots');
-dotElements.forEach((dot, index) => {
-  dot.addEventListener('click', (e) => {
-    let slideIndex = 0;
-
-    if (index === 0) {
-      slideIndex = 0;
-    } else if (index === 1) {
-      slideIndex = 1;
-    } else if (index === 2) {
-      slideIndex = 9;
-    }
-    swiper.slideTo(slideIndex);
-  })
-})
-
-swiper.on('slideChange', (e) => {
-  const currentIndex = swiper.realIndex
-  activateDot(getDotIndex(currentIndex))
-});
-
+// ===== Fetch & render feedbacks =====
 async function loadReviews() {
-  const wrapper = document.querySelector(".swiper-wrapper");
+  const wrapper = document.querySelector('.swiper-wrapper');
+  if (!wrapper) return;
+  wrapper.innerHTML = '';
+
   try {
-    const data = await fetch("https://sound-wave.b.goit.study/api/feedbacks");
-    const json = await data.json();
-    const feedbacks = json.data.slice(0, 10);
-    feedbacks.forEach((feedback, index) => {
-      const stars = Math.round(feedback.rating);
+    const res = await fetch('https://sound-wave.b.goit.study/api/feedbacks');
+    const json = await res.json();
+    const feedbacks = (json?.data || []).slice(0, 10); // РОВНО 10
 
-      const slide = document.createElement("div");
-      slide.classList.add("swiper-slide")
+    feedbacks.forEach((fb, index) => {
+      const stars = Math.round(fb.rating || 0);
 
-      slide.innerHTML = `<div class="rating" id="rating-${index}" data-rating="${stars}"></div>
-                <div class="feedback">
-                    <p class="customer-feedback">${feedback.descr}</p>
-                    <h3 class="customer-name">${feedback.name}</h3>
-                </div>`;
+      const slide = document.createElement('div');
+      slide.className = 'swiper-slide';
+slide.innerHTML = `
+  <div class="rating my-rating" id="rating-${index}" data-rating="${stars}"></div>
+  <div class="feedback">
+    <p class="customer-feedback">${fb.descr}</p>
+    <h3 class="customer-name">${fb.name}</h3>
+  </div>`;
+
       wrapper.appendChild(slide);
-      const starContainer = slide.querySelector(".rating");
-      createStars(starContainer, stars);
+      createStars(slide.querySelector('.rating'), stars);
     });
-swiper.update()
+
+    // Инициализируем Swiper только ПОСЛЕ того, как слайды в DOM
+    initSwiper();
   } catch (err) {
     iziToast.error({
       title: 'Error',
-      message: 'Bad request (invalid request params)'
-    })
+      message: 'Bad request (invalid request params)',
+    });
   }
 }
 
-// data to localStorage
+// ===== LocalStorage =====
 function saveToLocalStorage() {
   const params = {
     name: inputName.value.trim(),
@@ -214,25 +189,17 @@ function saveToLocalStorage() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(params));
 }
 
-// data from localStorage
 function dataFromLocalStorage() {
-  const savedData = JSON.parse(localStorage.getItem(STORAGE_KEY));
-  if (!savedData) {
-    return;
-  }
-  if (savedData.name) {
-    inputName.value = savedData.name;
-  }
-  if (savedData.message) {
-    inputMessage.value = savedData.message;
-  }
-  if (savedData.rating) {
-    formRating.dataset.rating = savedData.rating;
-  }
-  createStars(formRating, savedData.rating);
+  const saved = JSON.parse(localStorage.getItem(STORAGE_KEY) || 'null');
+  if (!saved) return;
+
+  if (saved.name) inputName.value = saved.name;
+  if (saved.message) inputMessage.value = saved.message;
+  if (saved.rating) formRating.dataset.rating = saved.rating;
+
+  createStars(formRating, saved.rating || 0);
 }
 
-//reset localStorage
 function resetLocalStorage() {
   localStorage.removeItem(STORAGE_KEY);
   form.reset();
@@ -240,54 +207,49 @@ function resetLocalStorage() {
   createStars(formRating, 0);
 }
 
-// data to API
-form.addEventListener("submit", async (e) => {
+// ===== Submit =====
+form.addEventListener('submit', async (e) => {
   e.preventDefault();
-  const name = form.querySelector(".form-input-name").value.trim();
-  const message = form.querySelector(".form-input-message").value.trim()
-  const rating = Math.round(formRating.dataset.rating) || 0;
-  console.log("Name:", name);
-  console.log("Message:", message);
-  console.log("Rating:", rating);
 
-    if (!name || name.length < 2 || name.length > 16) {
-      return iziToast.error({ message: 'Shortest name - 2 letters; Largest name - 16 letters' })
-  };
+  const name = inputName.value.trim();
+  const message = inputMessage.value.trim();
+  const rating = Math.round(formRating.dataset.rating) || 0;
+
+  if (!name || name.length < 2 || name.length > 16) {
+    return iziToast.error({ message: 'Shortest name - 2 letters; Largest name - 16 letters' });
+  }
   if (!message || message.length < 10 || message.length > 512) {
-    return iziToast.error({ message: 'Min message - 10 symbols; Max message - 512 symbols' })
+    return iziToast.error({ message: 'Min message - 10 symbols; Max message - 512 symbols' });
   }
   if (rating < 1 || rating > 5) {
-    return iziToast.error({ message: "Rating must be between '1' and '5'" })
+    return iziToast.error({ message: "Rating must be between '1' and '5'" });
   }
+
   try {
-    const response = await fetch("https://sound-wave.b.goit.study/api/feedbacks", {
-      method: "POST",
+    const response = await fetch('https://sound-wave.b.goit.study/api/feedbacks', {
+      method: 'POST',
       headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json",
+        'Content-Type': 'application/json',
+        Accept: 'application/json',
       },
-      body: JSON.stringify({
-        name: name,
-        descr: message,
-        rating: rating,
-      })
-      
-    })
-    
+      body: JSON.stringify({ name, descr: message, rating }),
+    });
+
     if (!response.ok) {
-      iziToast.error({
-        title: 'Error:',
-        message: '${response.status}'});
-    } 
+      iziToast.error({ title: 'Error:', message: `${response.status}` });
+      return;
+    }
 
     resetLocalStorage();
-    overlay.classList.add("hidden");
-    container.classList.remove("hidden");
-    document.body.classList.remove("no-scroll");
+    closeModal();
+    document.body.classList.remove('no-scroll');
+
+    // Перезагружаем отзывы и пересоздаём swiper (будет снова 10)
     loadReviews();
   } catch (err) {
-
-    iziToast.error({ message: 'Bad request (invalid request body)' })
+    iziToast.error({ message: 'Bad request (invalid request body)' });
   }
-})
-document.addEventListener("DOMContentLoaded", loadReviews);
+});
+
+// ===== Start =====
+document.addEventListener('DOMContentLoaded', loadReviews);
