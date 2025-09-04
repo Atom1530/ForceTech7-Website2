@@ -23,19 +23,22 @@
 
 .swiper {
   position: relative;
-  padding: 64px 16px 16px 16px;
-  display: flex;
-  align-items: center;
-  flex-wrap: row;
-  justify-content: flex-start;
-  overflow: visible;
+  padding: 0;
+  overflow: hidden;
   width: 288px;
+
+  display: block;
+  align-items: unset;
+  justify-content: unset;
 }
 
-@media screen and (min-width: 768px) {
+@media (min-width: 1440px) {
   .swiper {
-    width: 704px;
+    width: 1312px;
   }
+}
+.swiper .swiper-wrapper {
+  gap: 0 !important;
 }
 
 @media screen and (min-width: 1440px) {

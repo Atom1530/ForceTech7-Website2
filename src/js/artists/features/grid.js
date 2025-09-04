@@ -4,63 +4,45 @@ import { fetchArtists, fetchGenres } from "./api.js";
 import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
 import { openZoom } from "./zoom.js";
-
-/* ---------- SPRITE: robust base path + helper ---------- */
-function detectBasePath() {
-  try {
-    const baseEl = document.querySelector("base");
-    if (baseEl?.href) {
-      const u = new URL(baseEl.getAttribute("href"), location.href);
-      return u.pathname.replace(/\/$/, "");
-    }
-  } catch {}
-  const viteBase = (typeof import.meta !== "undefined" &&
-    import.meta.env && typeof import.meta.env.BASE_URL === "string")
-    ? import.meta.env.BASE_URL : "";
-  if (viteBase) return viteBase.replace(/\/$/, "");
-  if (location.hostname.endsWith("github.io")) {
-    const parts = location.pathname.split("/").filter(Boolean);
-    return parts.length ? `/${parts[0]}` : "";
-  }
-  return "";
-}
-const BASE_URL = detectBasePath();
-const SPRITE   = `${BASE_URL}/img/sprite.svg`;
-const icon = (id, cls = "ico") =>
-  `<svg class="${cls}" aria-hidden="true"><use href="${SPRITE}#${id}" xlink:href="${SPRITE}#${id}"></use></svg>`;
+import { icon } from "../../shared/sprite.js"; // <-- оставляем только helper
 
 /* ---------- view-mode persistence ---------- */
-const VIEW_KEY = "artistsViewMode";     // "grid" | "list"
+const VIEW_KEY = "artistsViewMode"; // "grid" | "list"
 const DEFAULT_LIMIT = 8;
-const LIST_LIMIT    = 14;
-const getSavedView = () => (localStorage.getItem(VIEW_KEY) === "list" ? "list" : "grid");
-const saveView     = (mode) => { try { localStorage.setItem(VIEW_KEY, mode); } catch {} };
+const LIST_LIMIT = 14;
+const getSavedView = () =>
+  (localStorage.getItem(VIEW_KEY) === "list" ? "list" : "grid");
+const saveView = (mode) => {
+  try {
+    localStorage.setItem(VIEW_KEY, mode);
+  } catch {}
+};
 
 /* ---------- main ---------- */
 export function initGrid(root = document.querySelector("#artists-section")) {
   if (!root) return;
 
   // ---------- refs ----------
-  const panel       = root.querySelector("#filters-panel");
-  const toggleBtn   = root.querySelector("#filters-toggle");
-  const resetBtn    = root.querySelector("#filters-reset");
-  const resetBtnSm  = root.querySelector("#filters-reset-sm");
-  let   viewToggle  = root.querySelector("#view-toggle"); // может отсутствовать
+  const panel = root.querySelector("#filters-panel");
+  const toggleBtn = root.querySelector("#filters-toggle");
+  const resetBtn = root.querySelector("#filters-reset");
+  const resetBtnSm = root.querySelector("#filters-reset-sm");
+  let viewToggle = root.querySelector("#view-toggle"); // может отсутствовать
 
   const searchInput = root.querySelector("#flt-q");
-  const searchBtn   = root.querySelector("#flt-q-btn");
+  const searchBtn = root.querySelector("#flt-q-btn");
 
-  const ddSort      = root.querySelector('.dd[data-dd="sort"]');
-  const ddSortBtn   = root.querySelector("#dd-sort-btn");
-  const ddSortList  = root.querySelector("#dd-sort-list");
+  const ddSort = root.querySelector('.dd[data-dd="sort"]');
+  const ddSortBtn = root.querySelector("#dd-sort-btn");
+  const ddSortList = root.querySelector("#dd-sort-list");
 
-  const ddGenre     = root.querySelector('.dd[data-dd="genre"]');
-  const ddGenreBtn  = root.querySelector("#dd-genre-btn");
+  const ddGenre = root.querySelector('.dd[data-dd="genre"]');
+  const ddGenreBtn = root.querySelector("#dd-genre-btn");
   const ddGenreList = root.querySelector("#dd-genre-list");
 
-  const grid        = root.querySelector("#artists-grid");
-  const pager       = root.querySelector("#artists-pager");
-  const empty       = root.querySelector("#artists-empty");
+  const grid = root.querySelector("#artists-grid");
+  const pager = root.querySelector("#artists-pager");
+  const empty = root.querySelector("#artists-empty");
 
   // модалка
   const modalApi = createArtistModal(document);
@@ -81,8 +63,14 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       toggleBtn?.setAttribute("aria-expanded", "false");
       ArtistState.setMobilePanel(false);
     } else {
-      panel?.setAttribute("aria-hidden", st.isMobilePanelOpen ? "false" : "true");
-      toggleBtn?.setAttribute("aria-expanded", st.isMobilePanelOpen ? "true" : "false");
+      panel?.setAttribute(
+        "aria-hidden",
+        st.isMobilePanelOpen ? "false" : "true"
+      );
+      toggleBtn?.setAttribute(
+        "aria-expanded",
+        st.isMobilePanelOpen ? "true" : "false"
+      );
     }
   }
 
@@ -92,8 +80,15 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   }
 
   function applyEmpty(on) {
-    if (on) { show(empty); hide(grid); hide(pager); resetGridInlineStyles(); }
-    else { hide(empty); show(grid); }
+    if (on) {
+      show(empty);
+      hide(grid);
+      hide(pager);
+      resetGridInlineStyles();
+    } else {
+      hide(empty);
+      show(grid);
+    }
   }
   function resetGridInlineStyles() {
     grid.style.height = "";
@@ -118,7 +113,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   function renderSkeleton(count) {
     const n = Math.max(1, Number(count) || DEFAULT_LIMIT);
     grid.innerHTML = new Array(n).fill(0).map(buildSkeletonCard).join("");
-    show(grid); hide(empty); hide(pager);
+    show(grid);
+    hide(empty);
+    hide(pager);
   }
   function afterImagesFadeIn() {
     const imgs = grid.querySelectorAll("img.img-fade");
@@ -138,7 +135,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     grid.style.transition = "none";
     grid.style.height = `${Math.max(1, Math.round(hh || 0))}px`;
   }
-  function unlockGridHeight() { resetGridInlineStyles(); }
+  function unlockGridHeight() {
+    resetGridInlineStyles();
+  }
   function swapGridContent(renderFn) {
     renderFn();
     void grid.offsetHeight;
@@ -159,9 +158,13 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   function buildCard(a) {
     const id = a?.id || a?._id || a?.artistId || "";
     const name = a?.strArtist || a?.name || "Unknown";
-    const img = a?.strArtistThumb || a?.photo || a?.image || "https://via.placeholder.com/960x540?text=No+Image";
+    const img =
+      a?.strArtistThumb ||
+      a?.photo ||
+      a?.image ||
+      "https://via.placeholder.com/960x540?text=No+Image";
     const about = a?.strBiographyEN || a?.about || "";
-    const tags = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
+    const tags = Array.isArray(a?.genres) ? a.genres : a?.genre ? [a.genre] : [];
     const sizes = "(min-width:1440px) 50vw, (min-width:768px) 704px, 100vw";
 
     return `
@@ -176,7 +179,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
             loading="lazy"
           >
         </div>
-        <div class="card__tags">${tags.map(t => `<span class="tag">${t}</span>`).join("")}</div>
+        <div class="card__tags">${tags
+          .map((t) => `<span class="tag">${t}</span>`)
+          .join("")}</div>
         <h3 class="card__title">${name}</h3>
         <p class="card__text">${about}</p>
         <button class="card__link" data-action="more">
@@ -191,13 +196,20 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   }
 
   function renderPager(page, totalPages) {
-    if (totalPages <= 0) { pager.innerHTML = ""; hide(pager); return; }
+    if (totalPages <= 0) {
+      pager.innerHTML = "";
+      hide(pager);
+      return;
+    }
     if (totalPages === 1) {
       pager.innerHTML = `<button class="active" data-page="1" disabled>1</button>`;
-      show(pager); return;
+      show(pager);
+      return;
     }
     const btn = (label, p, dis = false, act = false) =>
-      `<button ${dis ? "disabled" : ""} data-page="${p}" class="${act ? "active" : ""}">${label}</button>`;
+      `<button ${dis ? "disabled" : ""} data-page="${p}" class="${
+        act ? "active" : ""
+      }">${label}</button>`;
 
     const win = 2;
     const from = Math.max(1, page - win);
@@ -232,7 +244,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
           <span>Loading…</span>
         </li>`;
       const list = await fetchGenres();
-      ddGenreList.innerHTML = list.map((g) => `<li data-val="${g}">${g}</li>`).join("");
+      ddGenreList.innerHTML = list
+        .map((g) => `<li data-val="${g}">${g}</li>`)
+        .join("");
     } catch {
       ddGenreList.innerHTML = `<li data-val="">All Genres</li>`;
     } finally {
@@ -256,25 +270,39 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
     try {
       const server = await fetchArtists({
-        page, limit,
+        page,
+        limit,
         genre: genre || "",
-        sort:  sort  || "",
-        name:  q?.trim?.() || "",
+        sort: sort || "",
+        name: q?.trim?.() || "",
       });
       if (myId !== reqId) return;
-      list  = Array.isArray(server.artists) ? server.artists : [];
+      list = Array.isArray(server.artists) ? server.artists : [];
       total = Number(server.totalArtists || list.length || 0);
     } catch {
       if (myId !== reqId) return;
-      list = []; total = 0;
+      list = [];
+      total = 0;
     }
 
     let totalPages = Math.max(1, Math.ceil(total / limit));
-    if (page > totalPages && allowRetry) { ArtistState.setPage(totalPages); return loadArtists(false); }
-    if (page < 1 && allowRetry)          { ArtistState.setPage(1);         return loadArtists(false); }
+    if (page > totalPages && allowRetry) {
+      ArtistState.setPage(totalPages);
+      return loadArtists(false);
+    }
+    if (page < 1 && allowRetry) {
+      ArtistState.setPage(1);
+      return loadArtists(false);
+    }
 
-    if (sort === "asc")  list = list.slice().sort((a, b) => byName(a).localeCompare(byName(b)));
-    if (sort === "desc") list = list.slice().sort((a, b) => byName(b).localeCompare(byName(a)));
+    if (sort === "asc")
+      list = list
+        .slice()
+        .sort((a, b) => byName(a).localeCompare(byName(b)));
+    if (sort === "desc")
+      list = list
+        .slice()
+        .sort((a, b) => byName(b).localeCompare(byName(a)));
 
     if (myId !== reqId) return;
 
@@ -317,12 +345,21 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   });
   addEventListener("resize", syncPanelMode);
 
-  ddSortBtn?.addEventListener("click", () => { UISound.tap(); toggleDropdown(ddSort); });
-  ddGenreBtn?.addEventListener("click", () => { UISound.tap(); toggleDropdown(ddGenre); });
-  document.addEventListener("click", (e) => { if (!e.target.closest(".dd")) closeDropdowns(); });
+  ddSortBtn?.addEventListener("click", () => {
+    UISound.tap();
+    toggleDropdown(ddSort);
+  });
+  ddGenreBtn?.addEventListener("click", () => {
+    UISound.tap();
+    toggleDropdown(ddGenre);
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dd")) closeDropdowns();
+  });
 
   ddSortList?.addEventListener("click", (e) => {
-    const li = e.target.closest("li"); if (!li) return;
+    const li = e.target.closest("li");
+    if (!li) return;
     UISound.tap();
     ArtistState.setSort(li.dataset.val || "");
     toggleDropdown(ddSort);
@@ -330,7 +367,8 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   });
 
   ddGenreList?.addEventListener("click", (e) => {
-    const li = e.target.closest("li"); if (!li) return;
+    const li = e.target.closest("li");
+    if (!li) return;
     UISound.tap();
     const v = li.dataset.val || "";
     ArtistState.setGenre(v === "All Genres" ? "" : v);
@@ -345,7 +383,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     loadArtists();
   }
   searchBtn?.addEventListener("click", doSearch);
-  searchInput?.addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
+  searchInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doSearch();
+  });
 
   function resetAll() {
     ArtistState.reset();
@@ -356,17 +396,26 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     closeDropdowns();
     loadArtists();
   }
-  resetBtn?.addEventListener("click", () => { UISound.tap(); resetAll(); });
+  resetBtn?.addEventListener("click", () => {
+    UISound.tap();
+    resetAll();
+  });
   resetBtnSm?.addEventListener("click", () => {
     UISound.tap();
     resetAll();
     ArtistState.setMobilePanel(false);
     syncPanelMode();
   });
-  root.querySelector("#empty-reset")?.addEventListener("click", () => { UISound.tap(); resetAll(); });
+  root
+    .querySelector("#empty-reset")
+    ?.addEventListener("click", () => {
+      UISound.tap();
+      resetAll();
+    });
 
   pager?.addEventListener("click", (e) => {
-    const b = e.target.closest("button[data-page]"); if (!b || b.disabled) return;
+    const b = e.target.closest("button[data-page]");
+    if (!b || b.disabled) return;
     const p = Number(b.dataset.page) || 1;
     if (p === ArtistState.get().page) return;
     UISound.page();
@@ -394,7 +443,8 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       btn.style.border = "1px solid rgba(255,255,255,0.25)";
       btn.style.background = "transparent";
       btn.style.color = "var(--color-white, #fff)";
-      btn.style.font = "500 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
+      btn.style.font =
+        "500 14px/1.2 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif";
 
       // куда вставляем
       const anchor = panel || root;
