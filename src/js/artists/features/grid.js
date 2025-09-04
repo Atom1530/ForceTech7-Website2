@@ -3,11 +3,9 @@ import { UISound } from "../lib/sound.js";
 import { fetchArtists, fetchGenres } from "./api.js";
 import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
+import { openZoom } from "./zoom.js";
 
-// Если нужно, можно использовать в модалке zoom, но здесь он не обязателен
-// import { openZoom } from "./zoom.js";
-
-// === Встраиваем спрайт (raw) один раз на страницу ===
+// === SPRITE: инлайн через Vite ?raw (id-only в <use>) ===
 import SPRITE_RAW from "../../../img/sprite.svg?raw";
 
 const SPRITE_CONTAINER_ID = "GLOBAL_SVG_SPRITE";
@@ -23,61 +21,91 @@ function ensureSpriteMounted(doc = document) {
   wrap.innerHTML = SPRITE_RAW;
   doc.body.prepend(wrap);
 }
-
-// Только вызов по id: <use href="#{id}">
 const icon = (id, cls = "ico") =>
   `<svg class="${cls}" aria-hidden="true"><use href="#${id}" xlink:href="#${id}"></use></svg>`;
 
-// ====== Константы ======
-const DEFAULT_LIMIT = 8; // Default View (на страницу)
-const DECK_TEXT =
-  "A look at the influential figures who shaped jazz music history.";
+// ——— параметры рендеринга ———
+const DEFAULT_LIMIT = 8;
 
-// Автолимит для ListView по ширине
-function computeListLimit() {
-  const w = window.innerWidth || document.documentElement.clientWidth || 0;
-  if (w >= 1440) return 16; // desktop
-  if (w >= 768)  return 12; // tablet
-  return 10;                // mobile
+// Без сетевых запросов → не будет ошибок в консоли
+const FALLBACK_IMG =
+  "data:image/svg+xml;utf8," +
+  encodeURIComponent(
+    `<svg xmlns="http://www.w3.org/2000/svg" width="960" height="540">
+      <rect width="100%" height="100%" fill="#0b0b0b"/>
+      <text x="50%" y="50%" fill="#888" font-family="IBM Plex Sans,Arial,sans-serif"
+            font-size="28" text-anchor="middle" dominant-baseline="middle">No image</text>
+    </svg>`
+  );
+
+// аккуратно отсекаем «странные» URL, чтобы не гонять лишние запросы
+function looksLikeImageUrl(u) {
+  if (!u || typeof u !== "string") return false;
+  if (!/^https?:\/\//i.test(u)) return false;
+  if (/null|undefined$/i.test(u)) return false;
+  // допускаем и svg, и растровые
+  if (!/\.(jpg|jpeg|png|webp|gif|avif|svg)(\?|#|$)/i.test(u)) return false;
+  return true;
 }
 
-// ====== Инициализация сетки ======
+// лимит для List View
+function computeListLimit() {
+  const w = window.innerWidth || document.documentElement.clientWidth || 0;
+  if (w >= 1440) return 16;
+  if (w >= 768) return 12;
+  return 10;
+}
+
+// гарантируем наличие кнопки List view (особенно на мобилке)
+function ensureViewToggle(root) {
+  let btn = root.querySelector("#view-toggle");
+  if (!btn) {
+    btn = document.createElement("button");
+    btn.id = "view-toggle";
+    btn.type = "button";
+    btn.className = "filters__view";
+    btn.setAttribute("aria-pressed", "false");
+    btn.textContent = "List view";
+    const mount =
+      root.querySelector(".filters__bar") ||
+      root.querySelector(".filters") ||
+      root;
+    mount.appendChild(btn);
+  }
+  return btn;
+}
+
 export function initGrid(root = document.querySelector("#artists-section")) {
   if (!root) return;
 
   ensureSpriteMounted(document);
 
   // ---------- refs ----------
-  const panel       = root.querySelector("#filters-panel");
-  const toggleBtn   = root.querySelector("#filters-toggle");
-  const resetBtn    = root.querySelector("#filters-reset");
-  const resetBtnSm  = root.querySelector("#filters-reset-sm"); // может отсутствовать
-  const viewToggle  = root.querySelector("#view-toggle");
+  const panel = root.querySelector("#filters-panel");
+  const toggleBtn = root.querySelector("#filters-toggle");
+  const resetBtn = root.querySelector("#filters-reset");
+  const resetBtnSm = root.querySelector("#filters-reset-sm");
+  const viewToggle = ensureViewToggle(root);
 
   const searchInput = root.querySelector("#flt-q");
-  const searchBtn   = root.querySelector("#flt-q-btn"); // может отсутствовать (моб/таб)
+  const searchBtn = root.querySelector("#flt-q-btn");
 
-  const ddSort      = root.querySelector('.dd[data-dd="sort"]');
-  const ddSortBtn   = root.querySelector("#dd-sort-btn");
-  const ddSortList  = root.querySelector("#dd-sort-list");
+  const ddSort = root.querySelector('.dd[data-dd="sort"]');
+  const ddSortBtn = root.querySelector("#dd-sort-btn") || ddSort?.querySelector(".dd__btn");
+  const ddSortList = root.querySelector("#dd-sort-list") || ddSort?.querySelector(".dd__list");
 
-  const ddGenre     = root.querySelector('.dd[data-dd="genre"]');
-  const ddGenreBtn  = root.querySelector("#dd-genre-btn");
-  const ddGenreList = root.querySelector("#dd-genre-list");
+  const ddGenre = root.querySelector('.dd[data-dd="genre"]');
+  const ddGenreBtn = root.querySelector("#dd-genre-btn") || ddGenre?.querySelector(".dd__btn");
+  const ddGenreList = root.querySelector("#dd-genre-list") || ddGenre?.querySelector(".dd__list");
 
-  const grid        = root.querySelector("#artists-grid");
-  const pager       = root.querySelector("#artists-pager");
-  const empty       = root.querySelector("#artists-empty");
-
+  const grid = root.querySelector("#artists-grid");
+  const pager = root.querySelector("#artists-pager");
+  const empty = root.querySelector("#artists-empty");
   const sectionRoot = root.closest(".artists1") || root;
-  const modalApi    = createArtistModal(document);
 
-  // Необязательная кнопка MixRadio (если есть)
-  const mixRadioBtn = root.querySelector("#random-radio");
+  const modalApi = createArtistModal(document);
 
-  // защита от гонок
   let reqId = 0;
-  // для авто-лимита в List View
   let lastAppliedLimit = null;
 
   // ---------- utils ----------
@@ -85,15 +113,18 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   const hide = (el) => el && el.setAttribute("hidden", "");
   const isDesktop = () => matchMedia("(min-width:1440px)").matches;
   const byName = (a) => (a?.strArtist || a?.name || "").toLowerCase();
-  const FALLBACK_IMG = "https://via.placeholder.com/960x540?text=No+Image";
-
   const isListMode = () => sectionRoot.classList.contains("view-list");
 
+  function updateViewButtonUI(listOn) {
+    viewToggle?.setAttribute("aria-pressed", String(listOn));
+    if (viewToggle) viewToggle.textContent = listOn ? "Default view" : "List view";
+  }
+
   function applyAutoLimitForCurrentMode({ resetPage = false } = {}) {
-    const target = isListMode() ? computeListLimit() : DEFAULT_LIMIT;
-    if (lastAppliedLimit === target) return;
-    lastAppliedLimit = target;
-    ArtistState.setLimit(target);
+    const want = isListMode() ? computeListLimit() : DEFAULT_LIMIT;
+    if (lastAppliedLimit === want) return;
+    lastAppliedLimit = want;
+    ArtistState.setLimit(want);
     if (resetPage) ArtistState.setPage(1);
     loadArtists();
   }
@@ -116,8 +147,15 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   }
 
   function applyEmpty(on) {
-    if (on) { show(empty); hide(grid); hide(pager); resetGridInlineStyles(); }
-    else { hide(empty); show(grid); }
+    if (on) {
+      show(empty);
+      hide(grid);
+      hide(pager);
+      resetGridInlineStyles();
+    } else {
+      hide(empty);
+      show(grid);
+    }
   }
   function resetGridInlineStyles() {
     grid.style.height = "";
@@ -126,7 +164,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     grid.style.willChange = "";
   }
 
-  // ---------- skeleton + fade-in ----------
+  // skeleton + fade-in
   function buildSkeletonCard() {
     return `
       <li class="card card--skel">
@@ -142,7 +180,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   function renderSkeleton(count) {
     const n = Math.max(1, Number(count) || DEFAULT_LIMIT);
     grid.innerHTML = new Array(n).fill(0).map(buildSkeletonCard).join("");
-    show(grid); hide(empty); hide(pager);
+    show(grid);
+    hide(empty);
+    hide(pager);
   }
   function afterImagesFadeIn() {
     const imgs = grid.querySelectorAll("img.img-fade");
@@ -152,14 +192,16 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       else img.addEventListener("load", done, { once: true });
     });
   }
-  // подстраховка картинок
   function attachImgFallbacks() {
-    grid.querySelectorAll("img.img-fade").forEach(img => {
-      img.onerror = () => { img.onerror = null; img.src = FALLBACK_IMG; };
+    grid.querySelectorAll("img").forEach((img) => {
+      img.onerror = () => {
+        img.onerror = null;
+        img.src = FALLBACK_IMG; // локальный data: → нет ошибок в консоли
+      };
     });
   }
 
-  // удержание высоты на время перерендера
+  // удерживаем высоту на время перерендера
   let gridCleanupTimer = null;
   function lockGridHeight(h) {
     const hh = h ?? grid.getBoundingClientRect().height;
@@ -168,7 +210,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     grid.style.transition = "none";
     grid.style.height = `${Math.max(1, Math.round(hh || 0))}px`;
   }
-  function unlockGridHeight() { resetGridInlineStyles(); }
+  function unlockGridHeight() {
+    resetGridInlineStyles();
+  }
   function swapGridContent(renderFn) {
     renderFn();
     void grid.offsetHeight;
@@ -187,45 +231,30 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
   // ---------- rendering ----------
   function buildCard(a) {
-    const id    = a?.id || a?._id || a?.artistId || "";
-    const name  = a?.strArtist || a?.name || "Unknown";
-    const img   = a?.strArtistThumb || a?.photo || a?.image || FALLBACK_IMG;
-    const genres = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
-
-    // короткий «дек» как в макете — показываем в разметке (в ListView его скрывает CSS)
-    const desc  = DECK_TEXT;
-
-    const sizes = "(min-width:1440px) 50vw, (min-width:768px) 704px, 100vw";
+    const id = a?.id || a?._id || a?.artistId || "";
+    const name = a?.strArtist || a?.name || "Unknown";
+    const rawImg = a?.strArtistThumb || a?.photo || a?.image || "";
+    const img = looksLikeImageUrl(rawImg) ? rawImg : FALLBACK_IMG;
+    const about = a?.strBiographyEN || a?.about || "";
+    const tags = Array.isArray(a?.genres) ? a.genres : a?.genre ? [a.genre] : [];
 
     return `
       <li class="card" data-id="${id}">
         <div class="card__media">
-          <img
-            class="img-fade"
-            src="${img}"
-            srcset="${img} 1x, ${img} 2x"
-            sizes="${sizes}"
-            alt="${name}"
-            loading="lazy"
-            onerror="this.onerror=null;this.src='${FALLBACK_IMG}'"
-          >
+          <img class="img-fade"
+               src="${img}"
+               alt="${name}"
+               loading="lazy"
+               onerror="this.onerror=null;this.src='${FALLBACK_IMG}'">
         </div>
-
-        <div class="card__tags">
-          ${genres.map(t => `<span class="tag">${t}</span>`).join("")}
-        </div>
-
+        <div class="card__tags">${tags.map((t) => `<span class="tag">${t}</span>`).join("")}</div>
         <h3 class="card__title">${name}</h3>
-
-        <p class="card__text">${desc}</p>
-
-        <button class="card__link" data-action="more" type="button">
-          Learn More
-          ${icon("icon-icon_play_artists_sections")}
+        <p class="card__text">${about}</p>
+        <button class="card__link" data-action="more">
+          Learn More ${icon("icon-icon_play_artists_sections")}
         </button>
       </li>`;
   }
-
   function renderGrid(arr) {
     grid.innerHTML = arr.map(buildCard).join("");
     attachImgFallbacks();
@@ -233,39 +262,35 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   }
 
   function renderPager(page, totalPages) {
-    if (totalPages <= 0) { pager.innerHTML = ""; hide(pager); return; }
-
-    const mkBtn = (label, p, dis = false, act = false) =>
-      `<button ${dis ? "disabled" : ""} data-page="${p}" class="${act ? "active" : ""}">${label}</button>`;
-
+    if (totalPages <= 0) {
+      pager.innerHTML = "";
+      hide(pager);
+      return;
+    }
     if (totalPages === 1) {
-      pager.innerHTML = mkBtn("1", 1, true, true);
+      pager.innerHTML = `<button class="active" data-page="1" disabled>1</button>`;
       show(pager);
       return;
     }
+    const btn = (label, p, dis = false, act = false) =>
+      `<button ${dis ? "disabled" : ""} data-page="${p}" class="${act ? "active" : ""}">${label}</button>`;
 
-    const win = 2; // окно страниц
+    const win = 2;
     const from = Math.max(1, page - win);
-    const to   = Math.min(totalPages, page + win);
-    const out  = [];
+    const to = Math.min(totalPages, page + win);
+    const out = [];
 
-    out.push(mkBtn("‹", Math.max(1, page - 1), page === 1, false));
-
+    out.push(btn("‹", Math.max(1, page - 1), page === 1, false));
     if (from > 1) {
-      out.push(mkBtn("1", 1, false, page === 1));
+      out.push(btn("1", 1, false, page === 1));
       if (from > 2) out.push(`<button class="dots" disabled>…</button>`);
     }
-
-    for (let i = from; i <= to; i++) {
-      out.push(mkBtn(String(i), i, false, i === page));
-    }
-
+    for (let p = from; p <= to; p++) out.push(btn(String(p), p, false, p === page));
     if (to < totalPages) {
       if (to < totalPages - 1) out.push(`<button class="dots" disabled>…</button>`);
-      out.push(mkBtn(String(totalPages), totalPages, false, page === totalPages));
+      out.push(btn(String(totalPages), totalPages, false, page === totalPages));
     }
-
-    out.push(mkBtn("›", Math.min(totalPages, page + 1), page === totalPages, false));
+    out.push(btn("›", Math.min(totalPages, page + 1), page === totalPages, false));
 
     pager.innerHTML = out.join("");
     show(pager);
@@ -277,15 +302,18 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       ddGenre?.classList.add("loading");
       ddGenreBtn?.setAttribute("aria-busy", "true");
       if (ddGenreBtn) ddGenreBtn.disabled = true;
-      ddGenreList.innerHTML = `
-        <li class="dd__loading">
-          <span class="dd__spinner" aria-hidden="true"></span>
-          <span>Loading…</span>
-        </li>`;
+      if (ddGenreList) {
+        ddGenreList.innerHTML = `
+          <li class="dd__loading">
+            <span class="dd__spinner" aria-hidden="true"></span>
+            <span>Loading…</span>
+          </li>`;
+      }
       const list = await fetchGenres();
-      ddGenreList.innerHTML = list.map((g) => `<li data-val="${g}">${g}</li>`).join("");
+      if (ddGenreList)
+        ddGenreList.innerHTML = list.map((g) => `<li data-val="${g}">${g}</li>`).join("");
     } catch {
-      ddGenreList.innerHTML = `<li data-val="">All Genres</li>`;
+      if (ddGenreList) ddGenreList.innerHTML = `<li data-val="">All Genres</li>`;
     } finally {
       ddGenre?.classList.remove("loading");
       ddGenreBtn?.removeAttribute("aria-busy");
@@ -295,7 +323,6 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
   async function loadArtists(allowRetry = true) {
     const myId = ++reqId;
-
     const { page, limit, genre, sort, q } = ArtistState.get();
 
     lockGridHeight(grid.getBoundingClientRect().height);
@@ -307,13 +334,14 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
     try {
       const server = await fetchArtists({
-        page, limit,
+        page,
+        limit,
         genre: genre || "",
-        sort:  sort  || "",
-        name:  q?.trim?.() || "",
+        sort: sort || "",
+        name: q?.trim?.() || "",
       });
       if (myId !== reqId) return;
-      list  = Array.isArray(server.artists) ? server.artists : [];
+      list = Array.isArray(server.artists) ? server.artists : [];
       total = Number(server.totalArtists || list.length || 0);
     } catch {
       if (myId !== reqId) return;
@@ -321,11 +349,17 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       total = 0;
     }
 
-    let totalPages = Math.max(1, Math.ceil(total / Math.max(1, limit)));
-    if (page > totalPages && allowRetry) { ArtistState.setPage(totalPages); return loadArtists(false); }
-    if (page < 1 && allowRetry)          { ArtistState.setPage(1);         return loadArtists(false); }
+    let totalPages = Math.max(1, Math.ceil(total / limit));
+    if (page > totalPages && allowRetry) {
+      ArtistState.setPage(totalPages);
+      return loadArtists(false);
+    }
+    if (page < 1 && allowRetry) {
+      ArtistState.setPage(1);
+      return loadArtists(false);
+    }
 
-    if (sort === "asc")  list = list.slice().sort((a, b) => byName(a).localeCompare(byName(b)));
+    if (sort === "asc") list = list.slice().sort((a, b) => byName(a).localeCompare(byName(b)));
     if (sort === "desc") list = list.slice().sort((a, b) => byName(b).localeCompare(byName(a)));
 
     if (myId !== reqId) return;
@@ -353,6 +387,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     });
   }
   function toggleDropdown(dd) {
+    if (!dd) return;
     const open = !dd.classList.contains("open");
     closeDropdowns(dd);
     dd.classList.toggle("open", open);
@@ -362,32 +397,35 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
   // ---------- UI events ----------
   toggleBtn?.addEventListener("click", () => {
-    UISound?.tap?.();
+    try { UISound?.tap?.(); } catch {}
     const st = ArtistState.get();
     ArtistState.setMobilePanel(!st.isMobilePanelOpen);
     syncPanelMode();
   });
-
   addEventListener("resize", () => {
     syncPanelMode();
     if (isListMode()) applyAutoLimitForCurrentMode({ resetPage: true });
   });
 
-  ddSortBtn?.addEventListener("click", () => { UISound?.tap?.(); toggleDropdown(ddSort); });
-  ddGenreBtn?.addEventListener("click", () => { UISound?.tap?.(); toggleDropdown(ddGenre); });
-  document.addEventListener("click", (e) => { if (!e.target.closest(".dd")) closeDropdowns(); });
+  ddSortBtn?.addEventListener("click", () => { try { UISound?.tap?.(); } catch {} toggleDropdown(ddSort); });
+  ddGenreBtn?.addEventListener("click", () => { try { UISound?.tap?.(); } catch {} toggleDropdown(ddGenre); });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".dd")) closeDropdowns();
+  });
 
   ddSortList?.addEventListener("click", (e) => {
-    const li = e.target.closest("li"); if (!li) return;
-    UISound?.tap?.();
+    const li = e.target.closest("li");
+    if (!li) return;
+    try { UISound?.tap?.(); } catch {}
     ArtistState.setSort(li.dataset.val || "");
     toggleDropdown(ddSort);
     loadArtists();
   });
 
   ddGenreList?.addEventListener("click", (e) => {
-    const li = e.target.closest("li"); if (!li) return;
-    UISound?.tap?.();
+    const li = e.target.closest("li");
+    if (!li) return;
+    try { UISound?.tap?.(); } catch {}
     const v = li.dataset.val || "";
     ArtistState.setGenre(v === "All Genres" ? "" : v);
     toggleDropdown(ddGenre);
@@ -396,13 +434,15 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   });
 
   function doSearch() {
-    UISound?.tap?.();
+    try { UISound?.tap?.(); } catch {}
     ArtistState.setQuery(searchInput?.value.trim() || "");
     ArtistState.setPage(1);
     loadArtists();
   }
   searchBtn?.addEventListener("click", doSearch);
-  searchInput?.addEventListener("keydown", (e) => { if (e.key === "Enter") doSearch(); });
+  searchInput?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") doSearch();
+  });
 
   function resetAll() {
     ArtistState.reset();
@@ -411,32 +451,53 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     lastAppliedLimit = null;
     applyAutoLimitForCurrentMode({ resetPage: true });
   }
-  resetBtn?.addEventListener("click", () => { UISound?.tap?.(); resetAll(); });
+  resetBtn?.addEventListener("click", () => {
+    try { UISound?.tap?.(); } catch {}
+    resetAll();
+  });
   resetBtnSm?.addEventListener("click", () => {
-    UISound?.tap?.();
+    try { UISound?.tap?.(); } catch {}
     resetAll();
     ArtistState.setMobilePanel(false);
     syncPanelMode();
   });
-  root.querySelector("#empty-reset")?.addEventListener("click", () => { UISound?.tap?.(); resetAll(); });
+  root.querySelector("#empty-reset")?.addEventListener("click", () => {
+    try { UISound?.tap?.(); } catch {}
+    resetAll();
+  });
 
   pager?.addEventListener("click", (e) => {
-    const b = e.target.closest("button[data-page]"); if (!b || b.disabled) return;
-    const next = Number(b.dataset.page) || 1;
-    if (next === ArtistState.get().page) return;
-    UISound?.page?.();
+    const b = e.target.closest("button[data-page]");
+    if (!b || b.disabled) return;
+    const p = Number(b.dataset.page) || 1;
+    if (p === ArtistState.get().page) return;
+    try { UISound?.page?.(); } catch {}
     scrollToGridTop();
-    ArtistState.setPage(next);
+    ArtistState.setPage(p);
     loadArtists();
   });
 
-  // Кнопка "List view" ↔ "Default view"
-  function updateViewButtonUI(listOn) {
-    viewToggle?.setAttribute("aria-pressed", String(listOn));
-    if (viewToggle) viewToggle.textContent = listOn ? "Default view" : "List view";
-  }
+  // Learn More + Zoom
+  grid?.addEventListener("click", (e) => {
+    const btn = e.target.closest(".card__link, [data-action='more']");
+    if (btn) {
+      const id = btn.closest(".card")?.dataset?.id;
+      if (!id) return;
+      try { UISound?.tap?.(); } catch {}
+      modalApi.openFor(id);
+      return;
+    }
+    const img = e.target.closest(".card__media img");
+    if (img) {
+      try { UISound?.tap?.(); } catch {}
+      const src = img.currentSrc || img.src || img.getAttribute("src") || "";
+      openZoom(src, img.getAttribute("alt") || "");
+    }
+  });
+
+  // List/Grid view
   viewToggle?.addEventListener("click", () => {
-    UISound?.tap?.();
+    try { UISound?.tap?.(); } catch {}
     const listOn = !isListMode();
     sectionRoot.classList.toggle("view-list", listOn);
     sectionRoot.classList.toggle("view-grid", !listOn);
@@ -445,38 +506,11 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     applyAutoLimitForCurrentMode({ resetPage: true });
   });
 
-  // Делегирование клика по карточке — Learn More + (опционально) медиа/тайтл
-  grid.addEventListener("click", (e) => {
-    const moreBtn = e.target.closest(".card__link, [data-action='more']");
-    if (moreBtn) {
-      // если это <a>, не уходим по ссылке
-      if (moreBtn.tagName === "A") e.preventDefault();
-      const card = moreBtn.closest(".card");
-      const id = card?.dataset?.id;
-      if (id) modalApi?.openFor?.(id);
-      return;
-    }
-    // Можно также открывать по клику на фото/заголовок — если нужно
-    const mediaOrTitle = e.target.closest(".card__media img, .card__title");
-    if (mediaOrTitle) {
-      const card = mediaOrTitle.closest(".card");
-      const id = card?.dataset?.id;
-      if (id) modalApi?.openFor?.(id);
-    }
-  });
-
-  // Пример: реакция на MixRadio (если понадобится)
-  mixRadioBtn?.addEventListener("click", () => {
-    UISound?.tap?.();
-    // TODO: сюда повесить вашу бизнес-логику MixRadio
-  });
-
-  // ---------- init ----------
+  // init
+  updateViewButtonUI(isListMode());
   syncPanelMode();
   lastAppliedLimit = null;
   applyAutoLimitForCurrentMode({ resetPage: false });
-
   loadGenres();
   loadArtists();
 }
-

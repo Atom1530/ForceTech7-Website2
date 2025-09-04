@@ -345,3 +345,34 @@
     height: 56px;
   }
 }
+
+/* --- iPhone/узкие: прогресс на вторую строку, кнопки отдельно --- */
+@media (max-width: 480px) {
+  .am-player__bar {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      'left right'
+      'prog prog';
+    row-gap: 8px;
+  }
+  .am-player__left {
+    grid-area: left;
+  }
+  .am-player__right {
+    grid-area: right;
+    justify-self: end;
+  }
+  .am-player__progresswrap {
+    grid-area: prog;
+  }
+
+  /* гарантируем, что слайдер не вылезает за бар */
+  .am-player__progresswrap {
+    overflow: hidden;
+  }
+}
+
+/* было: z-index: 10000; */
+.am-player__bubble {
+  z-index: 2147483647; /* абсолютный верх */
+}

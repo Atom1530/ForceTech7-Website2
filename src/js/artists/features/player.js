@@ -1,5 +1,4 @@
-
-
+// src/js/artists/features/player.js
 let _instance = null;
 
 /* -------------------- YT API -------------------- */
@@ -22,7 +21,7 @@ function getYouTubeId(urlOrId) {
   if (!urlOrId) return "";
   if (/^[\w-]{11}$/.test(urlOrId)) return urlOrId;
   try {
-    const u = new URL(urlOrId);
+    const u = new URL(urlOrId, location.href);
     if (/youtu\.be$/.test(u.hostname)) return u.pathname.slice(1);
     if (u.searchParams.get("v")) return u.searchParams.get("v");
     const m = u.pathname.match(/\/(embed|shorts|v)\/([^/?#]+)/);
@@ -56,13 +55,11 @@ export function createMiniPlayer() {
     <div class="am-player__inner">
       <div class="am-player__dragzone" aria-hidden="true" title="Drag the player"></div>
 
-      <!-- Верхние кнопки: Hide слева от Close -->
       <button class="am-player__hide" type="button" aria-label="Hide">Hide</button>
       <button class="am-player__close" type="button" aria-label="Close">×</button>
 
       <div class="am-player__frame">
         <div class="am-player__host" id="am-player-host"></div>
-        <!-- наша кнопка YouTube поверх кадра, влево-вверх -->
         <a class="am-player__ytlink" href="#" target="_blank" rel="noopener noreferrer" aria-label="Open on YouTube">YouTube ↗</a>
       </div>
 
@@ -110,14 +107,20 @@ export function createMiniPlayer() {
   let ready = false;
   let duration = 0;
   let timer = null;
+
+  // ключевое: «текущий логический mute» (наш), дефолт — со звуком
   let muted = false;
   let volVal = 60;
+
   let userSeeking = false;
 
   // очередь
   let queue = [];
   let qi = -1;
   let loop = false;
+
+  // авто-unmute «после успешного PLAYING»
+  let pendingUnmute = false;
 
   // позиция дока (free mode)
   const DOCK_KEY = "amPlayerPos";
@@ -172,8 +175,6 @@ export function createMiniPlayer() {
     if (watchdogId) { clearTimeout(watchdogId); watchdogId = null; }
   }
 
-  
-
   /* ---------- YT ---------- */
   function skipWithDelay(ms = 2000) { setTimeout(autoNext, ms); }
 
@@ -181,61 +182,108 @@ export function createMiniPlayer() {
     return loadYTAPI().then(() => {
       if (yt) { try { yt.destroy(); } catch {} yt = null; }
       host.innerHTML = `<div id="am-player-yt"></div>`;
+      pendingUnmute = false; // сбрасываем перед новым стартом
+
       yt = new YT.Player("am-player-yt", {
         host: "https://www.youtube-nocookie.com",
         videoId: id,
         playerVars: {
-          autoplay: 1, rel: 0, modestbranding: 1, controls: 1, enablejsapi: 1, origin: location.origin
+          autoplay: 1,
+          rel: 0,
+          modestbranding: 1,
+          controls: 1,
+          playsinline: 1,     // критично для iOS (без полноэкранного блока)
+          enablejsapi: 1,
+          origin: location.origin
         },
         events: {
           onReady: () => {
             ready = true;
             duration = yt.getDuration() || 0;
             uiSetTime(0, duration);
-            if (!isIOS && typeof yt.setVolume === "function") yt.setVolume(volVal);
-            if (muted && yt.mute) yt.mute();
-            uiPlayIcon(true);
+
+            // Пытаемся сразу запустить СО ЗВУКОМ (т.к. запуск с клика пользователя)
+            try {
+              if (!isIOS && typeof yt.setVolume === "function") yt.setVolume(volVal || 60);
+              yt.unMute?.();
+              uiMuteIcon(false);
+              muted = false;
+              yt.playVideo?.();
+              pendingUnmute = true; // на всякий случай продублируем в PLAYING
+            } catch {}
+
             setBubblePulse(true);
             setBubbleAmp(volVal);
             startTimer();
 
             clearWatchdog();
-            // если за 6с не ушло в PLAYING — скипаем
+            // если за 5с не ушло в PLAYING — пробуем автоплей-хаκ: mute → play → auto-unmute
             watchdogId = setTimeout(() => {
               try {
-                if (yt && yt.getPlayerState && yt.getPlayerState() !== YT.PlayerState.PLAYING) {
-                  console.warn("Watchdog: видео не стартовало — пропускаем.");
-                  setBubblePulse(false);
-                  skipWithDelay(0);
+                const st = yt?.getPlayerState?.();
+                if (st !== YT.PlayerState.PLAYING) {
+                  // «спровоцировать» автоплей: проигрывание с mute разрешено везде
+                  yt.mute?.();
+                  uiMuteIcon(true);
+                  muted = true;
+                  yt.playVideo?.();
+                  // как только поймаем PLAYING — снимем mute (pendingUnmute=true)
+                  pendingUnmute = true;
                 }
               } catch {}
-            }, 6000);
+            }, 5000);
           },
+
           onStateChange: (e) => {
-            if (e.data === YT.PlayerState.PLAYING) {
+            const st = e.data;
+            if (st === YT.PlayerState.PLAYING) {
               clearWatchdog();
               uiPlayIcon(true);
               setBubblePulse(true);
               startTimer();
-            } else if (e.data === YT.PlayerState.PAUSED) {
+
+              // если мы только что «раскрутили» плеер в mute из-за политик,
+              // теперь снимаем mute и восстанавливаем громкость (раз уже играет)
+              if (pendingUnmute) {
+                try {
+                  if (!muted) {
+                    yt.unMute?.();
+                    if (!isIOS) yt.setVolume?.(volVal || 60);
+                    uiMuteIcon(false);
+                  }
+                } catch {}
+                pendingUnmute = false;
+              }
+            } else if (st === YT.PlayerState.PAUSED) {
               uiPlayIcon(false);
               setBubblePulse(false);
               clearTimer();
-            } else if (e.data === YT.PlayerState.ENDED) {
+            } else if (st === YT.PlayerState.ENDED) {
               uiPlayIcon(false);
               setBubblePulse(false);
               clearTimer();
               clearWatchdog();
               autoNext();
+            } else if (st === YT.PlayerState.CUED || st === YT.PlayerState.UNSTARTED) {
+              // Если зависли в CUED/UNSTARTED — применяем мягкий «пинок»
+              try {
+                yt.playVideo?.();
+                // и если вдруг не даёт со звуком — переходим на mute->play->unmute
+                yt.mute?.();
+                uiMuteIcon(true);
+                muted = true;
+                pendingUnmute = true;
+              } catch {}
             }
           },
-          onError: (e) => {
-            console.error("YT Player error:", e?.data);
+
+          onError: () => {
+            // Не шумим в консоль — просто скипаем
             uiPlayIcon(false);
             setBubblePulse(false);
             clearTimer();
             clearWatchdog();
-            skipWithDelay(1200);
+            skipWithDelay(800);
           }
         }
       });
@@ -248,7 +296,6 @@ export function createMiniPlayer() {
     qi = clamp(idx, 0, queue.length - 1);
     const id = queue[qi];
     if (!id || !/^[\w-]{11}$/.test(id)) {
-      console.warn("Некорректный YouTube ID, пропускаю:", id);
       return skipWithDelay(0);
     }
     // обновим ссылку «YouTube ↗»
@@ -259,9 +306,8 @@ export function createMiniPlayer() {
 
     try {
       await ensureYT(id);
-    } catch (err) {
-      console.error("Не удалось воспроизвести:", id, err);
-      skipWithDelay(1200);
+    } catch {
+      skipWithDelay(800);
     }
   }
   function autoNext() {
@@ -364,6 +410,8 @@ export function createMiniPlayer() {
     bubble.style.right = "auto";
     bubble.style.bottom = "auto";
     bubble.innerHTML = `<span class="note">♪</span>`;
+    // Пузырю гарантируем высокий z-index на всякий
+    bubble.style.zIndex = "10050";
     document.body.appendChild(bubble);
 
     bubble.addEventListener("pointerdown", (e) => {
@@ -491,6 +539,9 @@ export function createMiniPlayer() {
     uiMin(false);
     queue = []; qi = -1;
     setBubblePulse(false);
+    // важно: чтобы новое открытие стартовало со звуком
+    muted = false;
+    uiMuteIcon(false);
   });
 
   btnHide.addEventListener("click", () => { uiMin(true); });
@@ -503,7 +554,7 @@ export function createMiniPlayer() {
     uiMin(false);
     queue = []; qi = -1;
     setBubblePulse(false);
-    // дальше браузер откроет ссылку в новой вкладке
+    muted = false; uiMuteIcon(false);
   });
 
   btnPlay.addEventListener("click", () => {
@@ -512,6 +563,9 @@ export function createMiniPlayer() {
     if (s === YT.PlayerState.PLAYING) {
       yt.pauseVideo?.(); uiPlayIcon(false); setBubblePulse(false);
     } else {
+      // явный запуск со звуком по жесту пользователя
+      muted = false; uiMuteIcon(false);
+      try { yt.unMute?.(); if (!isIOS) yt.setVolume?.(volVal || 60); } catch {}
       yt.playVideo?.();  uiPlayIcon(true);  setBubblePulse(true);
     }
   });
@@ -556,6 +610,9 @@ export function createMiniPlayer() {
     const id = getYouTubeId(urlOrId);
     if (!id) return;
     queue = [id]; qi = 0;
+    loop = false;
+    // каждый запуск — ожидаем «игру со звуком»
+    muted = false; uiMuteIcon(false);
     uiMin(false); uiShow(true);
     restoreDockPos();
     await playByIndex(0);
@@ -567,6 +624,7 @@ export function createMiniPlayer() {
     const arr = opts.shuffle ? shuffleArr(ids) : ids.slice();
     queue = arr;
     const start = clamp(Number(opts.startIndex ?? 0) || 0, 0, queue.length - 1);
+    muted = false; uiMuteIcon(false); // стартуем со звуком
     uiMin(false); uiShow(true);
     restoreDockPos();
     await playByIndex(start);

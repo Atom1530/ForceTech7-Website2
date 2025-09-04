@@ -150,7 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     btn.addEventListener("click", (e) => {
       e.preventDefault();
       // если плеер ещё не активен — стартуем радио, иначе — Next
-      if (!player.isActive?.()) startMixRadio(player);
+       if (!player.hasQueue?.()) startMixRadio(player);
       else player.next?.();
     });
   }
