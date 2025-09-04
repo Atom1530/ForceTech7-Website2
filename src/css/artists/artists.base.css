@@ -11,7 +11,7 @@
 
 @media (min-width: 1440px) {
   .artists1.container {
-    margin-top: 112px;
+    padding: 112px 64px;
   }
 }
 
