@@ -1,5 +1,6 @@
 import 'css-star-rating/css/star-rating.css';
-import Swiper from 'swiper';
+import Swiper from 'swiper/bundle';
+import 'swiper/swiper-bundle.css';
 import 'swiper/css';
 import 'swiper/css/navigation';
 import 'swiper/css/pagination';
@@ -105,7 +106,7 @@ createStars(formRating, parseInt(formRating.dataset.rating) || 0);
 // было: spaceBetween: 50
 const swiper = new Swiper('.swiper', {
   slidesPerView: 1,
-  spaceBetween: 0,               // <-- критично
+  spaceBetween: 0,             
   loop: false,
   grabCursor: true,
   navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev' },

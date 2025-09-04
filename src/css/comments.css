@@ -38,15 +38,6 @@
 }
 
 
-
-@media screen and (min-width: 1440px) {
-  .swiper {
-    padding-left: 272px;
-    padding-right: 272px;
-    width: 1312px;
-  }
-}
-
 .swiper .swiper-wrapper {
   gap: 0 !important;
 }
