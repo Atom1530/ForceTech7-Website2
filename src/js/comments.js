@@ -24,11 +24,13 @@ let scrollY = 0;
 openBtn.addEventListener("click", (e) => {
   e.preventDefault();
   scrollY = window.scrollY;
+  document.body.style.position = "fixed";
   document.body.style.top = `-${scrollY}px`;
   document.body.style.left = "0";
-  document.body.style.rigth = "0";
+  document.body.style.right = "0";
     overlay.classList.remove("hidden");
   container.classList.add("hidden");
+  
 
   dataFromLocalStorage();
 })
@@ -36,8 +38,8 @@ openBtn.addEventListener("click", (e) => {
 closeBtn.addEventListener("click", (e) => {
     overlay.classList.add("hidden");
   container.classList.remove("hidden");
-
-
+  document.body.style.position = "";
+  window.scrollTo(0, scrollY);
   createStars(document.getElementById("customer-rating", 0));
 });
 
@@ -45,7 +47,8 @@ overlay.addEventListener("click", (e) => {
   if (e.target === overlay) {
     overlay.classList.add("hidden")
     container.classList.remove("hidden");
-    document.body.classList.remove("no-scroll");
+    document.body.style.position = "";
+  window.scrollTo(0, scrollY);
   createStars(document.getElementById("customer-rating", 0));
   }
 });
@@ -53,7 +56,8 @@ document.addEventListener("keydown", (e) => {
   if (e.key === "Escape") {
     overlay.classList.add("hidden")
     container.classList.remove("hidden")
-    document.body.classList.remove("no-scroll");
+    document.body.style.position = "";
+  window.scrollTo(0, scrollY);
   createStars(document.getElementById("customer-rating", 0));
   }
 })
