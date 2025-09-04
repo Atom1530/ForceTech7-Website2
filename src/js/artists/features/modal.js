@@ -5,7 +5,7 @@ import { fetchArtist, fetchArtistAlbums } from "./api.js";
 import { createMiniPlayer } from "./player.js";
 import { openZoom } from "./zoom.js";
 
-// === SPRITE: инлайн, как в grid.js ===
+// === SPRITE: инлайн, как в grid.js (не трогаем стратегию) ===
 import SPRITE_RAW from "../../../img/sprite.svg?raw";
 const SPRITE_CONTAINER_ID = "GLOBAL_SVG_SPRITE";
 function ensureSpriteMounted(doc = document) {
@@ -23,8 +23,26 @@ function ensureSpriteMounted(doc = document) {
 const icon = (id, cls = "ico") =>
   `<svg class="${cls}" aria-hidden="true"><use href="#${id}" xlink:href="#${id}"></use></svg>`;
 
-// смонтируем спрайт
-ensureSpriteMounted(document);
+/* ---------- ensure shell (если partial не вставлен) ---------- */
+function ensureModalShell(doc = document) {
+  let modal = doc.querySelector("#artist-modal");
+  if (modal) return modal;
+
+  modal = doc.createElement("div");
+  modal.id = "artist-modal";
+  modal.className = "amodal";
+  modal.setAttribute("hidden", "");
+  modal.innerHTML = `
+    <div class="amodal__backdrop"></div>
+    <div class="amodal__dialog" role="dialog" aria-modal="true" aria-label="Artist details">
+      <button id="am-close" class="amodal__close" type="button" aria-label="Close">×</button>
+      <div id="am-body" class="amodal__body">
+        <div class="amodal__loader loader"></div>
+      </div>
+    </div>`;
+  doc.body.appendChild(modal);
+  return modal;
+}
 
 /* ----------------- helpers ----------------- */
 function fmtTime(msLike) {
@@ -60,29 +78,11 @@ function trackRow(t = {}) {
     </li>`;
 }
 
-/* ---------- ensure shell (если partial не вставлен) ---------- */
-function ensureModalShell(doc = document) {
-  let modal = doc.querySelector("#artist-modal");
-  if (modal) return modal;
-
-  modal = doc.createElement("div");
-  modal.id = "artist-modal";
-  modal.className = "amodal";
-  modal.setAttribute("hidden", "");
-  modal.innerHTML = `
-    <div class="amodal__backdrop"></div>
-    <div class="amodal__dialog" role="dialog" aria-modal="true" aria-label="Artist details">
-      <button id="am-close" class="amodal__close" type="button" aria-label="Close">×</button>
-      <div id="am-body" class="amodal__body">
-        <div class="amodal__loader loader"></div>
-      </div>
-    </div>`;
-  doc.body.appendChild(modal);
-  return modal;
-}
-
 /* ----------------- main ----------------- */
 export function createArtistModal(rootEl = document) {
+  // смонтируем спрайт (идемпотентно)
+  ensureSpriteMounted(document);
+
   const modal =
     (rootEl && rootEl.querySelector ? rootEl.querySelector("#artist-modal") : null) ||
     document.querySelector("#artist-modal") ||
@@ -95,29 +95,31 @@ export function createArtistModal(rootEl = document) {
   // Единый мини-плеер
   const player = createMiniPlayer();
 
-  // -------- Scroll-to-top --------
+  // -------- Scroll-to-top (устойчив к повторным открытиям) --------
   let scrollTopBtn = null;
 
-  // делаем обработчики съёмными и безопасными
+  // съёмные обработчики
   let placeScrollTopHandler = () => {};
   let onDialogScroll = null;
   let onWinResize    = null;
 
   function ensureScrollTop() {
-    if (scrollTopBtn) return;
+    // 1) Создаём кнопку один раз
+    if (!scrollTopBtn) {
+      scrollTopBtn = document.createElement("button");
+      scrollTopBtn.type = "button";
+      scrollTopBtn.className = "amodal__scrolltop";
+      scrollTopBtn.setAttribute("aria-label", "Scroll to top");
+      scrollTopBtn.textContent = "↑";
+      dialog.appendChild(scrollTopBtn);
 
-    scrollTopBtn = document.createElement("button");
-    scrollTopBtn.type = "button";
-    scrollTopBtn.className = "amodal__scrolltop";
-    scrollTopBtn.setAttribute("aria-label", "Scroll to top");
-    scrollTopBtn.textContent = "↑";
-    dialog.appendChild(scrollTopBtn);
+      scrollTopBtn.addEventListener("click", () => {
+        UISound?.tap?.();
+        dialog.scrollTo({ top: 0, behavior: "smooth" });
+      });
+    }
 
-    scrollTopBtn.addEventListener("click", () => {
-      UISound?.tap?.();
-      dialog.scrollTo({ top: 0, behavior: "smooth" });
-    });
-
+    // 2) (Пере)заводим функции позиционирования/видимости
     placeScrollTopHandler = () => {
       try {
         const pad = 24;
@@ -127,6 +129,14 @@ export function createArtistModal(rootEl = document) {
         scrollTopBtn.style.bottom = `58px`;
       } catch {}
     };
+
+    // 3) Снимаем старые и вешаем новые слушатели — при КАЖДОМ open()
+    if (onDialogScroll) dialog.removeEventListener("scroll", onDialogScroll);
+    if (onWinResize) {
+      window.removeEventListener("resize", onWinResize);
+      window.visualViewport?.removeEventListener("resize", onWinResize);
+      window.removeEventListener("orientationchange", onWinResize);
+    }
 
     onDialogScroll = () => {
       try {
@@ -141,6 +151,7 @@ export function createArtistModal(rootEl = document) {
     window.visualViewport?.addEventListener("resize", onWinResize);
     window.addEventListener("orientationchange", onWinResize);
 
+    // первичная расстановка
     placeScrollTopHandler();
   }
 
@@ -155,7 +166,7 @@ export function createArtistModal(rootEl = document) {
   function open() {
     modal.removeAttribute("hidden");
     lockScroll();
-    ensureScrollTop();
+    ensureScrollTop(); // <-- теперь всегда перехукивает слушатели
     if (scrollTopBtn) scrollTopBtn.style.display = "none";
     modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
     document.addEventListener("keydown", onEsc);
@@ -167,10 +178,8 @@ export function createArtistModal(rootEl = document) {
     modalBody.innerHTML = "";
     document.removeEventListener("keydown", onEsc);
 
-    if (onDialogScroll) {
-      dialog.removeEventListener("scroll", onDialogScroll);
-      onDialogScroll = null;
-    }
+    // Снимаем слушателей, но кнопку не удаляем
+    if (onDialogScroll) { dialog.removeEventListener("scroll", onDialogScroll); onDialogScroll = null; }
     if (onWinResize) {
       window.removeEventListener("resize", onWinResize);
       window.visualViewport?.removeEventListener("resize", onWinResize);
@@ -245,7 +254,8 @@ export function createArtistModal(rootEl = document) {
       <h3 class="amodal__title">${name}</h3>
 
       <div class="amodal__content">
-        <img class="amodal__img" src="${img}" alt="${name}" loading="lazy">
+        <img class="amodal__img" src="${img}" alt="${name}" loading="lazy"
+             onerror="this.onerror=null;this.src='https://via.placeholder.com/960x540?text=No+Image'">
         <div class="amodal__info">
           <div class="am-meta">
             <div class="am-meta__col">
