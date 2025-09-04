@@ -1,4 +1,4 @@
-/* ----- Artists: interactive controls (Sort/Genre/Reset/Learn More) ----- */
+/* ----- Artists: interactive controls (Sort/Genre/Reset/Learn More & ListView) ----- */
 
 #artists-section #dd-sort-btn,
 #artists-section [data-dd='sort'] .dd__btn,
@@ -6,7 +6,10 @@
 #artists-section [data-dd='genre'] .dd__btn,
 #artists-section #filters-reset,
 #artists-section #filters-reset-sm,
-#artists-section .card__link {
+#artists-section .card__link,
+#artists-section #view-toggle,             /* << добавили */
+#artists-section .filters__view {
+  /* << добавили */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -24,20 +27,24 @@
   #artists-section [data-dd='genre'] .dd__btn:hover,
   #artists-section #filters-reset:hover,
   #artists-section #filters-reset-sm:hover,
-  #artists-section .card__link:hover {
+  #artists-section .card__link:hover,
+  #artists-section #view-toggle:hover,
+  #artists-section .filters__view:hover {
     transform: scale(1.06);
     box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
   }
 }
 
-/* Focus (клавиатура) */
+/* Focus */
 #artists-section #dd-sort-btn:focus-visible,
 #artists-section [data-dd='sort'] .dd__btn:focus-visible,
 #artists-section #dd-genre-btn:focus-visible,
 #artists-section [data-dd='genre'] .dd__btn:focus-visible,
 #artists-section #filters-reset:focus-visible,
 #artists-section #filters-reset-sm:focus-visible,
-#artists-section .card__link:focus-visible {
+#artists-section .card__link:focus-visible,
+#artists-section #view-toggle:focus-visible,
+#artists-section .filters__view:focus-visible {
   outline: none;
   transform: scale(1.06);
   box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18),
@@ -51,7 +58,9 @@
 #artists-section [data-dd='genre'] .dd__btn:active,
 #artists-section #filters-reset:active,
 #artists-section #filters-reset-sm:active,
-#artists-section .card__link:active {
+#artists-section .card__link:active,
+#artists-section #view-toggle:active,
+#artists-section .filters__view:active {
   transform: scale(0.98);
 }
 
@@ -82,7 +91,9 @@
   #artists-section [data-dd='genre'] .dd__btn,
   #artists-section #filters-reset,
   #artists-section #filters-reset-sm,
-  #artists-section .card__link {
+  #artists-section .card__link,
+  #artists-section #view-toggle,
+  #artists-section .filters__view {
     transition: none;
   }
 }
@@ -118,10 +129,7 @@
   line-height: 1.5;
 
   color: var(--color-white, #fff);
-  background: var(
-    --color-grey-900,
-    #111
-  ); /* дефолт, если не переопределим темой */
+  background: var(--color-grey-900, #111);
 
   box-shadow: 0 1px 2px rgba(6, 3, 7, 0.05), inset 0 -2px 1px rgba(0, 0, 0, 0.2),
     inset 0 0 0 1px rgba(6, 3, 7, 0.15),
@@ -134,22 +142,34 @@
   transform: translateY(-1px);
 }
 
-/* Фиолетовая тема */
-/* применяем стиль .dd__btn и к кнопке радио */
-.filters .dd__btn,
-#random-radio {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
-  height: 48px;
-  padding: 12px 16px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: 12px;
-  color: #fff;
-  font: 500 16px/1.5 'IBM Plex Sans', sans-serif;
+/* Кнопка List view как текст-линк (единый стиль с Reset) */
+.artists1 .filters__view {
+  appearance: none;
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-weight: 500;
+  font-size: 18px;
+  line-height: 1.5;
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 3px;
+  color: var(--color-white, #fff);
+  white-space: nowrap;
 }
 
+/* НЕ скрывать на мобилке! (переопределяем старое правило) */
+@media (max-width: 767.98px) {
+  .artists1 .filters__view {
+    display: inline-block !important;
+    margin-left: 16px; /* чтобы не липла к Reset */
+  }
+}
+
+/* Desktop раскладка */
 @media (min-width: 1440px) {
   .artists1 .filters__bar {
     display: grid;
@@ -171,46 +191,47 @@
   }
 }
 
-/* сам вид текст-кнопок (как раньше) + выравнивание текста «List view» вправо */
-.artists1 .filters__reset,
-.artists1 .filters__view {
-  appearance: none;
-  background: none;
-  border: 0;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
-  font-family: 'IBM Plex Sans', sans-serif;
-  font-weight: 500;
-  font-size: 18px;
-  line-height: 1.5;
-  text-decoration: underline;
-  text-decoration-skip-ink: none;
-  text-underline-offset: 3px;
-  color: var(--color-white, #fff);
+/* выпадашки не обрезать */
+.artists1 .filters {
+  overflow: visible;
 }
 
-/* фикс ширины — чтобы Reset НЕ дёргался при смене List↔Grid.
-   + text-align:right, чтобы надпись реально была у правого края. */
-.artists1 .filters__view {
-  display: inline-block; /* важно для text-align */
-  text-align: right; /* сам текст у правого края */
+/* База dropdown */
+.artists1 .dd {
   position: relative;
-  white-space: nowrap;
 }
-.artists1 .filters__view::after {
-  content: 'default view';
-  visibility: hidden;
-  display: inline-block;
-  white-space: nowrap;
+.artists1 .dd__list {
+  display: none;
+  margin-top: 8px;
+  background: #141014;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  padding: 8px 0;
+  list-style: none;
 }
-
-/* мобильный — «List view» скрываем, Reset жирный */
-@media (max-width: 767.98px) {
-  .artists1 .filters__view {
-    display: none;
+@media (min-width: 1440px) {
+  .artists1 .dd__list {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    right: 0;
+    z-index: 30;
+    max-height: 50vh;
+    overflow: auto;
   }
-  .artists1 .filters__reset {
-    font-weight: 700;
+  .artists1 .dd.open .dd__list {
+    display: block;
+  }
+}
+@media (max-width: 1439.98px) {
+  .artists1 .dd {
+    position: static;
+  }
+  .artists1 .dd__list {
+    position: static;
+    margin-top: 12px;
+  }
+  .artists1 .dd.open .dd__list {
+    display: block;
   }
 }

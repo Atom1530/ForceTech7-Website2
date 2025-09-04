@@ -172,6 +172,8 @@ export function createMiniPlayer() {
     if (watchdogId) { clearTimeout(watchdogId); watchdogId = null; }
   }
 
+  
+
   /* ---------- YT ---------- */
   function skipWithDelay(ms = 2000) { setTimeout(autoNext, ms); }
 
