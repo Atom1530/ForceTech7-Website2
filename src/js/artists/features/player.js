@@ -121,6 +121,9 @@ export function createMiniPlayer() {
   let bubbleStart = null;
   let _bubblePos = null;
 
+  // NEW: игнор клика сразу после drag
+  let recentBubbleDrag = false;
+
   let watchdogId = null;
 
   if (isIOS) {
@@ -139,9 +142,20 @@ export function createMiniPlayer() {
       bubble.innerHTML = `<span class="note">♪</span>`;
       document.body.appendChild(bubble);
 
-      bubble.addEventListener("click", () => { uiMin(false); }); // раскрыть
+      // ▼▼▼ ПАТЧ: открывать только по «чистому» клику
+      bubble.addEventListener("click", (e) => {
+        if (recentBubbleDrag) {
+          recentBubbleDrag = false;
+          e.preventDefault();
+          e.stopPropagation();
+          return;
+        }
+        uiMin(false);
+      });
+
       bubble.addEventListener("pointerdown", (e) => {
         bubbleDragging = false;
+        recentBubbleDrag = false;            // сбрасываем маркер
         try { bubble.setPointerCapture(e.pointerId); } catch {}
         const r = bubble.getBoundingClientRect();
         bubbleStart = { x: e.clientX, y: e.clientY, left: r.left, top: r.top };
@@ -156,9 +170,16 @@ export function createMiniPlayer() {
       });
       bubble.addEventListener("pointerup", (e) => {
         try { bubble.releasePointerCapture(e.pointerId); } catch {}
+        // если был drag — помечаем, чтобы следующий click проигнорить
+        recentBubbleDrag = !!bubbleDragging;
         bubbleStart = null;
         bubbleDragging = false;
         clampBubbleToViewport(); persistBubblePos();
+      });
+      bubble.addEventListener("pointercancel", () => {
+        recentBubbleDrag = !!bubbleDragging;
+        bubbleStart = null;
+        bubbleDragging = false;
       });
       window.addEventListener("resize", () => { clampBubbleToViewport(); persistBubblePos(); });
       window.visualViewport?.addEventListener("resize", () => { clampBubbleToViewport(); persistBubblePos(); });
@@ -530,3 +551,4 @@ export function createMiniPlayer() {
   _instance = { open, openQueue, next, prev, minimize, isActive, isMinimized, hasQueue, close };
   return _instance;
 }
+
