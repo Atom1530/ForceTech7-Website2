@@ -104,7 +104,7 @@ createStars(formRating, parseInt(formRating.dataset.rating) || 0);
 
 const swiper = new Swiper('.swiper', {
   slidesPerView: 1,
-  spaceBetween: 20,
+  spaceBetween: 0,
   loop: false,
         grabCursor: true,
         navigation: { nextEl: '.swiper-button-next', prevEl: '.swiper-button-prev', },
