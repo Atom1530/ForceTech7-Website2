@@ -158,7 +158,16 @@
   margin-bottom: 24px;
   /* переносим отступ на контейнер */
 }
+/* Firefox */
+.modal {
+  scrollbar-width: none;
+}
 
+/* Chrome / Edge / Safari */
+.modal::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
 .rating .star {
   cursor: pointer;
   display: inline-block !important;
@@ -285,7 +294,10 @@
   align-items: center;
   justify-content: center;
   z-index: 9999;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.7);
+  /* серый полупрозрачный */
+  backdrop-filter: blur(2px);
+  /* лёгкое размытие фона */
   opacity: 0;
   visibility: hidden;
   transition: opacity .3s ease, visibility .3s ease;
@@ -297,6 +309,8 @@
 }
 
 .modal {
+  background: #000;
+  /* чисто чёрный */
   position: relative;
   display: flex;
   flex-direction: column;
@@ -306,8 +320,7 @@
   width: 100%;
   max-width: 320px;
   max-height: min(90vh, 740px);
-  background: #0b0b0b;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
   overflow: auto;
 }
 
