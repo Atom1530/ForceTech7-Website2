@@ -3,9 +3,11 @@ import { UISound } from "../lib/sound.js";
 import { fetchArtists, fetchGenres } from "./api.js";
 import { ArtistState } from "./state.js";
 import { createArtistModal } from "./modal.js";
-import { openZoom } from "./zoom.js";
 
-// === SPRITE: инлайн во время сборки, без путей/BASE ===
+// Если нужно, можно использовать в модалке zoom, но здесь он не обязателен
+// import { openZoom } from "./zoom.js";
+
+// === Встраиваем спрайт (raw) один раз на страницу ===
 import SPRITE_RAW from "../../../img/sprite.svg?raw";
 
 const SPRITE_CONTAINER_ID = "GLOBAL_SVG_SPRITE";
@@ -22,15 +24,16 @@ function ensureSpriteMounted(doc = document) {
   doc.body.prepend(wrap);
 }
 
-// иконки по id
+// Только вызов по id: <use href="#{id}">
 const icon = (id, cls = "ico") =>
   `<svg class="${cls}" aria-hidden="true"><use href="#${id}" xlink:href="#${id}"></use></svg>`;
 
 // ====== Константы ======
-const DEFAULT_LIMIT = 8; // Default View
+const DEFAULT_LIMIT = 8; // Default View (на страницу)
 const DECK_TEXT =
-  "A look at the influential figures who shaped jazz music history."; // короткий «дек» под фото
+  "A look at the influential figures who shaped jazz music history.";
 
+// Автолимит для ListView по ширине
 function computeListLimit() {
   const w = window.innerWidth || document.documentElement.clientWidth || 0;
   if (w >= 1440) return 16; // desktop
@@ -38,7 +41,7 @@ function computeListLimit() {
   return 10;                // mobile
 }
 
-// ====== Инициализация ======
+// ====== Инициализация сетки ======
 export function initGrid(root = document.querySelector("#artists-section")) {
   if (!root) return;
 
@@ -48,11 +51,11 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   const panel       = root.querySelector("#filters-panel");
   const toggleBtn   = root.querySelector("#filters-toggle");
   const resetBtn    = root.querySelector("#filters-reset");
-  const resetBtnSm  = root.querySelector("#filters-reset-sm");
+  const resetBtnSm  = root.querySelector("#filters-reset-sm"); // может отсутствовать
   const viewToggle  = root.querySelector("#view-toggle");
 
   const searchInput = root.querySelector("#flt-q");
-  const searchBtn   = root.querySelector("#flt-q-btn");
+  const searchBtn   = root.querySelector("#flt-q-btn"); // может отсутствовать (моб/таб)
 
   const ddSort      = root.querySelector('.dd[data-dd="sort"]');
   const ddSortBtn   = root.querySelector("#dd-sort-btn");
@@ -68,6 +71,9 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
   const sectionRoot = root.closest(".artists1") || root;
   const modalApi    = createArtistModal(document);
+
+  // Необязательная кнопка MixRadio (если есть)
+  const mixRadioBtn = root.querySelector("#random-radio");
 
   // защита от гонок
   let reqId = 0;
@@ -146,6 +152,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       else img.addEventListener("load", done, { once: true });
     });
   }
+  // подстраховка картинок
   function attachImgFallbacks() {
     grid.querySelectorAll("img.img-fade").forEach(img => {
       img.onerror = () => { img.onerror = null; img.src = FALLBACK_IMG; };
@@ -185,7 +192,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     const img   = a?.strArtistThumb || a?.photo || a?.image || FALLBACK_IMG;
     const genres = Array.isArray(a?.genres) ? a.genres : (a?.genre ? [a.genre] : []);
 
-    // короткий «дек» (Default View; в ListView скрываем CSS-ом)
+    // короткий «дек» как в макете — показываем в разметке (в ListView его скрывает CSS)
     const desc  = DECK_TEXT;
 
     const sizes = "(min-width:1440px) 50vw, (min-width:768px) 704px, 100vw";
@@ -212,7 +219,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
 
         <p class="card__text">${desc}</p>
 
-        <button class="card__link" data-action="more">
+        <button class="card__link" data-action="more" type="button">
           Learn More
           ${icon("icon-icon_play_artists_sections")}
         </button>
@@ -237,7 +244,7 @@ export function initGrid(root = document.querySelector("#artists-section")) {
       return;
     }
 
-    const win = 2;
+    const win = 2; // окно страниц
     const from = Math.max(1, page - win);
     const to   = Math.min(totalPages, page + win);
     const out  = [];
@@ -423,25 +430,11 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     loadArtists();
   });
 
-  // ---------- Learn More: делегирование клика ----------
-  grid?.addEventListener("click", (e) => {
-    const btn = e.target.closest('.card__link,[data-action="more"]');
-    if (!btn) return;
-    const card = btn.closest(".card");
-    const id = card?.dataset?.id;
-    if (id) {
-      e.preventDefault();
-      UISound?.tap?.();
-      modalApi.openFor(id);
-    }
-  });
-
-  // ---------- List/Grid view ----------
+  // Кнопка "List view" ↔ "Default view"
   function updateViewButtonUI(listOn) {
     viewToggle?.setAttribute("aria-pressed", String(listOn));
     if (viewToggle) viewToggle.textContent = listOn ? "Default view" : "List view";
   }
-
   viewToggle?.addEventListener("click", () => {
     UISound?.tap?.();
     const listOn = !isListMode();
@@ -452,6 +445,32 @@ export function initGrid(root = document.querySelector("#artists-section")) {
     applyAutoLimitForCurrentMode({ resetPage: true });
   });
 
+  // Делегирование клика по карточке — Learn More + (опционально) медиа/тайтл
+  grid.addEventListener("click", (e) => {
+    const moreBtn = e.target.closest(".card__link, [data-action='more']");
+    if (moreBtn) {
+      // если это <a>, не уходим по ссылке
+      if (moreBtn.tagName === "A") e.preventDefault();
+      const card = moreBtn.closest(".card");
+      const id = card?.dataset?.id;
+      if (id) modalApi?.openFor?.(id);
+      return;
+    }
+    // Можно также открывать по клику на фото/заголовок — если нужно
+    const mediaOrTitle = e.target.closest(".card__media img, .card__title");
+    if (mediaOrTitle) {
+      const card = mediaOrTitle.closest(".card");
+      const id = card?.dataset?.id;
+      if (id) modalApi?.openFor?.(id);
+    }
+  });
+
+  // Пример: реакция на MixRadio (если понадобится)
+  mixRadioBtn?.addEventListener("click", () => {
+    UISound?.tap?.();
+    // TODO: сюда повесить вашу бизнес-логику MixRadio
+  });
+
   // ---------- init ----------
   syncPanelMode();
   lastAppliedLimit = null;
@@ -460,3 +479,4 @@ export function initGrid(root = document.querySelector("#artists-section")) {
   loadGenres();
   loadArtists();
 }
+

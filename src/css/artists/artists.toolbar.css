@@ -1,0 +1,124 @@
+/* =========================
+   ARTISTS • TOOLBAR (Sorting / Genre / MixRadio)
+   ========================= */
+
+/* Общий базовый вид всех управлений внутри панели фильтров */
+#artists-section #filters-panel .dd__btn,
+#artists-section #filters-panel #random-radio,
+#artists-section #filters-panel #mixRadioBtn,
+#artists-section #filters-panel #artist1Button,
+#artists-section #filters-panel #Artist1Button {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  height: 43px;
+  padding: 8px 12px;
+  border-radius: 12px;
+
+  background: rgba(255, 255, 255, 0); /* как у Sorting/Genre */
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e8e8ec;
+  font: 600 16px/1 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto,
+    Arial, sans-serif;
+
+  /* не даём визуально «резаться» в контейнере */
+  min-width: 0;
+}
+
+/* Поведение текста/стрелки на дропдаунах */
+#artists-section #filters-panel .dd__btn {
+  justify-content: space-between;
+  position: relative;
+}
+
+/* Иконки в MixRadio — слева и справа */
+#artists-section #filters-panel #random-radio .ico,
+#artists-section #filters-panel #mixRadioBtn .ico,
+#artists-section #filters-panel #artist1Button .ico,
+#artists-section #filters-panel #Artist1Button .ico {
+  width: 24px;
+  height: 24px;
+  display: block;
+  flex: 0 0 auto;
+  fill: currentColor;
+}
+
+/* Контент MixRadio по центру (иконка — текст — иконка) */
+#artists-section #filters-panel #random-radio,
+#artists-section #filters-panel #mixRadioBtn,
+#artists-section #filters-panel #artist1Button,
+#artists-section #filters-panel #Artist1Button {
+  justify-content: center;
+}
+
+/* --- Точные размеры по брейкпоинтам --- */
+
+/* Desktop */
+@media (min-width: 1440px) {
+  #artists-section #filters-panel .dd__btn,
+  #artists-section #filters-panel #random-radio,
+  #artists-section #filters-panel #mixRadioBtn,
+  #artists-section #filters-panel #artist1Button,
+  #artists-section #filters-panel #Artist1Button {
+    width: 304px;
+  }
+}
+
+/* Tablet */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  #artists-section #filters-panel {
+    width: 304px; /* как в макете */
+    padding: 12px; /* уже есть в проекте; дублируем на всякий */
+  }
+  #artists-section #filters-panel .dd__btn,
+  #artists-section #filters-panel #random-radio,
+  #artists-section #filters-panel #mixRadioBtn,
+  #artists-section #filters-panel #artist1Button,
+  #artists-section #filters-panel #Artist1Button {
+    width: 280px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 767.98px) {
+  /* Панель-оверлей уже управляется aria-hidden; для кнопок фиксируем точную ширину */
+  #artists-section #filters-panel .dd__btn,
+  #artists-section #filters-panel #random-radio,
+  #artists-section #filters-panel #mixRadioBtn,
+  #artists-section #filters-panel #artist1Button,
+  #artists-section #filters-panel #Artist1Button {
+    width: 265px;
+    margin-left: 12px; /* чтобы не прилипало к краям карточки панели */
+    margin-right: 12px;
+  }
+}
+
+/* Hover/Focus одинаковые для всех */
+@media (hover: hover) and (pointer: fine) {
+  #artists-section #filters-panel .dd__btn:hover,
+  #artists-section #filters-panel #random-radio:hover,
+  #artists-section #filters-panel #mixRadioBtn:hover,
+  #artists-section #filters-panel #artist1Button:hover,
+  #artists-section #filters-panel #Artist1Button:hover {
+    transform: scale(1.02);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+}
+#artists-section #filters-panel .dd__btn:focus-visible,
+#artists-section #filters-panel #random-radio:focus-visible,
+#artists-section #filters-panel #mixRadioBtn:focus-visible,
+#artists-section #filters-panel #artist1Button:focus-visible,
+#artists-section #filters-panel #Artist1Button:focus-visible {
+  outline: none;
+  box-shadow: 0 0 0 3px color-mix(in oklab, #764191, white 25%);
+}
+
+/* На мобилке панель — overlay с прокруткой.
+   Чтобы последний элемент (MixRadio) не «резался» нижним скруглением, добавим чуть отступа снизу. */
+@media (max-width: 767.98px) {
+  #artists-section #filters-panel {
+    padding-bottom: 16px;
+  }
+}
