@@ -5,40 +5,26 @@ import { fetchArtist, fetchArtistAlbums } from "./api.js";
 import { createMiniPlayer } from "./player.js";
 import { openZoom } from "./zoom.js";
 
-/* ---------- SPRITE: robust base path + helper ---------- */
-function detectBasePath() {
-  // 1) <base href="...">
-  try {
-    const baseEl = document.querySelector("base");
-    if (baseEl?.href) {
-      const u = new URL(baseEl.getAttribute("href"), location.href);
-      return u.pathname.replace(/\/$/, "");
-    }
-  } catch {}
-
-  // 2) Vite BASE_URL (заменяется на сборке)
-  const viteBase =
-    (typeof import.meta !== "undefined" &&
-      import.meta.env &&
-      typeof import.meta.env.BASE_URL === "string")
-      ? import.meta.env.BASE_URL
-      : "";
-  if (viteBase) return viteBase.replace(/\/$/, "");
-
-  // 3) GitHub Pages: username.github.io/<repo>/...
-  if (location.hostname.endsWith("github.io")) {
-    const parts = location.pathname.split("/").filter(Boolean);
-    return parts.length ? `/${parts[0]}` : "";
-  }
-
-  // 4) по умолчанию — корень
-  return "";
+// === SPRITE: инлайн, как в grid.js ===
+import SPRITE_RAW from "../../../img/sprite.svg?raw";
+const SPRITE_CONTAINER_ID = "GLOBAL_SVG_SPRITE";
+function ensureSpriteMounted(doc = document) {
+  if (doc.getElementById(SPRITE_CONTAINER_ID)) return;
+  const wrap = doc.createElement("div");
+  wrap.id = SPRITE_CONTAINER_ID;
+  wrap.setAttribute("aria-hidden", "true");
+  wrap.style.position = "absolute";
+  wrap.style.width = "0";
+  wrap.style.height = "0";
+  wrap.style.overflow = "hidden";
+  wrap.innerHTML = SPRITE_RAW;
+  doc.body.prepend(wrap);
 }
-const BASE_URL = detectBasePath();
-const SPRITE   = `${BASE_URL}/img/sprite.svg`;
-
 const icon = (id, cls = "ico") =>
-  `<svg class="${cls}" aria-hidden="true"><use href="${SPRITE}#${id}" xlink:href="${SPRITE}#${id}"></use></svg>`;
+  `<svg class="${cls}" aria-hidden="true"><use href="#${id}" xlink:href="#${id}"></use></svg>`;
+
+// смонтируем спрайт
+ensureSpriteMounted(document);
 
 /* ----------------- helpers ----------------- */
 function fmtTime(msLike) {
@@ -112,8 +98,8 @@ export function createArtistModal(rootEl = document) {
   // -------- Scroll-to-top --------
   let scrollTopBtn = null;
 
-  // делаем обработчики съемными и безопасными
-  let placeScrollTopHandler = () => {}; // no-op по умолчанию
+  // делаем обработчики съёмными и безопасными
+  let placeScrollTopHandler = () => {};
   let onDialogScroll = null;
   let onWinResize    = null;
 
@@ -132,18 +118,16 @@ export function createArtistModal(rootEl = document) {
       dialog.scrollTo({ top: 0, behavior: "smooth" });
     });
 
-    // вычисление позиции кнопки относительно правого края диалога
     placeScrollTopHandler = () => {
       try {
-        const pad = 24; // отступ внутрь от контейнера
+        const pad = 24;
         const r = dialog.getBoundingClientRect();
         const right = Math.max(pad, window.innerWidth - (r.left + r.width) + pad);
         scrollTopBtn.style.right  = `${right}px`;
-        scrollTopBtn.style.bottom = `58px`; // поднята выше на ~30px
+        scrollTopBtn.style.bottom = `58px`;
       } catch {}
     };
 
-    // видимость по скроллу + актуализация позиции
     onDialogScroll = () => {
       try {
         scrollTopBtn.style.display = (dialog.scrollTop || 0) > 220 ? "flex" : "none";
@@ -152,13 +136,11 @@ export function createArtistModal(rootEl = document) {
     };
     dialog.addEventListener("scroll", onDialogScroll);
 
-    // ресайз/ориентация
     onWinResize = () => { placeScrollTopHandler(); };
     window.addEventListener("resize", onWinResize);
     window.visualViewport?.addEventListener("resize", onWinResize);
     window.addEventListener("orientationchange", onWinResize);
 
-    // первичное размещение
     placeScrollTopHandler();
   }
 
@@ -174,7 +156,7 @@ export function createArtistModal(rootEl = document) {
     modal.removeAttribute("hidden");
     lockScroll();
     ensureScrollTop();
-    if (scrollTopBtn) scrollTopBtn.style.display = "none"; // скрыта до первой прокрутки
+    if (scrollTopBtn) scrollTopBtn.style.display = "none";
     modalBody.innerHTML = `<div class="amodal__loader loader"></div>`;
     document.addEventListener("keydown", onEsc);
   }
@@ -185,7 +167,6 @@ export function createArtistModal(rootEl = document) {
     modalBody.innerHTML = "";
     document.removeEventListener("keydown", onEsc);
 
-    // аккуратно снимаем слушатели и не оставляем висячих ссылок
     if (onDialogScroll) {
       dialog.removeEventListener("scroll", onDialogScroll);
       onDialogScroll = null;
@@ -196,7 +177,6 @@ export function createArtistModal(rootEl = document) {
       window.removeEventListener("orientationchange", onWinResize);
       onWinResize = null;
     }
-    // делаем обработчик безопасным no-op (на случай гонок)
     placeScrollTopHandler = () => {};
 
     if (scrollTopBtn) scrollTopBtn.style.display = "none";
@@ -209,13 +189,13 @@ export function createArtistModal(rootEl = document) {
     }
   });
 
-  // Делегирование кликов: YouTube => открыть наш плеер, Zoom — по картинке
+  // Делегирование кликов: YouTube => внутри сайта, Zoom — по картинке
   modal.addEventListener("click", (e) => {
     const a = e.target.closest("a.yt");
     if (a) {
       e.preventDefault();
       UISound?.tap?.();
-      player.open(a.href);  // играем внутри сайта
+      player.open(a.href);
       return;
     }
     const zoomImg = e.target.closest(".amodal__img");
