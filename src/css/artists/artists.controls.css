@@ -165,7 +165,6 @@
 @media (max-width: 767.98px) {
   .artists1 .filters__view {
     display: inline-block !important;
-    margin-left: 16px; /* чтобы не липла к Reset */
   }
 }
 

@@ -122,3 +122,36 @@
     padding-bottom: 16px;
   }
 }
+/* ——— Единый "линк-подчерк" для List view и Reset ——— */
+#artists-section #view-toggle,
+#artists-section #filters-reset {
+  text-decoration: underline !important;
+  text-decoration-skip-ink: none !important;
+  text-underline-offset: 4px !important;
+  text-decoration-thickness: 1.75px !important;
+}
+
+/* ——— Геометрия Reset по ТЗ, но без потери подчёркивания ——— */
+#artists-section #filters-reset {
+  inline-size: 48px;
+  block-size: 27px;
+  min-inline-size: 48px;
+  padding: 0;
+  border: none !important;
+  background: transparent !important;
+  display: inline-grid;
+  place-items: center;
+  font: 500 18px/1.5 'IBM Plex Sans', sans-serif;
+  color: #fff;
+  cursor: pointer;
+}
+
+/* Ховер/фокус — одинаковые ощущения с List view */
+#artists-section #filters-reset:hover,
+#artists-section #filters-reset:focus-visible,
+#artists-section #view-toggle:hover,
+#artists-section #view-toggle:focus-visible {
+  text-decoration-color: currentColor;
+  filter: brightness(1.06);
+  outline: none;
+}
