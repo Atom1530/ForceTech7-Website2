@@ -372,6 +372,7 @@ label {
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.6);
   background: transparent;
+  appearance: none;
 }
 @media screen and (min-width: 768px) {
   .form-input-name {
@@ -405,6 +406,7 @@ textarea {
   line-height: 1.5;
   color: rgba(255, 255, 255, 0.6);
   background: transparent;
+  appearance: none;
 }
 
 @media screen and (min-width: 768px) {
@@ -446,4 +448,7 @@ textarea {
 }
 .no-scroll {
   overflow: hidden;
+}
+.required-text {
+  border: 1px solid #e74c3c !important;
 }

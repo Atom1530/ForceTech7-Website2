@@ -62,6 +62,30 @@ document.addEventListener("keydown", (e) => {
   }
 })
 
+inputName.addEventListener('focus', (e) => {
+  if (inputName.value.trim().length < 2) {
+    inputName.classList.add('required-text')
+  }
+})
+
+inputName.addEventListener('input', (e) => {
+  if (inputName.value.trim().length >= 2) {
+    inputName.classList.remove('required-text')
+  }
+})
+
+inputMessage.addEventListener('focus', (e) => {
+  if (inputMessage.value.trim().length < 10) {
+    inputMessage.classList.add('required-text')
+  }
+})
+
+inputMessage.addEventListener('input', (e) => {
+  if (inputMessage.value.trim().length >= 10) {
+    inputMessage.classList.remove('required-text')
+  }
+})
+
 // stars
 function createStars(container, rating) {
   container.innerHTML = "";
