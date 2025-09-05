@@ -69,6 +69,7 @@
   align-items: center;
   justify-content: center;
   height: 47px;
+ 
   padding: 10px 24px;
   width: 100%;
   border-radius: 12px;
@@ -97,7 +98,7 @@ background: #5f3376;
     font-size: 48px;
   }
   .empty__btn {
-    width: 148px;
+    width: 152px;
   }
 } /* ≥1440 */
 @media (min-width: 1440px) {

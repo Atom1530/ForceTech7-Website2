@@ -37,9 +37,17 @@
       <div id="filters-panel" class="filters__panel" aria-hidden="true">
         <!-- Search -->
         <label class="fld fld-search">
-          <svg class="ico" aria-hidden="true" width="24" height="24">
-            <use href="/img/sprite.svg#icon-search"></use>
-          </svg>
+          <button
+            id="flt-q-btn"
+            type="button"
+            class="fld-search__btn"
+            aria-label="Search"
+          >
+            <svg class="ico" aria-hidden="true" width="24" height="24">
+              <!-- якщо у тебе inline-спрайт: href="#icon-search"; якщо файл: href="/img/sprite.svg#icon-search" -->
+              <use href="#icon-search"></use>
+            </svg>
+          </button>
           <input id="flt-q" type="search" placeholder="Search" />
         </label>
 
@@ -113,7 +121,6 @@
     </div>
   </div>
 
-  <!-- MODAL (оставляем как в проекте) -->
   <div id="artist-modal" class="amodal" hidden>
     <div class="amodal__backdrop"></div>
     <div

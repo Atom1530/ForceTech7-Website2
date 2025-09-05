@@ -298,6 +298,16 @@
 
 /* tablet layout */
 @media (min-width: 768px) and (max-width: 1439.98px) {
+  .fld-search__btn {
+      background: none;
+      border: 0;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+    }
+
+    
   #filters-panel {
     width: 304px;
     margin: 12px 0 0 auto;
