@@ -75,3 +75,24 @@ img {
     padding-top: 0;
   }
 }
+/* Минимальный reset без вендорных расширений */
+:where(*, *::before, *::after) {
+  box-sizing: border-box;
+}
+
+:where(html, body) {
+  height: 100%;
+}
+
+:where(img, picture, video, canvas, svg) {
+  display: block;
+  max-width: 100%;
+}
+
+:where(input, button, textarea, select) {
+  font: inherit;
+}
+
+:where(p, h1, h2, h3, h4, h5, h6) {
+  margin: 0;
+}
