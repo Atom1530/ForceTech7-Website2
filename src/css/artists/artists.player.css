@@ -376,3 +376,56 @@
 .am-player__bubble {
   z-index: 2147483647; /* абсолютный верх */
 }
+
+/* ===== Патч кликов/слоёв при сворачивании ===== */
+
+/* База (как у тебя): док не ловит клики, пока не активирован */
+.am-player {
+  pointer-events: none;
+}
+
+/* Когда активен — ловит клики */
+.am-player--active {
+  pointer-events: auto;
+}
+
+/* КОГДА СВЁРНУТ (пузырь) — снова не ловим клики,
+   иначе невидимый док блокирует интерфейс под собой на мобилке */
+.am-player--active.am-player--min {
+  pointer-events: none;
+}
+
+/* Визуально прячем внутренность дока при сворачивании */
+.am-player--min .am-player__inner {
+  opacity: 0;
+  transform: translate(-50%, 8px) scale(0.985);
+  pointer-events: none; /* подстраховка */
+}
+
+/* Пузырь: управляем видимостью классом (чтобы не мешал кликам, когда скрыт) */
+.am-player__bubble {
+  display: none;
+}
+.am-player__bubble.is-visible {
+  display: grid;
+}
+
+/* На всякий случай: пузырь ВСЕГДА кликабелен поверх всего */
+.am-player__bubble {
+  z-index: 2147483647;
+  pointer-events: auto;
+}
+
+/* разрешаем кастомные жесты без нативного скролла */
+.am-player__bubble,
+.am-player__dragzone {
+  touch-action: none;
+}
+
+/* когда плеер свёрнут — клики проходят сквозь док, но не сквозь пузырь */
+.am-player--min.am-player--patch-applied {
+  pointer-events: none;
+}
+.am-player--min.am-player--patch-applied .am-player__bubble {
+  pointer-events: auto;
+}
