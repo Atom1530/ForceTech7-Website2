@@ -8,7 +8,7 @@
   line-height: 1.5;
   font-weight: 400;
 
-  color: var(--color-white);
+  color: var(--color-white,#fff);
 
 
   font-synthesis: none;
@@ -28,7 +28,9 @@
   --opacity-white-5: rgba(255, 255, 255, 0.05);
   --color-error-red: #af0404;
 
-
+  --color-affair-dark-14: #5f3376;
+  --color-affair-light-25: #9770ad;
+  --color-affair-light-25-rgba25: rgba(151, 112, 173, .25);
 }
 
 html,
@@ -55,7 +57,7 @@ body {
   min-width: 100vw;
   min-height: 100vh;
   margin: 0;
-  background-color: var(--color-neutral-darkest);
+  background-color: var(--color-neutral-darkest,#060307);
   padding-top: 20px;
 }
 

@@ -23,7 +23,7 @@
 }
 
 .artists1 .pager button:focus-visible {
-  outline: 2px solid color-mix(in oklab, var(--color-affair, #764191), #fff 25%);
+outline: 2px solid rgba(151, 112, 173, .9);
   outline-offset: 2px;
 }
 

@@ -112,7 +112,7 @@
 #artists-section #filters-panel #artist1Button:focus-visible,
 #artists-section #filters-panel #Artist1Button:focus-visible {
   outline: none;
-  box-shadow: 0 0 0 3px color-mix(in oklab, #764191, white 25%);
+box-shadow: 0 0 0 3px rgba(151, 112, 173, .25);
 }
 
 /* На мобилке панель — overlay с прокруткой.

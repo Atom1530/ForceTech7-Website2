@@ -47,8 +47,9 @@
 #artists-section .filters__view:focus-visible {
   outline: none;
   transform: scale(1.06);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18),
-    0 0 0 3px color-mix(in oklab, var(--color-affair, #764191), white 25%);
+box-shadow: 0 10px 24px rgba(0, 0, 0, .18),
+    0 0 0 3px #9770ad;
+  /* было: color-mix(..., white 25%) */
 }
 
 /* Active */

@@ -83,7 +83,8 @@
 }
 .empty__btn:hover,
 .empty__btn:focus-visible {
-  background: color-mix(in oklab, var(--color-affair, #764191) 86%, black);
+background: #5f3376;
+  /* было: 86% base + black */
 } /* ≥768 */
 @media (min-width: 768px) {
   .empty__card {

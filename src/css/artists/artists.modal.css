@@ -32,6 +32,11 @@
   scrollbar-gutter: stable both-edges;
   overscroll-behavior: contain;
 }
+@supports (scrollbar-gutter: stable both-edges) {
+  .selector {
+    scrollbar-gutter: stable both-edges;
+  }
+}
 @supports (height: 1svh) {
   .amodal__dialog {
     max-block-size: 90svh;
@@ -155,16 +160,20 @@
   margin: 0;
   color: #e8e8ec;
   line-height: 1.5;
-  display: -webkit-box;
-  -webkit-line-clamp: 10;
-  line-clamp: 10;
-  -webkit-box-orient: vertical;
-  overflow: auto;
+
+  max-height: calc(1.5em * 10);
+  overflow: hidden;
 }
 @media (min-width: 768px) {
   .am-bio p {
-    -webkit-line-clamp: 12;
-    line-clamp: 12;
+    max-height: calc(1.5em * 12);
+  }
+}
+@supports (-webkit-line-clamp: 1) {
+  .am-bio p {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 10;
   }
 }
 
