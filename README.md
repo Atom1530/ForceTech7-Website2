@@ -38,7 +38,7 @@
 
 ## Демо
 
-Посилання на GitHub Pages: **_(додай URL репозиторію тут)_**
+Посилання на GitHub Pages: **_(https://atom1530.github.io/ForceTech7-Website2/)_**
 
 ---
 
