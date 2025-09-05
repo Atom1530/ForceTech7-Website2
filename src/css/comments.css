@@ -32,7 +32,6 @@
     max-width: 704px;
   }
 
-  /* tablet */
 }
 
 @media (min-width: 1440px) {
@@ -341,7 +340,6 @@
 .close-icon {
   position: absolute;
   top: 16px;
-  /* одинаково на всех брейках */
   right: 16px;
   cursor: pointer;
   fill: var(--color-white);
@@ -377,7 +375,6 @@
   }
 }
 
-/* ====== FORM ====== */
 label {
   display: block;
   margin-bottom: 8px;
@@ -396,7 +393,6 @@ label {
   padding: 8px 12px;
   width: 100%;
   max-width: 288px;
-  /* mobile */
   height: 43px;
   font-weight: 400;
   font-size: 18px;
@@ -484,4 +480,8 @@ textarea {
 
 .no-scroll {
   overflow: hidden;
+}
+
+.required-text {
+  border: 1px solid #e74c3c !important;
 }
