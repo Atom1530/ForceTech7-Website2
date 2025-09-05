@@ -147,6 +147,35 @@ function initScrollSpy() {
 initScrollSpy();
 window.addEventListener('resize', () => requestAnimationFrame(initScrollSpy));
 
+// ---------- HERO "Explore Artists" button smooth scroll ----------
+const exploreBtn = document.getElementById('exploreBtn');
+
+if (exploreBtn) {
+  exploreBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    exploreBtn.blur();
+
+    const href = exploreBtn.getAttribute('href') || '#artists-section';
+    const raw  = href.replace('#', '');
+    const el   = document.getElementById(raw) || document.getElementById(`${raw}-section`);
+    if (!el) return;
+
+    // если вдруг открыт мобильный бургер — прикрываем перед скроллом
+    if (refs.menu?.classList.contains('show')) {
+      await closeMenu();
+    }
+
+    // подсветим активный пункт в хедере (если такой есть)
+    setActiveByEl(el);
+
+    // слегка «заблокируем» scroll-spy, чтобы он не перебил активный пункт во время анимации
+    lockUntil = Date.now() + LOCK_MS;
+
+    // плавный скролл с учётом высоты хедера
+    smoothScroll(href, 600); // можешь подправить длительность
+  });
+}
+
 /* ---------- nav handlers ---------- */
 // Desktop: не трогаем мобильные (у них есть data-menu-link)
 navLinks.forEach(a => {
