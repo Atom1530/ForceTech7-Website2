@@ -1,42 +1,32 @@
-// src/js/artists/index.js
 // --------------------------------------------------
 // Точка входа секции Artists.
-// Ничего не трогаем в твоём player.js — только подключаем
-// минимальный патч (features/player-patch.js) ПОСЛЕ создания плеера,
-// и добавляем "Mix Radio / Next" на кнопку #random-radio.
+// Ничего в твоём player.js не ломаем.
+// Подключаем минимальный патч (features/player-patch.js) ПОСЛЕ создания плеера,
+// и добавляем Mix Radio + поповер-меню (features/mixradio-menu.js).
 // --------------------------------------------------
 
 import { initArtists } from "./features/init.js";
 import { createMiniPlayer } from "./features/player.js";
 import mountPlayerPatch from "./features/player-patch.js";
+import { installMixRadioMenu } from "./features/mixradio-menu.js";
 
 /* =========================
    Утилиты
    ========================= */
 
-/** Достаёт YouTube ID из ID или URL (включая youtu.be, /embed, /shorts, ?v=) */
+/** Достаёт YouTube ID из ID или URL (youtu.be, /embed, /shorts, ?v=) */
 function getYouTubeId(urlOrId) {
   if (!urlOrId) return "";
-  // уже готовый ID вида xxxxxxxxxxx
-  if (/^[\w-]{11}$/.test(urlOrId)) return urlOrId;
+  if (/^[\w-]{11}$/.test(urlOrId)) return urlOrId; // уже ID
 
-  // пытаемся разобрать как URL
   try {
     const u = new URL(urlOrId, location.href);
-
-    // короткая форма
     if (/youtu\.be$/i.test(u.hostname)) return u.pathname.slice(1);
-
-    // обычная форма ?v=
     const v = u.searchParams.get("v");
     if (v && /^[\w-]{11}$/.test(v)) return v;
-
-    // варианты путей: /embed/ID, /v/ID, /shorts/ID
     const m = u.pathname.match(/\/(?:embed|v|shorts)\/([^/?#]+)/i);
     if (m && m[1] && /^[\w-]{11}$/.test(m[1])) return m[1];
-  } catch {
-    /* ignore */
-  }
+  } catch {/* ignore */}
   return "";
 }
 
@@ -60,7 +50,7 @@ const SEED_IDS = uniq([
   "2Vv-BfVoq4g","kXYiU_JCYtU","UceaB4D0jpo","RubBzkZzpUA","kJQP7kiw5Fk",
   "CevxZvSJLk8","pRpeEdMmmQ0","IcrbM1l_BoI","YVkUvmDQ3HY","hT_nvWreIhg",
   "09R8_2nJtjg","uelHwf8o7_U","JGwWNGJdvx8","YQHsXMglC9A","NmugSMBh_iI",
-  "LrUvu1mlWco","hLQl3WQQoQ0","RgKAFK5djSk","SlPhMPnQ58k","oRdxUFDoQe0",
+  "LrUvu1mlWco","hLQl3WQQоQ0","RgKAFK5djSk","SlPhMPnQ58k","oRdxUFDoQe0",
   "Pkh8UtuejGw","tt2k8PGm-TI","lY2yjAdbvdQ","pXRviuL6vMY","nfs8NYg7yQM",
   "nCkpzqqog4k","M7lc1UVf-VE",
   // расширение
@@ -83,9 +73,7 @@ function readPoolLS() {
     const raw = localStorage.getItem(LS_KEY_POOL);
     const arr = raw ? JSON.parse(raw) : [];
     return Array.isArray(arr) ? uniq(arr) : [];
-  } catch {
-    return [];
-  }
+  } catch { return []; }
 }
 function savePoolLS(arr) {
   try {
@@ -185,7 +173,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Создаём мини-плеер
   const player = createMiniPlayer?.();
 
-  // Ставим минимальный патч — строго после создания плеера
+  // Патч — строго после создания плеера
   try { mountPlayerPatch(player); } catch { /* ignore */ }
 
   // Сбор ID на лету (модалки, динамика)
@@ -212,6 +200,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Если активен — просто next
       player.next?.();
-    }, { passive: false });
+    });
   }
+
+  // === Радио-меню (доп. кнопка под MixRadio) ===
+  const ensureMenu = () => installMixRadioMenu("#mixradio-menu-btn", player);
+
+  // сразу
+  ensureMenu();
+  // после полной загрузки
+  window.addEventListener("load", ensureMenu);
+  // при открытии панели фильтров (если рендерится динамически)
+  document.getElementById("filters-toggle")?.addEventListener("click", () => {
+    setTimeout(ensureMenu, 0);
+  });
 });

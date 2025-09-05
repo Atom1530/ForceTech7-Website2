@@ -288,3 +288,66 @@
 #artists-section {
   overflow-x: clip;
 }
+
+#artists-section #filters-panel .dd__btn,
+#artists-section #filters-panel #random-radio,
+#artists-section #filters-panel #mixRadioBtn,
+#artists-section #filters-panel #artist1Button,
+#artists-section #filters-panel #Artist1Button,
+#artists-section #filters-panel #mixradio-menu-btn {
+  /* <— ДОБАВЛЕНО */
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+
+  min-height: 47px;
+  padding: 10px 14px;
+  padding-right: 30px;
+  border-radius: 12px;
+
+  width: 100%;
+  background: rgba(255, 255, 255, 0);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #e8e8ec;
+  font: 600 16px/1 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto,
+    Arial, sans-serif;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #artists-section #filters-panel .dd__btn:hover,
+  #artists-section #filters-panel #random-radio:hover,
+  #artists-section #filters-panel #mixRadioBtn:hover,
+  #artists-section #filters-panel #artist1Button:hover,
+  #artists-section #filters-panel #Artist1Button:hover,
+  #artists-section #filters-panel #mixradio-menu-btn:hover {
+    /* <— ДОБАВЛЕНО */
+    transform: scale(1.02);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.18);
+  }
+}
+#artists-section #filters-panel .dd__btn:focus-visible,
+#artists-section #filters-panel #random-radio:focus-visible,
+#artists-section #filters-panel #mixRadioBtn:focus-visible,
+#artists-section #filters-panel #artist1Button:focus-visible,
+#artists-section #filters-panel #Artist1Button:focus-visible,
+#artists-section #filters-panel #mixradio-menu-btn:focus-visible {
+  /* <— ДОБАВЛЕНО */
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(151, 112, 173, 0.25);
+}
+
+.artists1 #filters-panel .fld,
+.artists1 #filters-panel #flt-q-btn,
+.artists1 #filters-panel .dd,
+.artists1 #filters-toggle,
+.artists1 #filters-panel #mixradio-menu-btn {
+  /* <— ДОБАВЛЕНО */
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 1px 2px 0 rgba(6, 3, 7, 0.05),
+    inset 0 -2px 1px 0 rgba(6, 3, 7, 0.05),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+  border: 0;
+  color: var(--color-white);
+}
