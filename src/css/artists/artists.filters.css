@@ -1,4 +1,9 @@
 /* панель фильтров + бар */
+
+#flt-q-btn {
+  display: none !important;
+}
+
 .artists1 .filters {
   position: relative;
   z-index: 5;
@@ -115,6 +120,18 @@
 
 /* desktop: панель всегда видима и без overlay */
 @media (min-width: 1440px) {
+
+.fld-search__btn {
+    background: none;
+    border: 0;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    cursor: pointer;
+  }
+#flt-q-btn {
+  display: block !important;
+}
   #filters-toggle {
     display: none !important;
   }
@@ -202,9 +219,7 @@
   appearance: none;
   display: none;
 }
-#flt-q-btn {
-  display: none !important;
-}
+
 
 /* дропдауны */
 .dd {
@@ -298,16 +313,6 @@
 
 /* tablet layout */
 @media (min-width: 768px) and (max-width: 1439.98px) {
-  .fld-search__btn {
-      background: none;
-      border: 0;
-      padding: 0;
-      display: grid;
-      place-items: center;
-      cursor: pointer;
-    }
-
-    
   #filters-panel {
     width: 304px;
     margin: 12px 0 0 auto;
