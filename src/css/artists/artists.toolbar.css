@@ -1,8 +1,8 @@
 /* =========================
-   ARTISTS • TOOLBAR (Sorting / Genre / MixRadio)
+   ARTISTS • TOOLBAR (final, no conflicts)
    ========================= */
 
-/* Общий базовый вид всех управлений внутри панели фильтров */
+/* Базовый вид кнопок внутри панели (drop-down + mix radio) */
 #artists-section #filters-panel .dd__btn,
 #artists-section #filters-panel #random-radio,
 #artists-section #filters-panel #mixRadioBtn,
@@ -11,29 +11,44 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
+  justify-content: space-between; /* текст слева, стрелка справа */
   gap: 12px;
 
-  height: 43px;
-  padding: 8px 12px;
+  min-height: 47px;
+  height: auto;
+  padding: 10px 14px;
+  padding-right: 30px; /* запас под стрелку */
   border-radius: 12px;
 
-  background: rgba(255, 255, 255, 0); /* как у Sorting/Genre */
+  width: 100%; /* <— ключевой фикс, без 265/280/304 */
+  background: rgba(255, 255, 255, 0);
   border: 1px solid rgba(255, 255, 255, 0.2);
   color: #e8e8ec;
   font: 600 16px/1 'IBM Plex Sans', system-ui, -apple-system, Segoe UI, Roboto,
     Arial, sans-serif;
-
-  /* не даём визуально «резаться» в контейнере */
-  min-width: 0;
 }
 
-/* Поведение текста/стрелки на дропдаунах */
+/* Стрелка на кнопках дропдаунов */
 #artists-section #filters-panel .dd__btn {
-  justify-content: space-between;
   position: relative;
 }
+#artists-section #filters-panel .dd__btn::after {
+  content: '';
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-50%) rotate(45deg);
+  transition: transform 0.2s ease;
+}
+#artists-section #filters-panel .dd.open .dd__btn::after {
+  transform: translateY(-50%) rotate(-135deg);
+}
 
-/* Иконки в MixRadio — слева и справа */
+/* Иконки в mix-radio/кнопках (если есть) */
 #artists-section #filters-panel #random-radio .ico,
 #artists-section #filters-panel #mixRadioBtn .ico,
 #artists-section #filters-panel #artist1Button .ico,
@@ -45,57 +60,7 @@
   fill: currentColor;
 }
 
-/* Контент MixRadio по центру (иконка — текст — иконка) */
-#artists-section #filters-panel #random-radio,
-#artists-section #filters-panel #mixRadioBtn,
-#artists-section #filters-panel #artist1Button,
-#artists-section #filters-panel #Artist1Button {
-  justify-content: center;
-}
-
-/* --- Точные размеры по брейкпоинтам --- */
-
-/* Desktop */
-@media (min-width: 1440px) {
-  #artists-section #filters-panel .dd__btn,
-  #artists-section #filters-panel #random-radio,
-  #artists-section #filters-panel #mixRadioBtn,
-  #artists-section #filters-panel #artist1Button,
-  #artists-section #filters-panel #Artist1Button {
-    width: 304px;
-  }
-}
-
-/* Tablet */
-@media (min-width: 768px) and (max-width: 1439.98px) {
-  #artists-section #filters-panel {
-    width: 304px; /* как в макете */
-    padding: 12px; /* уже есть в проекте; дублируем на всякий */
-  }
-  #artists-section #filters-panel .dd__btn,
-  #artists-section #filters-panel #random-radio,
-  #artists-section #filters-panel #mixRadioBtn,
-  #artists-section #filters-panel #artist1Button,
-  #artists-section #filters-panel #Artist1Button {
-    width: 280px;
-  }
-}
-
-/* Mobile */
-@media (max-width: 767.98px) {
-  /* Панель-оверлей уже управляется aria-hidden; для кнопок фиксируем точную ширину */
-  #artists-section #filters-panel .dd__btn,
-  #artists-section #filters-panel #random-radio,
-  #artists-section #filters-panel #mixRadioBtn,
-  #artists-section #filters-panel #artist1Button,
-  #artists-section #filters-panel #Artist1Button {
-    width: 265px;
-    margin-left: 12px; /* чтобы не прилипало к краям карточки панели */
-    margin-right: 12px;
-  }
-}
-
-/* Hover/Focus одинаковые для всех */
+/* Hover / Focus */
 @media (hover: hover) and (pointer: fine) {
   #artists-section #filters-panel .dd__btn:hover,
   #artists-section #filters-panel #random-radio:hover,
@@ -112,46 +77,55 @@
 #artists-section #filters-panel #artist1Button:focus-visible,
 #artists-section #filters-panel #Artist1Button:focus-visible {
   outline: none;
-box-shadow: 0 0 0 3px rgba(151, 112, 173, .25);
+  box-shadow: 0 0 0 3px rgba(151, 112, 173, 0.25);
 }
 
-/* На мобилке панель — overlay с прокруткой.
-   Чтобы последний элемент (MixRadio) не «резался» нижним скруглением, добавим чуть отступа снизу. */
+/* Overlay-панель на мобилке — небольшой нижний отступ,
+   НО без боковых margin у самих кнопок (чтобы ничего не наползало) */
 @media (max-width: 767.98px) {
   #artists-section #filters-panel {
     padding-bottom: 16px;
   }
-}
-/* ——— Единый "линк-подчерк" для List view и Reset ——— */
-#artists-section #view-toggle,
-#artists-section #filters-reset {
-  text-decoration: underline !important;
-  text-decoration-skip-ink: none !important;
-  text-underline-offset: 4px !important;
-  text-decoration-thickness: 1.75px !important;
+  #artists-section #filters-panel .dd__btn,
+  #artists-section #filters-panel #random-radio,
+  #artists-section #filters-panel #mixRadioBtn,
+  #artists-section #filters-panel #artist1Button,
+  #artists-section #filters-panel #Artist1Button {
+    margin: 0; /* <— убираем старые margin-left/right */
+  }
 }
 
-/* ——— Геометрия Reset по ТЗ, но без потери подчёркивания ——— */
+/* ——— Единый «линк-подчерк» для List view и Reset ——— */
+#artists-section #view-toggle,
 #artists-section #filters-reset {
-  inline-size: 48px;
-  block-size: 27px;
-  min-inline-size: 48px;
+  appearance: none;
+  background: none;
+  border: 0;
   padding: 0;
-  border: none !important;
-  background: transparent !important;
-  display: inline-grid;
-  place-items: center;
+  margin: 0;
   font: 500 18px/1.5 'IBM Plex Sans', sans-serif;
   color: #fff;
+  text-decoration: underline;
+  text-decoration-skip-ink: none;
+  text-underline-offset: 4px;
+  text-decoration-thickness: 1.75px;
+  white-space: nowrap;
   cursor: pointer;
 }
 
-/* Ховер/фокус — одинаковые ощущения с List view */
+/* Геометрия Reset из ТЗ — оставляем компактной, но подпись/подчерк остаются */
+#artists-section #filters-reset {
+  inline-size: 48px; /* ширина кликабельной зоны под текст Reset */
+  block-size: 27px;
+  display: inline-grid;
+  place-items: center;
+}
+
+/* Ховер/фокус для текст-кнопок */
 #artists-section #filters-reset:hover,
 #artists-section #filters-reset:focus-visible,
 #artists-section #view-toggle:hover,
 #artists-section #view-toggle:focus-visible {
-  text-decoration-color: currentColor;
   filter: brightness(1.06);
   outline: none;
 }
