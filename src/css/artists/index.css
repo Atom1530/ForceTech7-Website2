@@ -17,3 +17,167 @@
 @import url('./artists.filters.css');
 @import url('./artists.pager.css');
 @import url('./artists.toolbar.css');
+
+/* =========================
+   ARTISTS • ZERO-OVERFLOW + SAFE HOVER (v2)
+   ========================= */
+
+/* секция не даёт горизонтальный скролл, но не «запаивает» покраску */
+#artists-section {
+  overflow-x: clip !important;
+  /* contain: paint;  ← убираем: мешает теням/hover */
+}
+
+/* элементы сетки обязаны сжиматься, ширина не превышает контейнер */
+#artists-section .artists1__layout > *,
+#artists-section .artists1__content,
+#artists-section .grid,
+#artists-section #artists-grid {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* ListView трек слева, без x-скролла */
+#artists-section.artists1.view-list .grid {
+  justify-content: start !important;
+  overflow-x: clip !important;
+  overflow-y: visible; /* тени видны */
+}
+
+/* Карточка в ListView не шире контейнера, горизонтально клипуем, вертикально показываем */
+#artists-section.artists1.view-list .grid .card {
+  box-sizing: border-box !important;
+  inline-size: 100% !important;
+  max-inline-size: 976px !important;
+  margin-inline: auto !important;
+
+  overflow-x: clip !important; /* защита по X */
+  overflow-y: visible !important; /* тень/подъём видны по Y */
+  contain: inline-size; /* только по ширине, без paint */
+
+  /* мобайл: превью 64 | гибкая | кнопка */
+  grid-template-columns: 64px minmax(0, 1fr) auto !important;
+}
+@media (min-width: 768px) {
+  #artists-section.artists1.view-list .grid .card {
+    grid-template-columns: 208px minmax(0, 1fr) auto !important;
+  }
+}
+
+/* средняя колонка реально сжимается */
+#artists-section.artists1.view-list .card__title,
+#artists-section.artists1.view-list .card__tags {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+#artists-section.artists1.view-list .card__title {
+  text-overflow: ellipsis !important;
+}
+#artists-section.artists1.view-list .card__tags {
+  text-overflow: clip !important;
+  mask-image: linear-gradient(to right, black 92%, transparent) !important;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 92%,
+    transparent
+  ) !important;
+}
+
+/* MOBILE: Learn More = иконка 24×24 строго справа */
+@media (max-width: 767.98px) {
+  #artists-section.artists1.view-list .grid .card__link,
+  #artists-section.artists1.view-list #artists-grid .card__link {
+    inline-size: 24px !important;
+    block-size: 24px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    gap: 0 !important;
+    background: transparent !important;
+  }
+  #artists-section.artists1.view-list .grid .card__link .ico,
+  #artists-section.artists1.view-list #artists-grid .card__link .ico {
+    inline-size: 24px !important;
+    block-size: 24px !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+/* ===== SAFE HOVER (возвращаем «живость», без вылезаний) ===== */
+@media (hover: hover) and (pointer: fine) {
+  /* карточка: лёгкий подъём + тень */
+  #artists-section .grid .card {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
+  }
+  #artists-section .grid .card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.28);
+  }
+
+  /* кнопка Learn More: подсветка + толкание иконки, без scale */
+  #artists-section .grid .card__link {
+    transition: background-color 0.2s ease, border-color 0.2s ease,
+      box-shadow 0.2s ease;
+  }
+  #artists-section .grid .card__link:hover,
+  #artists-section .grid .card__link:focus-visible {
+    background: rgba(255, 255, 255, 0.06) !important;
+    border-color: rgba(255, 255, 255, 0.28) !important;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.24) !important;
+  }
+  #artists-section .grid .card__link .ico {
+    transition: transform 0.2s ease, fill 0.2s ease;
+  }
+  #artists-section .grid .card__link:hover .ico,
+  #artists-section .grid .card__link:focus-visible .ico {
+    transform: translateX(2px);
+    fill: var(--color-affair);
+  }
+}
+
+/* Общая страховка: контейнер клипует только по X, по Y — видим hover-тени */
+#artists-section .grid {
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+/* Модалка: оставь, только если нет собственного modal.css.
+   Если модалка уже фиксируется в другом файле — убери дубли. */
+#artist-modal.amodal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+}
+#artist-modal[hidden] {
+  display: none !important;
+}
+
+/* a) секция больше НЕ запирает слои */
+#artists-section {
+  contain: none !important;
+} /* или initial */
+
+/* b) бекдроп не перехватывает клики — кликается и плеер, и «пузырь» */
+.amodal__backdrop {
+  pointer-events: none !important;
+}
+.amodal__dialog {
+  pointer-events: auto !important;
+}
+
+/* c) явные уровни поверх бекдропа */
+.amodal {
+  z-index: 10000 !important;
+} /* модалка */
+.am-player {
+  z-index: 11000 !important;
+} /* сам плеер */
+.am-player__bubble {
+  z-index: 2147483647 !important;
+} /* у тебя уже так */

@@ -1,19 +1,21 @@
+/* ===== Artists Section — Base ===== */
+
+/* Скрытие по [hidden] */
 [hidden] {
   display: none !important;
 }
 
-@media (min-width: 320px) and (max-width: 767.98px) {
-  .artists1.container {
-    max-width: 320px;
-    padding: 64px 16px;
-  }
+/* Секция: управляем ТОЛЬКО вертикальными отступами; горизонтальные паддинги и ширины — из глобального .container */
+#artists-section {
+  /* обычно у секции: <section id="artists-section" class="artists1 container"> */
+  padding-block: 64px; /* мобилка: верх/низ 64px — как было */
 }
-
 @media (min-width: 1440px) {
-  .artists1.container {
-    padding: 112px 64px;
+  #artists-section {
+    padding-block: 112px; /* десктоп: верх/низ 112px — как было */
   }
 }
+/* На планшете (768–1439.98) дополнительных паддингов не задаём — как у тебя изначально. */
 
 /* Заголовок секции */
 .artists1__head {
@@ -52,20 +54,23 @@
   }
 }
 
-/* Общий layout секции */
-.artists1__layout {
+/* ===== Layout секции =====
+   На мобилке/планшете — одна колонка: сверху блок фильтров/кнопок, ниже грид.
+   НУЖНЫЕ 16px между кнопками и карточками обеспечиваем gap:16px.
+*/
+#artists-section .artists1__layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
-  margin-top: 0;
+  gap: 16px; /* << ключевой отступ между .filters и #artists-grid для моб/планшета */
 }
 @media (min-width: 1440px) {
-  .artists1__layout {
+  #artists-section .artists1__layout {
     grid-template-columns: 304px 1fr;
-    gap: 32px;
+    gap: 32px; /* десктоп как было */
   }
 }
 
+/* Иконки: оставляем твой жёсткий белый (чтобы ничего не «поплыло») */
 .artists1 .ico,
 .artists1 .ico use,
 .artists1 .ico path {
@@ -74,7 +79,7 @@
   color: var(--color-white) !important;
 }
 
-/* Лоадер “крутилка” секции */
+/* Лоадер */
 .artists1 .loader {
   width: 64px;
   aspect-ratio: 1;
@@ -82,20 +87,27 @@
   margin: 24px auto;
   border: 6px solid rgba(255, 255, 255, 0.12);
   border-right-color: var(--color-affair, #764191);
-  animation: spin 0.8s linear infinite;
+  animation: artists_spin 0.8s linear infinite;
+}
+@keyframes artists_spin {
+  to {
+    transform: rotate(1turn);
+  }
 }
 
-/* Состояния/тексты */
+/* Доп. тексты */
 .artists1 .muted {
   color: var(--color-neutral-300, #b8b9c0);
 }
 
-/* запрет прокрутки фона когда открыта модалка — управляет JS */
+/* Запрет прокрутки (если где-то используешь) */
 .no-scroll {
   position: fixed;
   width: 100%;
   overflow: hidden;
 }
-.empty-reset{
-  font-size: 50px ! important;
+
+/* Опечатка исправлена */
+.empty-reset {
+  font-size: 50px !important;
 }
