@@ -130,3 +130,57 @@
     font-size: 48px;
   }
 }
+
+/* ==== HARD FIX: ListView не должен «вылезать» за край ==== */
+
+/* 1) Трек сетки не центрируем — это источник «ползаний» при 1 колонке */
+#artists-section .grid {
+  justify-content: start !important;
+  overflow-x: hidden; /* страховка от горизонтального скролла */
+}
+
+/* 2) Карточка занимает ширину трека + правильные колонки */
+#artists-section.artists1.view-list .grid .card {
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 976px !important;
+  margin: 0 auto !important;
+
+  /* Мобайл: превью 64, середина сжимается, кнопка — авто */
+  grid-template-columns: 64px minmax(0, 1fr) auto !important;
+}
+
+/* Планшет/десктоп: превью 208 */
+@media (min-width: 768px) {
+  #artists-section.artists1.view-list .grid .card {
+    grid-template-columns: 208px minmax(0, 1fr) auto !important;
+  }
+}
+
+/* 3) Средняя колонка реально может сжиматься */
+#artists-section.artists1.view-list .card__title,
+#artists-section.artists1.view-list .card__tags {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+
+/* Заголовок — эллипсис; теги — мягкая маска справа */
+#artists-section.artists1.view-list .card__title {
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+#artists-section.artists1.view-list .card__tags {
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+  mask-image: linear-gradient(to right, black 92%, transparent) !important;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 92%,
+    transparent
+  ) !important;
+}
+
+/* 4) Кнопка — строго по правому краю своей колонки */
+#artists-section.artists1.view-list .card__link {
+  justify-self: end !important;
+}

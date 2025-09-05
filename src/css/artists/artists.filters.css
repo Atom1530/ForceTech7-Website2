@@ -1,22 +1,30 @@
-/* панель фильтров + бар */
+/* ========= Artists • Filters/Toolbar (clean) ========= */
 
+/* по умолчанию скрываем кнопку поиска-иконки; на десктопе вернём */
 #flt-q-btn {
   display: none !important;
 }
 
+/* базовый контейнер панели */
 .artists1 .filters {
   position: relative;
   z-index: 5;
 }
+
+/* верхняя панель-контролы */
 .artists1 .filters__bar {
   display: flex;
   align-items: center;
   gap: 12px;
 }
+
+/* подпись (если используется) */
 .artists1 .filters__label {
   color: #b8b9c0;
   font-weight: 600;
 }
+
+/* Reset — всегда толкаем вправо (и на моб/таб, и на десктопе) */
 .artists1 .filters__reset {
   margin-left: auto;
   background: none;
@@ -25,7 +33,7 @@
   cursor: pointer;
 }
 
-/* кнопка раскрытия панели на моб/таб */
+/* кнопка раскрытия панели (моб/таб) */
 #filters-toggle {
   display: inline-flex;
   align-items: center;
@@ -35,9 +43,9 @@
   border-radius: 12px;
   color: var(--color-white);
   padding: 10px 14px;
-  cursor: pointer;
+  padding-right: 30px; /* запас под стрелку */
   position: relative;
-  padding-right: 30px;
+  cursor: pointer;
 }
 #filters-toggle .ico {
   display: none !important;
@@ -61,15 +69,16 @@
 /* сама панель */
 #filters-panel {
   background: #1e1d24;
-  border-radius: 12px;
   border: 1px solid #262626;
+  border-radius: 12px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
   margin-top: 12px;
   overflow: visible;
 }
 
-/* mobile/tablet: aria-hidden управляет показом */
+/* ---------- mobile & tablet (<=1439.98px) ---------- */
 @media (max-width: 1439.98px) {
+  /* показ/скрытие по aria */
   #filters-panel[aria-hidden='true'] {
     display: none;
   }
@@ -77,7 +86,7 @@
     display: block;
   }
 
-  /* панель как overlay ниже бара */
+  /* панель — overlay под баром */
   #filters-panel {
     position: absolute;
     top: calc(100% + 12px);
@@ -88,7 +97,7 @@
     overflow: auto;
   }
 
-  /* glass-стили управления (кнопки, поля) */
+  /* стекло-стили */
   .artists1 #filters-toggle,
   .artists1 #filters-panel .fld,
   .artists1 #filters-panel #flt-q-btn,
@@ -118,10 +127,10 @@
   }
 }
 
-/* desktop: панель всегда видима и без overlay */
+/* ---------- desktop (>=1440px) ---------- */
 @media (min-width: 1440px) {
-
-.fld-search__btn {
+  /* показываем кнопку-иконку поиска; скрываем toggle */
+  .fld-search__btn {
     background: none;
     border: 0;
     padding: 0;
@@ -129,12 +138,14 @@
     place-items: center;
     cursor: pointer;
   }
-#flt-q-btn {
-  display: block !important;
-}
+  #flt-q-btn {
+    display: block !important;
+  }
   #filters-toggle {
     display: none !important;
   }
+
+  /* панель статична, справа фикс ширина */
   #filters-panel {
     display: block !important;
     background: var(--color-neutral-darkest);
@@ -150,17 +161,6 @@
     border-radius: 12px;
     margin-bottom: 12px;
   }
-  #filters-panel .dd__btn {
-    height: 43px;
-    padding: 8px 12px;
-    font: 600 16px/1 'IBM Plex Sans';
-    border-radius: 12px;
-  }
-  #filters-panel .dd__btn::after {
-    right: 12px;
-  }
-
-  /* списки в панели раскрываются без абсолютного позиционирования */
   #filters-panel .dd {
     position: static !important;
   }
@@ -183,14 +183,25 @@
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
   }
-
-  #filters-panel .fld {
-    min-height: 43px;
+  #filters-panel .dd__btn {
+    height: 43px;
     padding: 8px 12px;
+    font: 600 16px/1 'IBM Plex Sans';
+    border-radius: 12px;
+  }
+
+  /* страховка: на десктопе бар — flex, Reset у правого края */
+  .artists1 .filters__bar {
+    display: flex !important;
+    align-items: center;
+    gap: 12px;
+  }
+  #filters-reset {
+    margin-left: auto !important;
   }
 }
 
-/* поля поиска */
+/* ---------- поля поиска ---------- */
 .fld {
   display: flex;
   align-items: center;
@@ -220,8 +231,7 @@
   display: none;
 }
 
-
-/* дропдауны */
+/* ---------- дропдауны ---------- */
 .dd {
   position: relative;
   background: #272630;
@@ -229,20 +239,7 @@
   margin-bottom: 12px;
 }
 .dd__btn {
-  /* width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  background: transparent;
-  border: 0;
-  color: #e8e8ec;
-  cursor: pointer;
-  padding: 12px 14px;
-  min-height: 48px;
   position: relative;
-  padding-right: 30px;
-  font: 600 16px/1 'IBM Plex Sans'; */
 }
 .dd__btn .ico {
   display: none !important;
@@ -294,12 +291,14 @@
   border-radius: 10px;
 }
 
-/* mobile layout */
+/* ---------- mobile layout (<=767.98px) ---------- */
 @media (max-width: 767.98px) {
   .artists1 .filters__bar {
     flex-wrap: wrap;
     row-gap: 12px;
   }
+
+  /* toggle — на всю ширину второй строкой */
   #filters-toggle {
     order: 3;
     width: 100%;
@@ -311,7 +310,7 @@
   }
 }
 
-/* tablet layout */
+/* ---------- tablet layout (768–1439.98px) ---------- */
 @media (min-width: 768px) and (max-width: 1439.98px) {
   #filters-panel {
     width: 304px;
@@ -323,6 +322,7 @@
     box-shadow: none;
     overflow: visible;
   }
+
   .artists1 #filters-panel .fld {
     position: relative;
     display: flex;
@@ -352,6 +352,7 @@
     color: var(--color-white);
     outline: 0;
   }
+
   #flt-q-btn {
     display: inline-flex;
     align-items: center;
@@ -410,4 +411,10 @@
   border: 2px solid rgba(255, 255, 255, 0.2);
   border-top-color: rgba(255, 255, 255, 0.6);
   animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(1turn);
+  }
 }

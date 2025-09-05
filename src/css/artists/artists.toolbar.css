@@ -199,3 +199,92 @@
     margin-left: 0 !important;
   }
 }
+
+/* === LIST VIEW: железобетонный трек === */
+#artists-section.artists1.view-list .grid {
+  /* трек не центрируем, чтоб не ловить «ползание» при одной колонке */
+  justify-content: start !important;
+  overflow-x: clip; /* защита от горизонтальной прокрутки (визуального «вылета») */
+}
+
+#artists-section.artists1.view-list .grid .card {
+  box-sizing: border-box !important;
+  inline-size: 100% !important; /* width */
+  max-inline-size: 976px !important; /* max-width */
+  margin-inline: auto !important;
+
+  /* мобайл: 64 | гибкая | кнопка */
+  grid-template-columns: 64px minmax(0, 1fr) auto !important;
+}
+
+/* планшет/десктоп: превью 208 */
+@media (min-width: 768px) {
+  #artists-section.artists1.view-list .grid .card {
+    grid-template-columns: 208px minmax(0, 1fr) auto !important;
+  }
+}
+
+/* средняя колонка действительно может сжиматься */
+#artists-section.artists1.view-list .card__title,
+#artists-section.artists1.view-list .card__tags {
+  min-width: 0 !important;
+  overflow: hidden !important;
+}
+#artists-section.artists1.view-list .card__title {
+  white-space: nowrap !important;
+  text-overflow: ellipsis !important;
+}
+#artists-section.artists1.view-list .card__tags {
+  white-space: nowrap !important;
+  text-overflow: clip !important;
+  mask-image: linear-gradient(to right, black 92%, transparent) !important;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 92%,
+    transparent
+  ) !important;
+}
+
+/* кнопка строго справа */
+#artists-section.artists1.view-list .card__link {
+  justify-self: end !important;
+}
+
+/* === ВАЖНО: убираем скейл на hover у .card__link (он визуально «вылезает» за край) === */
+@media (hover: hover) and (pointer: fine) {
+  /* если где-то выше её включили общим правилом — гасим */
+  #artists-section .card__link:hover,
+  #artists-section .card__link:focus-visible {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+/* На мобиле .card__link у нас и так иконка 24×24; подстрахуем */
+@media (max-width: 767.98px) {
+  #artists-section.artists1.view-list .grid .card__link,
+  #artists-section.artists1.view-list #artists-grid .card__link {
+    inline-size: 24px !important;
+    block-size: 24px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    gap: 0 !important;
+    background: transparent !important;
+  }
+  #artists-section.artists1.view-list .grid .card__link .ico,
+  #artists-section.artists1.view-list #artists-grid .card__link .ico {
+    inline-size: 24px !important;
+    block-size: 24px !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+/* Общая страховка секции от X-скролла (лучше clip, чем hidden) */
+#artists-section {
+  overflow-x: clip;
+}

@@ -17,3 +17,120 @@
 @import url('./artists.filters.css');
 @import url('./artists.pager.css');
 @import url('./artists.toolbar.css');
+
+/* =========================
+   ARTISTS • ZERO-OVERFLOW HARD PATCH
+   ========================= */
+
+#artists-section {
+  overflow-x: clip !important;
+  contain: paint;
+}
+
+/* 1) В грид-раскладке колонки ОБЯЗАНЫ сжиматься.
+      Иначе внутренности будут раздувать контейнер. */
+#artists-section .artists1__layout > *,
+#artists-section .artists1__content,
+#artists-section .grid,
+#artists-section #artists-grid {
+  min-width: 0 !important;
+  max-width: 100% !important;
+}
+
+/* 2) В самом ListView карточка не может быть шире контейнера */
+#artists-section.artists1.view-list .grid {
+  justify-content: start !important;
+  overflow-x: clip !important;
+}
+#artists-section.artists1.view-list .grid .card {
+  box-sizing: border-box !important;
+  inline-size: 100% !important;
+  max-inline-size: 976px !important;
+  margin-inline: auto !important;
+  overflow: hidden !important;
+  contain: inline-size paint; /* не даём теням/масштабам вылезать */
+  grid-template-columns: 64px minmax(0, 1fr) auto !important; /* мобайл по умолчанию */
+}
+@media (min-width: 768px) {
+  #artists-section.artists1.view-list .grid .card {
+    grid-template-columns: 208px minmax(0, 1fr) auto !important;
+  }
+}
+
+/* 3) Средняя колонка действительно сжимается, текст не распирает сетку */
+#artists-section.artists1.view-list .card__title,
+#artists-section.artists1.view-list .card__tags {
+  min-width: 0 !important;
+  overflow: hidden !important;
+  white-space: nowrap !important;
+}
+#artists-section.artists1.view-list .card__title {
+  text-overflow: ellipsis !important;
+}
+#artists-section.artists1.view-list .card__tags {
+  text-overflow: clip !important;
+  mask-image: linear-gradient(to right, black 92%, transparent) !important;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    black 92%,
+    transparent
+  ) !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #artists-section .card__link,
+  #artists-section .card__link:hover,
+  #artists-section .card__link:focus-visible {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+
+  #artists-section .card__link {
+    transition-property: color, background-color, border-color, box-shadow !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  #artists-section .card:hover {
+    transform: none !important;
+    box-shadow: none !important;
+  }
+}
+
+@media (max-width: 767.98px) {
+  #artists-section.artists1.view-list .grid .card__link,
+  #artists-section.artists1.view-list #artists-grid .card__link {
+    inline-size: 24px !important;
+    block-size: 24px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    gap: 0 !important;
+    background: transparent !important;
+  }
+  #artists-section.artists1.view-list .grid .card__link .ico,
+  #artists-section.artists1.view-list #artists-grid .card__link .ico {
+    inline-size: 24px !important;
+    block-size: 24px !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
+  }
+}
+
+/* 6) Абсолютная страховка: ничего в карточке не может вылезти за паддинги */
+#artists-section .grid,
+#artists-section .grid .card {
+  overflow: clip !important;
+}
+
+#artist-modal.amodal {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+}
+#artist-modal[hidden] {
+  display: none !important;
+}

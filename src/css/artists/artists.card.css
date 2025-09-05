@@ -115,8 +115,7 @@
   }
 }
 
-/* Внутренний ритм Default:
-   [media] →24→ [tags] →16→ [title] →8→ [text] →24→ [button] */
+/* Ритм Default */
 .artists1 .card__media + .card__tags {
   margin-top: 24px;
 }
@@ -177,7 +176,7 @@
 }
 
 /* =========================
-   LIST VIEW — по референсу
+   LIST VIEW
    ========================= */
 
 /* Контейнер сетки */
@@ -186,14 +185,14 @@
   gap: 24px;
 }
 
-/* Карточка (десктоп/планшет) */
+/* Карточка: базовая (планшет/десктоп) */
 .artists1.view-list .grid .card {
   display: grid;
-  grid-template-columns: 208px 1fr auto; /* превью | текст | кнопка */
+  grid-template-columns: 208px minmax(0, 1fr) auto; /* << текст сжимается */
   grid-template-areas:
     'media title  action'
     'media tags   action';
-  align-items: center; /* кнопка по центру по вертикали */
+  align-items: center;
   column-gap: 16px;
   row-gap: 6px;
   padding: 10px 12px;
@@ -203,7 +202,7 @@
   margin: 0 auto;
 }
 
-/* Превью: десктоп/планшет */
+/* Превью */
 .artists1.view-list .card__media {
   grid-area: media;
 }
@@ -215,7 +214,12 @@
   border-radius: 12px;
 }
 
-/* Заголовок */
+/* Заголовок/теги — разрешаем сжиматься */
+.artists1.view-list .card__title,
+.artists1.view-list .card__tags {
+  min-width: 0;
+}
+
 .artists1.view-list .card__title {
   grid-area: title;
   margin: 0 0 2px;
@@ -228,7 +232,7 @@
   text-overflow: ellipsis;
 }
 
-/* Жанры — показываем ВСЕ, в одну строку, с мягкой обрезкой справа */
+/* Жанры — в одну линию, мягкая обрезка справа */
 .artists1.view-list .card__tags {
   grid-area: tags;
   margin: 0;
@@ -244,7 +248,6 @@
   mask-image: linear-gradient(to right, black 92%, transparent);
   -webkit-mask-image: linear-gradient(to right, black 92%, transparent);
 }
-/* снимаем возможный запрет на >1 тег из старых правил */
 .artists1.view-list .card__tags .tag {
   display: inline-flex !important;
   align-items: center;
@@ -257,12 +260,12 @@
   opacity: 0.9;
 }
 
-/* Текст в ListView не показываем */
+/* Текст в ListView — скрыт */
 .artists1.view-list .card__text {
   display: none !important;
 }
 
-/* Кнопка Learn More — как в рефе (12px + иконка 16×16), центр по вертикали */
+/* Кнопка Learn More */
 .artists1.view-list .card__link {
   grid-area: action;
   justify-self: end;
@@ -288,18 +291,14 @@
   transition: transform 0.2s ease, fill 0.2s ease;
 }
 
-/* -------------------------
-   Мобильная версия (<768px)
-   — слева 64×64 превью, справа:
-     строка 1 — title, строка 2 — жанры
-   ------------------------- */
+/* Мобильный ListView */
 @media (max-width: 767.98px) {
   .artists1.view-list .grid {
-    gap: 24px; /* как в рефе для list */
+    gap: 24px;
   }
 
   .artists1.view-list .grid .card {
-    grid-template-columns: 64px 1fr auto; /* превью | текст | кнопка */
+    grid-template-columns: 64px minmax(0, 1fr) auto; /* << фикс для узких */
     grid-template-areas:
       'media title  action'
       'media tags   action';
@@ -331,28 +330,36 @@
     text-overflow: ellipsis;
   }
 
-  /* жанры — во второй строке, одной линией, без переносов */
-  .artists1.view-list .card__tags {
-    align-items: center;
-    gap: 6px;
-    white-space: nowrap;
-    overflow: hidden;
-    min-height: 22px;
-    max-height: 22px;
-    mask-image: linear-gradient(to right, black 88%, transparent);
-    -webkit-mask-image: linear-gradient(to right, black 88%, transparent);
+  /* кнопка — иконка 24×24, строго справа */
+  .artists1.view-list .grid .card__link,
+  .artists1.view-list #artists-grid .card__link {
+    justify-self: end !important;
+    align-self: center !important;
+    width: 24px !important;
+    height: 24px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 6px !important;
+    font-size: 0 !important;
+    line-height: 0 !important;
+    gap: 0 !important;
+    overflow: hidden !important;
+    display: grid !important;
+    place-items: center !important;
+    background: transparent !important;
+    color: var(--color-white, #fff) !important;
+    cursor: pointer !important;
   }
-
-  /* кнопка — по центру по вертикали справа */
-  .artists1.view-list .card__link {
-    justify-self: end;
-    align-self: center;
+  .artists1.view-list .grid .card__link .ico,
+  .artists1.view-list #artists-grid .card__link .ico {
+    width: 24px !important;
+    height: 24px !important;
+    margin-left: 0 !important;
+    flex-shrink: 0 !important;
   }
 }
 
-/* -------------------------
-   Широкие (≥1440px) — как в рефе
-   ------------------------- */
+/* Широкие (≥1440px) */
 @media (min-width: 1440px) {
   .artists1.view-list .grid .card {
     min-height: 84px;
@@ -360,47 +367,5 @@
   }
   .artists1.view-list .card__title {
     font-size: 18px;
-  }
-}
-
-/* === ListView • Mobile: кнопка Learn More = только иконка 24×24 === */
-@media (max-width: 767.98px) {
-  /* охватываем оба встречающихся селектора: с .grid и с #artists-grid */
-  .artists1.view-list .grid .card__link,
-  .artists1.view-list #artists-grid .card__link {
-    /* позиционирование — как было: справа и по центру по вертикали */
-    justify-self: end !important;
-    align-self: center !important;
-
-    /* сжимаем кнопку до ровно 24×24 и убираем всё лишнее */
-    width: 24px !important;
-    height: 24px !important;
-    padding: 0 !important;
-    border: 0 !important;
-    border-radius: 6px !important; /* чуть скруглим, можно 0 если нужно */
-
-    /* скрываем текст, но оставляем SVG */
-    font-size: 0 !important;
-    line-height: 0 !important;
-    gap: 0 !important;
-    overflow: hidden !important;
-
-    /* сетка для идеального центрирования иконки */
-    display: grid !important;
-    place-items: center !important;
-
-    /* на всякий случай: курсор и фон как раньше */
-    background: transparent !important;
-    color: var(--color-white, #fff) !important;
-    cursor: pointer !important;
-  }
-
-  /* иконка — ровно 24×24 и без отступов слева */
-  .artists1.view-list .grid .card__link .ico,
-  .artists1.view-list #artists-grid .card__link .ico {
-    width: 24px !important;
-    height: 24px !important;
-    margin-left: 0 !important;
-    flex-shrink: 0 !important;
   }
 }

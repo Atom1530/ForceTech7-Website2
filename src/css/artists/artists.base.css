@@ -1,26 +1,21 @@
-/* Скрытие по [hidden] ок */
+/* ===== Artists Section — Base ===== */
+
+/* Скрытие по [hidden] */
 [hidden] {
   display: none !important;
 }
 
-/* Секция: управляем ТОЛЬКО вертикальными отступами,
-   горизонтальные паддинги и max-width берём из глобального .container */
+/* Секция: управляем ТОЛЬКО вертикальными отступами; горизонтальные паддинги и ширины — из глобального .container */
 #artists-section {
-  /* секция имеет id и класс .artists1 container */
-  padding-block: 64px; /* мобилка */
+  /* обычно у секции: <section id="artists-section" class="artists1 container"> */
+  padding-block: 64px; /* мобилка: верх/низ 64px — как было */
 }
-
-@media (min-width: 768px) {
-  #artists-section {
-    padding-block: 96px; /* планшет */
-  }
-}
-
 @media (min-width: 1440px) {
   #artists-section {
-    padding-block: 112px; /* десктоп */
+    padding-block: 112px; /* десктоп: верх/низ 112px — как было */
   }
 }
+/* На планшете (768–1439.98) дополнительных паддингов не задаём — как у тебя изначально. */
 
 /* Заголовок секции */
 .artists1__head {
@@ -59,23 +54,29 @@
   }
 }
 
-/* Layout секции */
-.artists1__layout {
+/* ===== Layout секции =====
+   На мобилке/планшете — одна колонка: сверху блок фильтров/кнопок, ниже грид.
+   НУЖНЫЕ 16px между кнопками и карточками обеспечиваем gap:16px.
+*/
+#artists-section .artists1__layout {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
+  gap: 16px; /* << ключевой отступ между .filters и #artists-grid для моб/планшета */
 }
 @media (min-width: 1440px) {
-  .artists1__layout {
+  #artists-section .artists1__layout {
     grid-template-columns: 304px 1fr;
-    gap: 32px;
+    gap: 32px; /* десктоп как было */
   }
 }
 
-/* Иконки: достаточно currentColor — не душим наследование !important’ами */
-.artists1 .ico {
-  fill: currentColor;
-  color: inherit;
+/* Иконки: оставляем твой жёсткий белый (чтобы ничего не «поплыло») */
+.artists1 .ico,
+.artists1 .ico use,
+.artists1 .ico path {
+  --color1: var(--color-white);
+  fill: var(--color-white) !important;
+  color: var(--color-white) !important;
 }
 
 /* Лоадер */
@@ -86,29 +87,27 @@
   margin: 24px auto;
   border: 6px solid rgba(255, 255, 255, 0.12);
   border-right-color: var(--color-affair, #764191);
-  animation: spin 0.8s linear infinite;
+  animation: artists_spin 0.8s linear infinite;
+}
+@keyframes artists_spin {
+  to {
+    transform: rotate(1turn);
+  }
 }
 
-/* Вспомогательные */
+/* Доп. тексты */
 .artists1 .muted {
   color: var(--color-neutral-300, #b8b9c0);
 }
 
-/* Если используешь класс для запрета скролла — ок, но он не должен конфликтовать
-   с твоим JS lockScroll; лучше использовать один механизм во всём проекте. */
+/* Запрет прокрутки (если где-то используешь) */
 .no-scroll {
   position: fixed;
   width: 100%;
   overflow: hidden;
 }
 
-/* Опечатка: !important пишется слитно */
+/* Опечатка исправлена */
 .empty-reset {
   font-size: 50px !important;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(1turn);
-  }
 }
