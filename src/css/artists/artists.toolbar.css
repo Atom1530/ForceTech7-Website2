@@ -129,3 +129,73 @@
   filter: brightness(1.06);
   outline: none;
 }
+/* Tablet layout (768–1439.98): Default left, Reset + Search on the right */
+@media (min-width: 768px) and (max-width: 1439.98px) {
+  .artists1 .filters__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: relative; /* на всякий случай */
+  }
+
+  /* Default view — СЛЕВА, без абсолютов/центра */
+  #view-toggle,
+  .artists1 .filters__view {
+    order: 1;
+    position: static !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    min-inline-size: 0; /* чтобы ширина текста не влияла */
+    white-space: nowrap;
+  }
+
+  /* Reset — толкает правую группу вправо */
+  #filters-reset {
+    order: 2;
+    margin-left: auto !important; /* ключ: именно Reset тянет всё вправо */
+    margin-right: 0 !important;
+    white-space: nowrap;
+  }
+
+  /* Search and Filters — крайний справа */
+  #filters-toggle {
+    order: 3;
+    margin-left: 12px !important;
+  }
+}
+
+/* Mobile fix: ListView слева, Reset крайний справа; Search&Filters — на второй строке, во всю ширину */
+@media (max-width: 767.98px) {
+  .artists1 .filters__bar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap; /* 1-я строка: ListView + Reset, 2-я: Search */
+  }
+
+  /* ListView — слева, без абсолютных центровок */
+  #view-toggle,
+  .artists1 .filters__view {
+    order: 1;
+    position: static !important;
+    left: auto !important;
+    transform: none !important;
+    margin: 0 !important;
+    white-space: nowrap;
+  }
+
+  /* Reset — крайний справа на первой строке */
+  #filters-reset {
+    order: 2;
+    margin-left: auto !important; /* толкаем к правому краю */
+    white-space: nowrap;
+  }
+
+  /* Кнопка Search and Filters — целиком второй строкой */
+  #filters-toggle {
+    order: 3;
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+}
