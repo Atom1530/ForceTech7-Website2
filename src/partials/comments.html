@@ -1,26 +1,27 @@
-<div id="reviews">
+<section id="reviews">
   <div class="feedback-section container">
     <h2 class="hidden">Feedbacks our visitors</h2>
     <div class="swiper">
       <div class="swiper-wrapper"></div>
-    <div class="swiper-button-prev">
-     <svg class="left-arrow" width="14" height="14">
-       <use href="/img/sprite.svg#icon-icon_right_button_feedback_sec"></use>
-      </svg>
-   </div>
-   <div class="swiper-button-next">
-     <svg width="14" height="14">
-       <use href="/img/sprite.svg#icon-icon_right_button_feedback_sec"></use>
-     </svg>
-    </div>
-
-      <div class="swiper-pagination">
+      <div class="swiper-button-prev">
+        <svg class="left-arrow" width="14" height="14">
+          <use href="/img/sprite.svg#icon-icon_right_button_feedback_sec"></use>
+        </svg>
       </div>
+      <div class="swiper-button-next">
+        <svg width="14" height="14">
+          <use href="/img/sprite.svg#icon-icon_right_button_feedback_sec"></use>
+        </svg>
+      </div>
+
+      <div class="swiper-pagination"></div>
     </div>
-    <button class="review-btn feedback-btn" type="button">Leave feedback</button>
+    <button class="review-btn feedback-btn" type="button">
+      Leave feedback
+    </button>
   </div>
   <div class="overlay hidden">
-    <div class="modal ">
+    <div class="modal">
       <svg class="close-icon" width="14px" height="14px">
         <use href="/img/sprite.svg#icon-icon_close"></use>
       </svg>
@@ -28,19 +29,32 @@
         <h3 class="title-modal">Submit feedback</h3>
         <div class="form-name">
           <label>Name</label>
-          <input class="form-input-name" type="text" placeholder="Emily" required />
+          <input
+            class="form-input-name"
+            type="text"
+            placeholder="Emily"
+            required
+          />
         </div>
         <div class="form-message">
           <label>Message</label>
-          <textarea class="form-input-message" placeholder="Type your message..." required></textarea>
+          <textarea
+            class="form-input-message"
+            placeholder="Type your message..."
+            required
+          ></textarea>
         </div>
-        <div id="customer-rating" class="rating my-rating" data-rating="0">
-        </div>
+        <div
+          id="customer-rating"
+          class="rating my-rating"
+          data-rating="0"
+        ></div>
         <div class="send-btn-cont">
-          <button class="review-btn send-feedback-btn" type="submit">Submit</button>
+          <button class="review-btn send-feedback-btn" type="submit">
+            Submit
+          </button>
         </div>
       </form>
     </div>
   </div>
-</div>
 </section>
